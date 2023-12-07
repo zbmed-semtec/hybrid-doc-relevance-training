@@ -119,7 +119,6 @@ def injection_MeSHembeddings_into_embeddings(pmids: str, article_doc: list, MeSh
         for pmid_term in all_with_mesh_term:
             article_with_MeSHterm = int(pmid_term[0])
             if article_with_MeSHterm in pmids:
-                #print(f"found PMID is {article_with_MeSHterm}, Annotated-terms are {pmid_term[1:]}")
                 iteration = pmids.index(article_with_MeSHterm)
                 embeddings_set_of_terms = [0.0] * word_vectors.vector_size
                 counter_terms = 0
@@ -129,7 +128,7 @@ def injection_MeSHembeddings_into_embeddings(pmids: str, article_doc: list, MeSh
                         counter_terms += 1
                     except:
                         continue
-                #print(counter_terms)
+
                 if counter_terms:
                     embeddings_set_of_terms /= counter_terms
                     embeddings_MeSHID += embeddings_set_of_terms
@@ -182,10 +181,8 @@ def generate_document_embeddings(pmids: str, article_doc: list, directory_out: s
         embedding_list = []
         if(has_custom_model):
             for word in article_doc[iteration]:
-                #print(word)
                 try:
                     embedding_list.append(word_vectors.wv[word])
-                    #print("word: ", word, word_vectors.wv[word])
                 except:
                     missing_words += 1
         else:
