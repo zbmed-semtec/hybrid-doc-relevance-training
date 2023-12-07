@@ -9,7 +9,7 @@ Example
 To execute the script and generate a single TSV file, you can run the following
 command:
 
-    $ python code/xml_translate/generate_Dic_MeShIDtoPMID.py --indir data/sample_annotated_xml --output data/dic_MeShIDtoPMID.tsv
+    python3 code/xml_translate/generate_Dic_MeShIDtoPMID.py --indir data/sample_annotated_xml --output data/dic_MeShIDtoPMID.tsv
     
 """ 
 
