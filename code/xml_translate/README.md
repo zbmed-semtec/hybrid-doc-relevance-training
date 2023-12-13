@@ -1,4 +1,4 @@
-This code generates a tsv-file s.t. the first column is detected MeSHIDs in the annotated Relish xml-files and the second column is a list of pairs (PMID , word). Here PMID corresponds to the article containing the MeSHID and word/term is the tagged word/term by that MeSHID in the article. 
+This code generates a TSV file s.t. the first column is detected MeSHIDs in the annotated Relish xml-files and the second column is a list of pairs (PMID , word). Here PMID corresponds to the article containing the MeSHID and word/term is the tagged word/term by that MeSHID in the article. 
 Tagged words/terms undergo some kind of preprocessing, such as converting to lowercase and tokenization before storing in the tsv-file.
 To execute the script and generate a single TSV file, you can run one of the following commands:
 
