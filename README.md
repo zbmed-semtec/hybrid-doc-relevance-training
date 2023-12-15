@@ -89,14 +89,14 @@ First, clone the repository to your local machine using the following command:
 ###### Using HTTP:
 
 ```
-git clone https://github.com/zbmed-semtec/word2doc2vec-doc-relevance.git
+git clone https://github.com/zbmed-semtec/hybrid-word2doc2vec-doc-relevance-training.git
 ```
 
 ###### Using SSH:
 Ensure you have set up SSH keys in your GitHub account.
 
 ```
-git clone git@github.com:zbmed-semtec/word2doc2vec-doc-relevance.git
+git clone git@github.com:zbmed-semtec/hybrid-word2doc2vec-doc-relevance-training.git
 ```
 
 ### Step 2: Create a virtual environment and install dependencies
