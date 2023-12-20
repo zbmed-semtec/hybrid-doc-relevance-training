@@ -6,6 +6,8 @@ from multiprocessing import Pool, freeze_support
 import os
 import shutil
 global_embeddings_df = None
+num_processors=1 #nr. of processors used by pool: Yet no multiprocessing due to using num_processors=1
+
 try:
     print("Loading Pickle file")
     global_embeddings_df = pd.read_pickle("./data/embeddings.pkl")
@@ -79,7 +81,7 @@ def get_cosine_similarity(input_relevance_matrix: str, embeddings: str, direct_p
         writer.writerow(header)
 
         total_processed = 0
-        with Pool() as p:
+        with Pool(num_processors) as p: #using "num_processors" processors for computation
             iterator = p.imap(get_similarity, tokenpairs, 100)
             for similarity in iterator:
                 row = rows[total_processed]
