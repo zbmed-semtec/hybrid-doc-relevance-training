@@ -12,6 +12,8 @@ python3 code/generate_doc_embeddings_after_injection_MeSHembeddings.py --input d
 
 import argparse
 import json
+import numpy as np
+import time
 
 def prepare_from_npy(filepath_in: str):
     '''
@@ -28,14 +30,27 @@ def prepare_from_npy(filepath_in: str):
     list of list of str
         All tokenized words within the preprocessed title + abstract.
     '''
-    import numpy as np
     doc = np.load(filepath_in, allow_pickle=True)
+    print('reading npy file')
     pmids = []
     article_docs = []
     for line in range(len(doc)):
         pmids.append(int(doc[line][0]))
-        article_docs.append(np.ndarray.tolist(doc[line][1]))
-        article_docs[line].extend(np.ndarray.tolist(doc[line][2]))
+        
+        # Check if the element is a NumPy array before using tolist
+        if isinstance(doc[line][1], np.ndarray):
+            article_docs.append(doc[line][1].tolist())
+        else:
+            article_docs.append(doc[line][1])
+        
+        # Check if the element is a NumPy array before using tolist
+        if isinstance(doc[line][2], np.ndarray):
+            article_docs[line].extend(doc[line][2].tolist())
+        else:
+            article_docs[line].extend(doc[line][2])
+            
+    print('end of reading npy file')
+        
     return (pmids, article_docs)
 
 def generate_Word2Vec_model(article_doc: list, pmids: list, params: list, filepath_out: str, use_pretrained: bool):
@@ -68,8 +83,8 @@ def generate_Word2Vec_model(article_doc: list, pmids: list, params: list, filepa
     wv_model.save(filepath_out)
     
 
-def injection_MeSHembeddings_into_embeddings(pmids: str, article_doc: list, MeShIDtoPMID: str, directory_out: str, param_iteration: int, 
-                                   gensim_model_path: str = ""):
+def injection_MeSHembeddings_into_embeddings(pmids: str, article_doc_global: list, MeShIDtoPMID: str, directory_out: str,
+                                             param_iteration: int, gensim_model_path: str = ""):
     '''
     Using the generated word embeddings and MeShIDtoPMID tsv-file, compute the centroid of embeddings corresponding to each MeSHID and
     append the computed centroid to the list of all word embeddings of the corresponding articles.
@@ -78,7 +93,7 @@ def injection_MeSHembeddings_into_embeddings(pmids: str, article_doc: list, MeSh
     ----------
     pmids: list of str
         The list of all pmids which are processed.
-    article_doc: list of list of str
+    article_doc_global: list of list of str
         A two dimensional list of all tokenized article documents (title + abstract).
     MeShIDtoPMID
         File path for the tsv file whose rows consist of MeSHIDs and lists of [PMID, words].
@@ -97,6 +112,7 @@ def injection_MeSHembeddings_into_embeddings(pmids: str, article_doc: list, MeSh
     import pandas as pd
     import ast  # This is used to convert the string representation of lists to actual lists
     
+    article_doc = article_doc_global.copy()
         
     word_vectors = None
     has_custom_model = gensim_model_path != ""
@@ -114,13 +130,13 @@ def injection_MeSHembeddings_into_embeddings(pmids: str, article_doc: list, MeSh
     
     for meshID, all_with_mesh_term in zip(df['MeSHID'], df['Appearance(pmid , tokenized lowercase words)']):
         counter_article = 0
-        embeddings_MeSHID = [0.0] * word_vectors.vector_size
+        embeddings_MeSHID = np.zeros(word_vectors.vector_size, dtype = float)
         ArticlesList_with_MeSHterm = []
         for pmid_term in all_with_mesh_term:
             article_with_MeSHterm = int(pmid_term[0])
             if article_with_MeSHterm in pmids:
                 iteration = pmids.index(article_with_MeSHterm)
-                embeddings_set_of_terms = [0.0] * word_vectors.vector_size
+                embeddings_set_of_terms = np.zeros(word_vectors.vector_size, dtype = float)
                 counter_terms = 0
                 for word in pmid_term[1:]:
                     try:
@@ -128,17 +144,28 @@ def injection_MeSHembeddings_into_embeddings(pmids: str, article_doc: list, MeSh
                         counter_terms += 1
                     except:
                         continue
-
+                        
                 if counter_terms:
                     embeddings_set_of_terms /= counter_terms
                     embeddings_MeSHID += embeddings_set_of_terms
                     counter_article += 1
+
                 ArticlesList_with_MeSHterm.append(iteration) #So MeSHembeddings will be injected to all articles with corresponding MeSHIDs
         if counter_article:
             embeddings_MeSHID /= counter_article
-            word_vectors.wv[str(meshID)] = embeddings_MeSHID
+
+            word_vectors.wv.add_vector(str(meshID), embeddings_MeSHID)
+
             for itr in ArticlesList_with_MeSHterm:
                 article_doc[itr].append(str(meshID))
+                
+    # Save the updated model
+    word_vectors.save(gensim_model_path)
+    
+    os.makedirs(f"{directory_out}/{param_iteration}", exist_ok=True)
+    word_vectors.save(f"{directory_out}/{param_iteration}/word2vec_model")
+                
+    return article_doc
 
     
 def generate_document_embeddings(pmids: str, article_doc: list, directory_out: str, param_iteration: int, gensim_model_path: str = ""):
@@ -216,6 +243,7 @@ def generate_document_embeddings(pmids: str, article_doc: list, directory_out: s
     df = df.sort_values('pmids')
     os.makedirs(f"{directory_out}/{param_iteration}", exist_ok=True)
     df.to_pickle(f'{directory_out}/{param_iteration}/embeddings.pkl')
+    print (f'done for {param_iteration}')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -238,9 +266,17 @@ if __name__ == "__main__":
     model_output_File = ""
     if not args.use_pretrained:
         model_output_File = "./data/word2vec_model"
-
+        
+    st = time.time()    
+    pmids_global, article_doc_global = prepare_from_npy(args.input)
+    
     for iteration in range(len(params)):
-        pmids, article_doc = prepare_from_npy(args.input)
-        generate_Word2Vec_model(article_doc, pmids, params[iteration], model_output_File, args.use_pretrained)
-        injection_MeSHembeddings_into_embeddings(pmids, article_doc, args.MeShIDtoPMID, args.output, iteration, model_output_File)
-        generate_document_embeddings(pmids, article_doc, args.output, iteration, model_output_File)
+        print(f'start for {iteration}')
+        generate_Word2Vec_model(article_doc_global, pmids_global, params[iteration], model_output_File, args.use_pretrained)
+        article_doc = injection_MeSHembeddings_into_embeddings(pmids_global, article_doc_global, args.MeShIDtoPMID, 
+                                                               args.output, iteration, model_output_File)
+        generate_document_embeddings(pmids_global, article_doc, args.output, iteration, model_output_File)
+        
+        et = time.time()
+        elapsed_time = et - st
+        print(f'Execution time for param_set {iteration}: ', elapsed_time, 'seconds')
