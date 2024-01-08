@@ -266,12 +266,12 @@ if __name__ == "__main__":
     model_output_File = ""
     if not args.use_pretrained:
         model_output_File = "./data/word2vec_model"
-        
-    st = time.time()    
+            
     pmids_global, article_doc_global = prepare_from_npy(args.input)
     
     for iteration in range(len(params)):
         print(f'start for {iteration}')
+        st = time.time()
         generate_Word2Vec_model(article_doc_global, pmids_global, params[iteration], model_output_File, args.use_pretrained)
         article_doc = injection_MeSHembeddings_into_embeddings(pmids_global, article_doc_global, args.MeShIDtoPMID, 
                                                                args.output, iteration, model_output_File)
