@@ -27,7 +27,8 @@ def load_cosine_sim_matrix(cosine_similarity_matrix: str) -> pd.DataFrame:
     sim_matrix : pd.Dataframe
         Cosine similarity matrix.
     """
-    sim_matrix = pd.read_csv(cosine_similarity_matrix, sep='\t')
+    colnames = ["PMID1", "PMID2", "Relevance", "Cosine Similarity"]
+    sim_matrix = pd.read_csv(cosine_similarity_matrix, sep='\t', header=0, names=colnames)
     return sim_matrix
 
 
