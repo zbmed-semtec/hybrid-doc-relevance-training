@@ -55,9 +55,9 @@ By default, we make use of the Gensim Word2Vec model "word2vec-google-news-300" 
 #### Document Embeddings
 Document embeddings are created by computing the centroids of all provided word embeddings within each title and abstract document. The resulting embeddings generated from various model hyperparameter configurations are stored. These embeddings, along with their respective PMIDs, are saved as a dataframe in a pickle file. Each specific set of hyperparameter combination results in having a separate pickle file.
 
-### Calculate Cosine Similarity
+### Calculate Similarity Score
 
-To assess the similarity between two documents within the RELISH corpus, we employ the Cosine Similarity metric. This process enables the generation of a 4-column matrix containing cosine similarity scores for existing pairs of PMIDs within our corpus. For a more detailed explanation of the process, please refer to this [documentation](https://github.com/zbmed-semtec/medline-preprocessing/tree/main/code/Cosine_Similarity).
+To assess the similarity between two documents within the RELISH corpus, we employ either the [Cosine Similarity](https://github.com/zbmed-semtec/medline-preprocessing/tree/main/code/Cosine_Similarity) metric or [WMD (Word Mover’s) Distance](https://radimrehurek.com/gensim/auto_examples/tutorials/run_wmd.html). This process enables the generation of a 4-column matrix cthat includes similarity scores for pre-existing pairs of PMIDs within our corpus, along with their corresponding relevance scores.
 
 ## Evaluation
 
