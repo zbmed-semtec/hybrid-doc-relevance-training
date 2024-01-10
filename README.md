@@ -175,7 +175,7 @@ python3 code/generate_cosine_existing_pairs.py -i data/relevance_w2v_blank.tsv -
 In order to generate the WMD distance matrix and execute this [script](./code/generate_wmd_similarity.py), run the following command:
 
 ```
-python3 code/generate_wmd_similarity.py [-i INPUT PATH] [-r RELEVANCE MATRIX] [-o OUTPUT PATH] [-c DOC EMBEDDINGS COUNT]
+python3 code/generate_wmd_similarity.py [-i INPUT PATH] [-r RELEVANCE MATRIX] [-mod MODELS DIRECTORY] [-o OUTPUT PATH] [-c MODELS COUNT]
 ```
 
 You must pass the following four arguments:
@@ -189,7 +189,7 @@ You must pass the following four arguments:
 For example, if you are running the code from the code folder and have the RELISH relevance matrix in the data folder, run the WMD distance creation for all hyperparameters as:
 
 ```
-python3 code/generate_wmd_similarity.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy -r data/relevance_w2v_blank.tsv -mod data/ -o data/w2v_relevance -c 18
+python3 code/generate_wmd_similarity.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy -r data/relevance_w2v_blank.tsv -mod data/ -o data/wmd_distance/w2v_relevance -c 18
 ```
 
 ### Step 5: Precision@N
