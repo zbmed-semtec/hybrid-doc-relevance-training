@@ -123,9 +123,9 @@ def get_similarity_score(input_relevance_matrix: str, directory_model: str, outp
 if __name__ == "__main__":
     __spec__ = None
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--input", type=str, help="Path to input RELISH tokenized .npy file")
-    parser.add_argument("-r", "--rel_matrix", type=str, help="Path of relevance matrix file")
-    parser.add_argument("-mod", "--models_dir", type=str, help="File path for the folder containing models")
+    parser.add_argument("-i", "--input", type=str, help="File path to input RELISH tokenized npy file")
+    parser.add_argument("-r", "--rel_matrix", type=str, help="File path to the RELISH relevance matrix in the TSV format")
+    parser.add_argument("-mod", "--models_dir", type=str, help="File path to the folder containing models")
     parser.add_argument("-o", "--output", type=str, help="Output file path for generated 4 column wmd_distance matrix")
     parser.add_argument("-c", "--models_count", type=int, help="Number of word2vec models that have been created")
     args = parser.parse_args()
