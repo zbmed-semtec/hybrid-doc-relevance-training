@@ -149,7 +149,9 @@ python3 code/generate_doc_embeddings_after_injection_MeSHembeddings.py --input d
 
 The script will create document embeddings, and store them in separate directories. You should expect to find a total of 18 files corresponding to the various models, embeddings, and embedding pickle files.
 
-### Step 4: Calculate Cosine Similarity
+### Step 4: Calculate Similarity Score
+
+###### Cosine Similarity:
 In order to generate the cosine similarity matrix and execute this [script](./code/generate_cosine_existing_pairs.py), run the following command:
 
 ```
@@ -167,6 +169,27 @@ For example, if you are running the code from the code folder and have the RELIS
 
 ```
 python3 code/generate_cosine_existing_pairs.py -i data/relevance_w2v_blank.tsv -e data/ -o data/w2v_relevance -c 18
+```
+
+###### WMD distance:
+In order to generate the WMD distance matrix and execute this [script](./code/generate_wmd_similarity.py), run the following command:
+
+```
+python3 code/generate_wmd_similarity.py [-i INPUT PATH] [-r RELEVANCE MATRIX] [-o OUTPUT PATH] [-c DOC EMBEDDINGS COUNT]
+```
+
+You must pass the following four arguments:
+
++ -i/ --input : File path to input RELISH tokenized npy file.
++ -r/ --rel_matrix: File path to the RELISH relevance matrix in the TSV format.
++ -mod/ --models_dir: help="File path to the folder containing models.
++ -o/ --output : File path for the output 4 column WMD distance matrix.
++ -c/ --models_count : Number of word2vec models that have been created to be evaluated on the WMD distance matrix.
+
+For example, if you are running the code from the code folder and have the RELISH relevance matrix in the data folder, run the WMD distance creation for all hyperparameters as:
+
+```
+python3 code/generate_wmd_similarity.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy -r data/relevance_w2v_blank.tsv -mod data/ -o data/w2v_relevance -c 18
 ```
 
 ### Step 5: Precision@N
