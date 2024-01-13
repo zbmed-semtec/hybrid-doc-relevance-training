@@ -83,7 +83,7 @@ def generate_Word2Vec_model(article_doc: list, pmids: list, params: list, filepa
     wv_model.save(filepath_out)
     
 
-def injection_MeSHembeddings_into_embeddings(pmids: str, article_doc_global: list, MeShIDtoPMID: str, directory_out: str,
+def injection_MeSHembeddings_into_embeddings(pmids: str, article_doc: list, MeShIDtoPMID: str, directory_out: str,
                                              param_iteration: int, gensim_model_path: str = ""):
     '''
     Using the generated word embeddings and MeShIDtoPMID tsv-file, compute the centroid of embeddings corresponding to each MeSHID and
@@ -111,8 +111,6 @@ def injection_MeSHembeddings_into_embeddings(pmids: str, article_doc_global: lis
     import os
     import pandas as pd
     import ast  # This is used to convert the string representation of lists to actual lists
-    
-    article_doc = article_doc_global.copy()
         
     word_vectors = None
     has_custom_model = gensim_model_path != ""
@@ -164,8 +162,6 @@ def injection_MeSHembeddings_into_embeddings(pmids: str, article_doc_global: lis
     
     os.makedirs(f"{directory_out}/{param_iteration}", exist_ok=True)
     word_vectors.save(f"{directory_out}/{param_iteration}/word2vec_model")
-                
-    return article_doc
 
     
 def generate_document_embeddings(pmids: str, article_doc: list, directory_out: str, param_iteration: int, gensim_model_path: str = ""):
@@ -266,16 +262,15 @@ if __name__ == "__main__":
     model_output_File = ""
     if not args.use_pretrained:
         model_output_File = "./data/word2vec_model"
-            
-    pmids_global, article_doc_global = prepare_from_npy(args.input)
     
     for iteration in range(len(params)):
         print(f'start for {iteration}')
         st = time.time()
+        pmids_global, article_doc_global = prepare_from_npy(args.input)
         generate_Word2Vec_model(article_doc_global, pmids_global, params[iteration], model_output_File, args.use_pretrained)
-        article_doc = injection_MeSHembeddings_into_embeddings(pmids_global, article_doc_global, args.MeShIDtoPMID, 
+        injection_MeSHembeddings_into_embeddings(pmids_global, article_doc_global, args.MeShIDtoPMID, 
                                                                args.output, iteration, model_output_File)
-        generate_document_embeddings(pmids_global, article_doc, args.output, iteration, model_output_File)
+        generate_document_embeddings(pmids_global, article_doc_global, args.output, iteration, model_output_File)
         
         et = time.time()
         elapsed_time = et - st
