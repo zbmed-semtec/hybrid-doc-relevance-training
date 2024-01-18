@@ -110,7 +110,7 @@ def generate_Word2Vec_model(article_doc: list, pmids: list, params: list, filepa
     '''
     from gensim.models import Word2Vec
     sentence_list = []
-    for index in range(len(pmids)): #This could be done once for all sets of hyperparameters
+    for index in range(len(pmids)):
         sentence_list.append(article_doc[index])
     params['sentences'] = sentence_list
     wv_model = None
