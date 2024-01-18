@@ -127,10 +127,12 @@ deactivate
 ```
 
 ### Step 3: Generate Embeddings
-The [`generate_doc_embeddings_after_injection_MeSHembeddings.py`](./code/generate_doc_embeddings_after_injection_MeSHembeddings.py) script uses the RELISH Tokenized npy file as input and includes a default parameter json with preset hyperparameters. You can easily adapt it for different values and parameters by modifying the [`hyperparameters_word2vec.json`](./data/hyperparameters_word2vec.json). Make sure to have the RELISH Tokenized.npy file within the directory under the data folder.
+
+###### Simply injecting new embeddings without removing the previously identified MeSH words (i.e. No Reduction):
+The [`generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction.py`](./code/generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction.py) script uses the RELISH Tokenized npy file as input and includes a default parameter json with preset hyperparameters. You can easily adapt it for different values and parameters by modifying the [`hyperparameters_word2vec.json`](./data/hyperparameters_word2vec.json). Make sure to have the RELISH Tokenized.npy file within the directory under the data folder.
 
 ```
-python3 code/generate_doc_embeddings_after_injection_MeSHembeddings.py [-i INPUT PATH] [-o OUTPUT PATH] [-pj PARAMS JSON] [-up USE PRETRAINED] [-dict MeShIDtoPMID]
+python3 code/generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction.py [-i INPUT PATH] [-o OUTPUT PATH] [-pj PARAMS JSON] [-up USE PRETRAINED] [-dict MeShIDtoPMID]
 ```
 
 You must pass the following arguments:
@@ -146,8 +148,9 @@ To run this script, please execute the following command:
 ```
 python3 code/generate_doc_embeddings_after_injection_MeSHembeddings.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy --output data/ --params_json data/hyperparameters_word2vec.json --use_pretrained 0 --MeShIDtoPMID data/dic_MeShIDtoPMID_2022628.tsv
 ```
+###### Introducing new embeddings while optionally removing the previously identified MeSH words (i.e. either with or without Reduction):
 
-The script will create document embeddings, and store them in separate directories. You should expect to find a total of 18 files corresponding to the various models, embeddings, and embedding pickle files.
+Both scripts will create document embeddings, and store them and the corresponding model in separate directories. You should expect to find a total of 18 directories corresponding to the various models and embeddings.
 
 ### Step 4: Calculate Similarity Score
 
