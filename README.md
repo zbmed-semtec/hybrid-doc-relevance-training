@@ -177,7 +177,6 @@ Both scripts will create document embeddings, and store them and the correspondi
 
 #### Cosine Similarity:
 
-###### No Reduction:
 In order to generate the cosine similarity matrix and execute this [script](./code/generate_cosine_existing_pairs.py), run the following command:
 
 ```
@@ -197,27 +196,10 @@ For example, if you are running the code from the code folder and have the RELIS
 python3 code/generate_cosine_existing_pairs.py -i data/relevance_w2v_blank.tsv -e data/ -o data/w2v_relevance -c 18
 ```
 
-###### With Reduction:
-In order to generate the cosine similarity matrix and execute this [script](./code/generate_cosine_existing_pairs_with_reduction.py), run the following command:
-
-```
-python3 code/generate_cosine_existing_pairs_with_reduction.py [-i INPUT PATH] [-e EMBEDDINGS] [-o OUTPUT PATH] [-c DOC EMBEDDINGS COUNT]
-```
-
-You must pass the following four arguments:
-
-+ -i/ --input : File path to the RELISH relevance matrix in the TSV format.
-+ -e/ --embeddings : File path to the embeddings in the pickle file format.
-+ -o/ --output : File path for the output 4 column cosine similarity matrix.
-+ -c/ --doc_embeddings_count : Number of document embeddings generated to be evaluated on the cosine similarity matrix.
-
-For example, if you are running the code from the code folder and have the RELISH relevance matrix in the data folder, run the cosine matrix creation for all hyperparameters as:
-
-```
-python3 code/generate_cosine_existing_pairs_with_reduction.py -i data/relevance_w2v_blank.tsv -e data/ -o data/w2v_relevance -c 18
-```
-
 #### WMD distance:
+
+###### No Reduction
+
 In order to generate the WMD distance matrix and execute this [script](./code/generate_wmd_similarity.py), run the following command:
 
 ```
@@ -237,6 +219,30 @@ For example, if you are running the code from the code folder and have the RELIS
 
 ```
 python3 code/generate_wmd_similarity.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy --MeShIDtoPMID data/dic_MeShIDtoPMID_2022628.tsv -r data/relevance_w2v_blank.tsv -mod data/ -o data/wmd_distance/w2v_relevance -c 18
+```
+
+###### With Reduction
+
+In order to generate the WMD distance matrix and execute this [script](./code/generate_wmd_similarity_with_reduction.py), run the following command:
+
+```
+python3 code/generate_wmd_similarity_with_reduction.py [-i INPUT PATH] [-r RELEVANCE MATRIX] [-mod MODELS DIRECTORY] [-o OUTPUT PATH] [-c MODELS COUNT]
+```
+
+You must pass the following four arguments:
+
++ -i/ --input : File path to input RELISH annotated tokenized npy file.
++ -r/ --rel_matrix: File path to the RELISH relevance matrix in the TSV format.
++ -mod/ --models_dir: help="File path to the folder containing models.
++ -o/ --output : File path for the output 4 column WMD distance matrix.
++ -c/ --models_count : Number of word2vec models that have been created to be evaluated on the WMD distance matrix.
+
+The input file must be the annotated-counterpart of the input tokens to [`generate_doc_embeddings_after_injection_MeSHembeddings.py`](./code/generate_doc_embeddings_after_injection_MeSHembeddings.py).
+
+For example, if you are running the code from the code folder and have the RELISH relevance matrix in the data folder, run the WMD distance creation for all hyperparameters as:
+
+```
+python3 code/generate_wmd_similarity_with_reduction.py --input data/RELISH/Tokenized_Input/RELISH_Annot_Tokens_Sample.npy -r data/relevance_w2v_blank.tsv -mod data/ -o data/wmd_distance/w2v_relevance -c 18
 ```
 
 ### Step 5: Precision@N
