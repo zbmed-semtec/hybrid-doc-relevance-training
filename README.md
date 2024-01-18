@@ -146,7 +146,7 @@ You must pass the following arguments:
 To run this script, please execute the following command:
 
 ```
-python3 code/generate_doc_embeddings_after_injection_MeSHembeddings.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy --output data/ --params_json data/hyperparameters_word2vec.json --use_pretrained 0 --MeShIDtoPMID data/dic_MeShIDtoPMID_2022628.tsv
+python3 code/generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy --output data/ --params_json data/hyperparameters_word2vec.json --use_pretrained 0 --MeShIDtoPMID data/dic_MeShIDtoPMID_2022628.tsv
 ```
 ###### Introducing new embeddings while optionally removing the previously identified MeSH words (i.e. either with or without Reduction):
 
