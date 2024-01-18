@@ -128,7 +128,7 @@ deactivate
 
 ### Step 3: Generate Embeddings
 
-###### Simply injecting new embeddings without removing the previously identified MeSH words (i.e. No Reduction):
+###### Simply injecting new embeddings without removing/replacing the previously identified MeSH words (i.e. No Reduction):
 The [`generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction.py`](./code/generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction.py) script uses the RELISH Tokenized npy file as input and includes a default parameter json with preset hyperparameters. You can easily adapt it for different values and parameters by modifying the [`hyperparameters_word2vec.json`](./data/hyperparameters_word2vec.json). Make sure to have the RELISH Tokenized.npy file within the directory under the data folder.
 
 ```
@@ -138,23 +138,46 @@ python3 code/generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction
 You must pass the following arguments:
 
 + -i/ --input : File path to the RELISH tokenized .npy file.
-+ -o/ --output : File path to the resulting embeddings in pickle file format.
++ -o/ --output : File path to the resulting embeddings in pickle file format and the corresponding model.
 + -pj/ --params_json : File path to the word2vec hyperparameters JSON.
 + -up/ --use_pretrained : Whether to use a pretrained Word2Vec model (1) or not (0), uses word2vec-google-news-300 if True.
-+ -dict/ --MeShIDtoPMID : Path to input MeShIDtoPMID .tsv file.
++ -dict/ --MeShIDtoPMID : File path to input MeShIDtoPMID .tsv file.
 
 To run this script, please execute the following command:
 
 ```
 python3 code/generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy --output data/ --params_json data/hyperparameters_word2vec.json --use_pretrained 0 --MeShIDtoPMID data/dic_MeShIDtoPMID_2022628.tsv
 ```
-###### Introducing new embeddings while optionally removing the previously identified MeSH words (i.e. either with or without Reduction):
+###### Introducing new embeddings while optionally removing/replacing the previously identified MeSH words (i.e. either with or without Reduction):
+The [`generate_doc_embeddings_after_injection_MeSHembeddings.py`](./code/generate_doc_embeddings_after_injection_MeSHembeddings.py) script uses as input not only the RELISH Tokenized npy file but also RELISH annotated Tokenized npy file to account for individual words of a MeSH term, which also appear independently in the text of the corresponding articles. Specifically when using reduction, the pre-annotated articles'documents can be utilized to check for the independent appearance of MeSH-terms' words. Then (when reduction and) in case of independent appearance, the word is not removed from the article's words, hence its embedding is not replaced by the newly computed embedding.
+
+```
+python3 code/generate_doc_embeddings_after_injection_MeSHembeddings.py [-i INPUT PATH] [-annoti ANNOTATED TOKENS] [-o OUTPUT PATH] [-pj PARAMS JSON] [-up USE PRETRAINED] [-dict MeShIDtoPMID] [-rd REDUCTION OR NOT]
+```
+
+You must pass the following arguments:
+
++ -i/ --input : File path to the RELISH tokenized .npy file.
++ -annoti/ --Annot_input : File path to input Annotated RELISH tokenized .npy file.
++ -o/ --output : File path to the resulting embeddings in pickle file format and the corresponding model.
++ -pj/ --params_json : File path to the word2vec hyperparameters JSON.
++ -up/ --use_pretrained : Whether to use a pretrained Word2Vec model (1) or not (0), uses word2vec-google-news-300 if True.
++ -dict/ --MeShIDtoPMID : File path to input MeShIDtoPMID .tsv file.
++ -rd/ --reduction : Whether to reduce the documents'words by replacing the catalogued ones with corresponding MeSHID (1) or not (0).
+
+To run this script, please execute the following command which includes reduction:
+
+```
+python3 code/generate_doc_embeddings_after_injection_MeSHembeddings.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy -annoti data/RELISH/Tokenized_Input/RELISH_Annot_Tokens_Sample.npy --output data/ --params_json data/hyperparameters_word2vec.json --use_pretrained 0 --MeShIDtoPMID data/dic_MeShIDtoPMID_2022628.tsv -rd 1
+```
 
 Both scripts will create document embeddings, and store them and the corresponding model in separate directories. You should expect to find a total of 18 directories corresponding to the various models and embeddings.
 
 ### Step 4: Calculate Similarity Score
 
-###### Cosine Similarity:
+#### Cosine Similarity:
+
+###### No Reduction:
 In order to generate the cosine similarity matrix and execute this [script](./code/generate_cosine_existing_pairs.py), run the following command:
 
 ```
@@ -174,7 +197,27 @@ For example, if you are running the code from the code folder and have the RELIS
 python3 code/generate_cosine_existing_pairs.py -i data/relevance_w2v_blank.tsv -e data/ -o data/w2v_relevance -c 18
 ```
 
-###### WMD distance:
+###### With Reduction:
+In order to generate the cosine similarity matrix and execute this [script](./code/generate_cosine_existing_pairs_with_reduction.py), run the following command:
+
+```
+python3 code/generate_cosine_existing_pairs_with_reduction.py [-i INPUT PATH] [-e EMBEDDINGS] [-o OUTPUT PATH] [-c DOC EMBEDDINGS COUNT]
+```
+
+You must pass the following four arguments:
+
++ -i/ --input : File path to the RELISH relevance matrix in the TSV format.
++ -e/ --embeddings : File path to the embeddings in the pickle file format.
++ -o/ --output : File path for the output 4 column cosine similarity matrix.
++ -c/ --doc_embeddings_count : Number of document embeddings generated to be evaluated on the cosine similarity matrix.
+
+For example, if you are running the code from the code folder and have the RELISH relevance matrix in the data folder, run the cosine matrix creation for all hyperparameters as:
+
+```
+python3 code/generate_cosine_existing_pairs_with_reduction.py -i data/relevance_w2v_blank.tsv -e data/ -o data/w2v_relevance -c 18
+```
+
+#### WMD distance:
 In order to generate the WMD distance matrix and execute this [script](./code/generate_wmd_similarity.py), run the following command:
 
 ```
