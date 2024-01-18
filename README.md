@@ -128,7 +128,7 @@ deactivate
 
 ### Step 3: Generate Embeddings
 
-###### Simply injecting new embeddings without removing/replacing the previously identified MeSH words (i.e. No Reduction):
+###### **Simply injecting new embeddings without removing/replacing the previously identified MeSH words (i.e. No Reduction):**
 The [`generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction.py`](./code/generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction.py) script uses the RELISH Tokenized npy file as input and includes a default parameter json with preset hyperparameters. You can easily adapt it for different values and parameters by modifying the [`hyperparameters_word2vec.json`](./data/hyperparameters_word2vec.json). Make sure to have the RELISH Tokenized.npy file within the directory under the data folder.
 
 ```
@@ -148,7 +148,7 @@ To run this script, please execute the following command:
 ```
 python3 code/generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy --output data/ --params_json data/hyperparameters_word2vec.json --use_pretrained 0 --MeShIDtoPMID data/dic_MeShIDtoPMID_2022628.tsv
 ```
-###### Introducing new embeddings while optionally removing/replacing the previously identified MeSH words (i.e. either with or without Reduction):
+###### **Introducing new embeddings while optionally removing/replacing the previously identified MeSH words (i.e. either with or without Reduction):**
 The [`generate_doc_embeddings_after_injection_MeSHembeddings.py`](./code/generate_doc_embeddings_after_injection_MeSHembeddings.py) script uses as input not only the RELISH Tokenized npy file but also RELISH annotated Tokenized npy file to account for individual words of a MeSH term, which also appear independently in the text of the corresponding articles. Specifically when using reduction, the pre-annotated articles'documents can be utilized to check for the independent appearance of MeSH-terms' words. Then (when reduction and) in case of independent appearance, the word is not removed from the article's words, hence its embedding is not replaced by the newly computed embedding.
 
 ```
@@ -198,7 +198,7 @@ python3 code/generate_cosine_existing_pairs.py -i data/relevance_w2v_blank.tsv -
 
 #### WMD distance:
 
-###### No Reduction
+###### **No Reduction:**
 
 In order to generate the WMD distance matrix and execute this [script](./code/generate_wmd_similarity.py), run the following command:
 
@@ -221,7 +221,7 @@ For example, if you are running the code from the code folder and have the RELIS
 python3 code/generate_wmd_similarity.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy --MeShIDtoPMID data/dic_MeShIDtoPMID_2022628.tsv -r data/relevance_w2v_blank.tsv -mod data/ -o data/wmd_distance/w2v_relevance -c 18
 ```
 
-###### With Reduction
+###### **With Reduction:**
 
 In order to generate the WMD distance matrix and execute this [script](./code/generate_wmd_similarity_with_reduction.py), run the following command:
 
