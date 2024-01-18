@@ -9,7 +9,7 @@ Example
 -------
 To execute the script and generate document embeddings, you can run the following command:
 
-python3 code/generate_wmd_similarity.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy -r data/relevance_w2v_blank.tsv -mod data/ -o data/w2v_relevance -c 18
+python3 code/generate_wmd_similarity_with_reduction.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy -r data/relevance_w2v_blank.tsv -mod data/ -o data/w2v_relevance -c 18
     
 '''
 import argparse
