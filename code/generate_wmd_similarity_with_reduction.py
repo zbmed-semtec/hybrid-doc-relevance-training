@@ -9,7 +9,7 @@ Example
 -------
 To execute the script and generate document embeddings, you can run the following command:
 
-python3 code/generate_wmd_similarity_with_reduction.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy -r data/relevance_w2v_blank.tsv -mod data/ -o data/w2v_relevance -c 18
+python3 code/generate_wmd_similarity_with_reduction.py --input data/RELISH/Tokenized_Input/RELISH_Annot_Tokens_Sample.npy -r data/relevance_w2v_blank.tsv -mod data/ -o data/w2v_relevance -c 18
     
 '''
 import argparse
@@ -123,7 +123,7 @@ def get_similarity_score(input_relevance_matrix: str, directory_model: str, outp
 if __name__ == "__main__":
     __spec__ = None
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--input", type=str, help="File path to input RELISH tokenized npy file")
+    parser.add_argument("-i", "--input", type=str, help="File path to input RELISH annotated tokenized npy file")
     parser.add_argument("-r", "--rel_matrix", type=str, help="File path to the RELISH relevance matrix in the TSV format")
     parser.add_argument("-mod", "--models_dir", type=str, help="File path to the folder containing models")
     parser.add_argument("-o", "--output", type=str, help="Output file path for generated 4 column wmd_distance matrix")
