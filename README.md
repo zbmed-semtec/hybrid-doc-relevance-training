@@ -178,7 +178,7 @@ Both scripts will create document embeddings, and store them and the correspondi
 
 ### Step 4: Calculate Similarity Score
 
-#### Cosine Similarity:
+#### 4.1 Cosine Similarity:
 
 In order to generate the cosine similarity matrix and execute this [script](./code/generate_cosine_existing_pairs.py), run the following command:
 
@@ -199,9 +199,9 @@ For example, if you are running the code from the code folder and have the RELIS
 python3 code/generate_cosine_existing_pairs.py -i data/relevance_w2v_blank.tsv -e data/ -o data/w2v_relevance -c 18
 ```
 
-#### WMD distance:
+#### 4.2 WMD distance:
 
-   - **No Reduction:**
+**4.2.1 No Reduction:**
 
 In order to generate the WMD distance matrix and execute this [script](./code/generate_wmd_similarity.py), run the following command:
 
@@ -224,7 +224,7 @@ For example, if you are running the code from the code folder and have the RELIS
 python3 code/generate_wmd_similarity.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy --MeShIDtoPMID data/dic_MeShIDtoPMID_2022628.tsv -r data/relevance_w2v_blank.tsv -mod data/ -o data/wmd_distance/w2v_relevance -c 18
 ```
 
-###### **With Reduction:**
+**4.2.2 With Reduction:**
 
 In order to generate the WMD distance matrix and execute this [script](./code/generate_wmd_similarity_with_reduction.py), run the following command:
 
