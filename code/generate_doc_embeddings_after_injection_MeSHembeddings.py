@@ -291,17 +291,17 @@ def generate_document_embeddings(pmids: str, article_doc: list, directory_out: s
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input", type=str,
-        help="Path to input RELISH tokenized .npy file")
+        help="File path to input RELISH tokenized .npy file")
     parser.add_argument("-annoti", "--Annot_input", type=str,
-        help="Path to input Annotated RELISH tokenized .npy file")
+        help="File path to input Annotated RELISH tokenized .npy file")
     parser.add_argument("-o", "--output", type=str,
-        help="Path to save embeddings pickle file")       
+        help="Path to save embeddings pickle file and the corresponding model")       
     parser.add_argument("-pj", "--params_json", type=str,
-        help="File location of word2vec parameter list.")
+        help="File path to the word2vec parameter list.")
     parser.add_argument("-up", "--use_pretrained", type=int,
         help="Whether to use a pretrained model or not") 
     parser.add_argument("-dict", "--MeShIDtoPMID", type=str,
-        help="Path to input MeShIDtoPMID .tsv file.")
+        help="File path to input MeShIDtoPMID .tsv file.")
     parser.add_argument("-rd", "--reduction", type=int,
         help="Whether to reduce the documents'words by replacing the catalogued ones with corresponding MeSHID (1) or not (0)")
     args = parser.parse_args()
