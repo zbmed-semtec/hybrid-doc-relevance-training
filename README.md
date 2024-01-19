@@ -241,7 +241,7 @@ You must pass the following four arguments:
 + -o/ --output : File path for the output 4 column WMD distance matrix.
 + -c/ --models_count : Number of word2vec models that have been created to be evaluated on the WMD distance matrix.
 
-The input file must be the annotated-counterpart of the input tokens to [`generate_doc_embeddings_after_injection_MeSHembeddings.py`](./code/generate_doc_embeddings_after_injection_MeSHembeddings.py).
+**The input file must be the annotated-counterpart of the input tokens to [`generate_doc_embeddings_after_injection_MeSHembeddings.py`](./code/generate_doc_embeddings_after_injection_MeSHembeddings.py).**
 
 For example, if you are running the code from the code folder and have the RELISH relevance matrix in the data folder, run the WMD distance creation for all hyperparameters as:
 
