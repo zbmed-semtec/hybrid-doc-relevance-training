@@ -150,11 +150,10 @@ if __name__ == "__main__":
     
     global_npy_dict = generate_npy_dict(args.input, args.MeShtoPMID)
     for iteration in range(args.models_count):
-        if iteration >= 1:
-            print(f'start for set {iteration}')
-            start = time.time()
+        print(f'start for set {iteration}')
+        start = time.time()
             
-            global_word2vec = KeyedVectors.load(f"{args.models_dir}/{iteration}/word2vec_model")
+        global_word2vec = KeyedVectors.load(f"{args.models_dir}/{iteration}/word2vec_model")
             
-            get_similarity_score(args.rel_matrix, args.models_dir, args.output, iteration)
-            print(f'done! for set {iteration} during {time.time() - start} seconds!')
+        get_similarity_score(args.rel_matrix, args.models_dir, args.output, iteration)
+        print(f'done! for set {iteration} during {time.time() - start} seconds!')
