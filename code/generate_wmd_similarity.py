@@ -9,7 +9,7 @@ Example
 -------
 To execute the script and generate document embeddings, you can run the following command:
 
-python3 code/generate_wmd_similarity.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy --MeShIDtoPMID data/dic_MeShIDtoPMID_2022628.tsv -r data/relevance_w2v_blank.tsv -mod data/ -o data/w2v_relevance -c 18
+python3 code/generate_wmd_similarity.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy --MeShtoPMID data/dic_MeShIDtoPMID_2022628.tsv --rel_matrix data/relevance_w2v_blank.tsv --models_dir data/ --output data/w2v_relevance --models_count 18
     
 '''
 import argparse
@@ -29,7 +29,7 @@ global_npy_dict = None
 global_word2vec = None
 
     
-def generate_npy_dict(filepath_in: str, MeShIDtoPMID: str):
+def generate_npy_dict(filepath_in: str, MeShtoPMID: str):
     '''
     Retrieves data from RELISH npy files, separating pmid and the document consisting of title and abstract..
 
@@ -57,12 +57,12 @@ def generate_npy_dict(filepath_in: str, MeShIDtoPMID: str):
             document.extend(np.ndarray.tolist(line[2]))
             article_docs_dict[int(line[0])] = [w for w in document]
             
-    print('end of reading npy file & start reading TSV MeShIDtoPMID dict')
+    print('end of reading npy file & start reading TSV MeShtoPMID dict')
     
     # Now we should account for the newly inserted words
     
     # Read the TSV file into a DataFrame
-    df = pd.read_csv(MeShIDtoPMID, sep='\t', header=None, names=['MeSHID', 'Appearance(pmid , tokenized lowercase words)'], skiprows=1)
+    df = pd.read_csv(MeShtoPMID, sep='\t', header=None, names=['MeSHID', 'Appearance(pmid , tokenized lowercase words)'], skiprows=1)
 
     # Convert the string representation of lists to actual lists using ast.literal_eval
     df['Appearance(pmid , tokenized lowercase words)'] = df['Appearance(pmid , tokenized lowercase words)'].apply(ast.literal_eval)
@@ -141,19 +141,20 @@ if __name__ == "__main__":
     __spec__ = None
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input", type=str, help="Path to input RELISH tokenized .npy file")
-    parser.add_argument("-dict", "--MeShIDtoPMID", type=str, help="Path to input MeShIDtoPMID .tsv file.")
+    parser.add_argument("-dict", "--MeShtoPMID", type=str, help="Path to input MeShtoPMID .tsv file.")
     parser.add_argument("-r", "--rel_matrix", type=str, help="Path of relevance matrix file")
     parser.add_argument("-mod", "--models_dir", type=str, help="File path for the folder containing models")
-    parser.add_argument("-o", "--output", type=str, help="Output file path for generated 4 column wmd_distance matrix")
+    parser.add_argument("-o", "--output", type=str, help="Output TSV filename with path for generated 4 column wmd_distance matrix")
     parser.add_argument("-c", "--models_count", type=int, help="Number of word2vec models that have been created")
     args = parser.parse_args()
     
-    global_npy_dict = generate_npy_dict(args.input, args.MeShIDtoPMID)
+    global_npy_dict = generate_npy_dict(args.input, args.MeShtoPMID)
     for iteration in range(args.models_count):
-        print(f'start for set {iteration}')
-        start = time.time()
-        
-        global_word2vec = KeyedVectors.load(f"{args.models_dir}/{iteration}/word2vec_model")
-        
-        get_similarity_score(args.rel_matrix, args.models_dir, args.output, iteration)
-        print(f'done! for set {iteration} during {time.time() - start} seconds!')
+        if iteration >= 1:
+            print(f'start for set {iteration}')
+            start = time.time()
+            
+            global_word2vec = KeyedVectors.load(f"{args.models_dir}/{iteration}/word2vec_model")
+            
+            get_similarity_score(args.rel_matrix, args.models_dir, args.output, iteration)
+            print(f'done! for set {iteration} during {time.time() - start} seconds!')
