@@ -5,8 +5,8 @@ The Word Mover's Distance (WMD) quantifies the **dissimilarity** between two tex
 ##How to calculate WMD
 
 For a finite size vocabulary of $n$ words, assume that the word2vec embeddings are generated for two text documnets $x$ and $y$ such that e.g. $emb_{x_i}$ denotes the embeddings of document $x$'s $i^\text{th}$ word. Then, the transportation cost for travelling between document $x$'s $i^\text{th}$ word and document $y$'s $j^\text{th}$ word can be defined as the distance between the corresponding embeddings, i.e. 
-$$C_{ij} = \|\|emb_{x_i}-emb_{y_j}\|\|_{2}.$$
-Note that the normalized frequency of word $i$, which appears \nu_i times in a document, is defined as $f_i = \nu_i/\sum_{k=1}^{n} \nu_k$.
+$$C_{ij} = \|emb_{x_i}-emb_{y_j}\|_{2}.$$
+Note that the normalized frequency of word $i$, which appears \nu_i times in a document, is defined as $f_i = \nu_i\/ \sum_{k=1}^{n} \nu_k$.
 WMD score between two text documnets $x$ and $y$ is calculated as
 $$WMD(x,y) = \min_{F\ge 0}\sum_{i,j=1}^n F_{ij} C_{ij},$$
 subject to 
