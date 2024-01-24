@@ -71,29 +71,22 @@ $$d(w_i^{(1)}, w_j^{(2)}) = \|x_i - y_j\|$$
 
 The WMD between $D1$ and $D2$ is the minimum "cost" required to move the mass from $D1$ to $D2$, and it is defined via the optimization problem as follows:
 
-$$\text{minimize } WMD(D1, D2) = \min_{T} \sum_{i=1}^{n} \sum_{j=1}^{m} T_{ij} \cdot d(w_i^{(1)}, w_j^{(2)}),$$
+$$WMD(D1, D2) = \min_{T} \sum_{i=1}^{n} \sum_{j=1}^{m} T_{ij} \cdot d(w_i^{(1)}, w_j^{(2)}),$$
 
 subject to 
 
-$$\sum_{j=1}^{m} T_{ij} = \text{count}(w_i^{(1)}) ,\quad \text{for all }i\text{ s.t. } 1\leq i \leq n,$$
+$$\sum_{j=1}^{m} T_{ij} = \text{count}(w_i^{(1)}) ,\quad \text{for all }i\text{  s.t.  } 1\leq i \leq n,$$
 
-$$\sum_{i=1}^{n} T_{ij} = \text{count}(w_j^{(2)}) ,\quad \text{for all }j\text{ s.t. } 1\leq j \leq m $$
+$$\sum_{i=1}^{n} T_{ij} = \text{count}(w_j^{(2)}) ,\quad \text{for all }j\text{  s.t.  } 1\leq j \leq m, $$
 
 $$T_{ij} \geq 0. $$
 
 In practice, linear programming techniques are often used to solve this optimization problem efficiently. The resulting WMD provides a measure of dissimilarity that considers both the semantic meaning of words and their distribution in the documents.
 
-For a finite size vocabulary of $n$ words, assume that the word2vec embeddings are generated for two text documnets $x$ and $y$ such that e.g. $emb_{x_i}$ denotes the embeddings of document $x$'s $i^\text{th}$ word. Then, the transportation cost for travelling between document $x$'s $i^\text{th}$ word and document $y$'s $j^\text{th}$ word can be defined as the distance between the corresponding embeddings, i.e. 
-$$C_{ij} = \|emb_{x_i}-emb_{y_j}\|.$$
-Note that the normalized frequency of word $i$, which appears \nu_i times in a document, is defined as $f_i = \nu_i(\sum_{k=1}^{n}\nu_k)^{-1}$.
-WMD score between two text documnets $x$ and $y$ is calculated as
-$$WMD(x,y) = \min_{F\ge 0}\sum_{i,j=1}^n F_{ij} C_{ij},$$
-subject to 
-$$\sum_{i=1}^n F_{ij} = f_{x_i},\quad \text{for all }i\in{1,...,n},$$
-$$\sum_{j=1}^n F_{ij} = f_{y_j},\quad \text{for all }j\in{1,...,n}.$$
-Here $F_{ij}$ represents how much of document $x$'s $i^\text{th}$ word travels to document $y$'s $j^\text{th}$ word.
-Here, $F_{ij}$ denotes the extent to which the $i^\text{th}$ word of document $x$ transitions to the $j^\text{th}$ word of document $y$.
-
 ## Crucial points
 
 The order of words does affect Word Mover's Distance (WMD). Word Mover's Distance is a measure of the dissimilarity between two text documents, taking into account the semantic similarity of words and their respective distances in the word embedding space. In WMD, the order of words is crucial because it considers the relationship and proximity of words in the documents.
+
+## Implemenation of the WMD
+
+Here, we use [Gensim’s implemenation of the WMD](https://radimrehurek.com/gensim/auto_examples/tutorials/run_wmd.html), which uses [word2vec](https://rare-technologies.com/word2vec-tutorial/) vector embeddings of words.
