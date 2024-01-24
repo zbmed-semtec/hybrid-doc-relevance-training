@@ -51,7 +51,7 @@ Let's go into more precise details about the transportation plan $T$:
 
 3. **Objective Function:**
    - The objective function of the optimization problem is to minimize the overall cost, which is the sum of the products of the transportation amounts and the distances between the corresponding word vectors:
-      $$\[ \min_{T} \sum_{i=1}^{n} \sum_{j=1}^{m} T_{ij} \cdot d(w_i^{(1)}, w_j^{(2)}) \]$$
+      $$\min_{T} \sum_{i=1}^{n} \sum_{j=1}^{m} T_{ij} \cdot d(w_i^{(1)}, w_j^{(2)})$$
 
 4. **Solving the Optimization Problem:**
    - Linear programming techniques are often used to solve this optimization problem efficiently and find the optimal transportation plan $T$.
@@ -72,9 +72,13 @@ $$d(w_i^{(1)}, w_j^{(2)}) = \|x_i - y_j\|$$
 The WMD between $D1$ and $D2$ is the minimum "cost" required to move the mass from $D1$ to $D2$, and it is defined via the optimization problem as follows:
 
 $$\text{minimize } WMD(D1, D2) = \min_{T} \sum_{i=1}^{n} \sum_{j=1}^{m} T_{ij} \cdot d(w_i^{(1)}, w_j^{(2)}),\\
+
 \text{subject to } \\
+
 \sum_{j=1}^{m} T_{ij} = \text{count}(w_i^{(1)}) ,\quad \text{for all }i\in{1,...,m}, \\
+
  \sum_{i=1}^{n} T_{ij} = \text{count}(w_j^{(2)}) ,\quad \text{for all }j\in{1,...,m}, \\
+ 
  T_{ij} \geq 0. $$
 
 In practice, linear programming techniques are often used to solve this optimization problem efficiently. The resulting WMD provides a measure of dissimilarity that considers both the semantic meaning of words and their distribution in the documents.
