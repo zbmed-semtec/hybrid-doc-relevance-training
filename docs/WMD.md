@@ -61,9 +61,9 @@ Let's go into more precise details about the transportation plan $T$:
 
 In summary, the transportation plan $T$ is a matrix that specifies the optimal way to move words from one document to another, minimizing the overall cost while satisfying conservation constraints. It is a key component of the Word Mover's Distance algorithm.
 
-Let $D1$ and $D2$ be two documents represented as bags-of-words, where $D1 = \{w_{1}^{(1)}, w_{2}^{(1)}, \ldots, w_{n}^{(1)}\}$ and $D2 = \{w_{1}^{(2)}, w_{2}^{(2)}, \ldots, w_{m}^{(2)}\}$.
+Let $D1$ and $D2$ be two documents represented as bags-of-words, where $D1 = (w_{1}^{(1)}, w_{2}^{(1)}, \ldots, w_{n}^{(1)})$ and $D2 = (w_{1}^{(2)}, w_{2}^{(2)}, \ldots, w_{m}^{(2)})$.
 
-Let $X = \{x_1, x_2, \ldots, x_n\}$ and $Y = \{y_1, y_2, \ldots, y_m\}$ be the embedded word vectors corresponding to the words in $D1$ and $D2$, respectively.
+Let $X = (x_1, x_2, \ldots, x_n)$ and $Y = (y_1, y_2, \ldots, y_m)$ be the embedded word vectors corresponding to the words in $D1$ and $D2$, respectively.
 
 The distance between two words $w_i^{(1)}$ and $w_j^{(2)}$ is given by the Euclidean distance between their corresponding word vectors:
 
@@ -71,15 +71,15 @@ $$d(w_i^{(1)}, w_j^{(2)}) = \|x_i - y_j\|$$
 
 The WMD between $D1$ and $D2$ is the minimum "cost" required to move the mass from $D1$ to $D2$, and it is defined via the optimization problem as follows:
 
-$$\text{minimize } WMD(D1, D2) = \min_{T} \sum_{i=1}^{n} \sum_{j=1}^{m} T_{ij} \cdot d(w_i^{(1)}, w_j^{(2)}),\\
+$$\text{minimize } WMD(D1, D2) = \min_{T} \sum_{i=1}^{n} \sum_{j=1}^{m} T_{ij} \cdot d(w_i^{(1)}, w_j^{(2)}),$$
 
-\text{subject to } \\
+subject to 
 
-\sum_{j=1}^{m} T_{ij} = \text{count}(w_i^{(1)}) ,\quad \text{for all }i\in{1,...,m}, \\
+$$\sum_{j=1}^{m} T_{ij} = \text{count}(w_i^{(1)}) ,\quad \text{for all }i\in{1,...,m},$$
 
- \sum_{i=1}^{n} T_{ij} = \text{count}(w_j^{(2)}) ,\quad \text{for all }j\in{1,...,m}, \\
- 
- T_{ij} \geq 0. $$
+$$\sum_{i=1}^{n} T_{ij} = \text{count}(w_j^{(2)}) ,\quad \text{for all }j\in{1,...,m}, $$
+
+$$T_{ij} \geq 0. $$
 
 In practice, linear programming techniques are often used to solve this optimization problem efficiently. The resulting WMD provides a measure of dissimilarity that considers both the semantic meaning of words and their distribution in the documents.
 
