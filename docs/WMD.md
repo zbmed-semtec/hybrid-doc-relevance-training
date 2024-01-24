@@ -45,8 +45,8 @@ Let's go into more precise details about the transportation plan $T$:
 
 2. **Constraints on $T$:**
    - The transportation plan $T$ must satisfy constraints to ensure that the mass is conserved. The constraints are defined by the counts of words in each document:
-      - $\sum_{j=1}^{m} T_{ij} = \text{count}(w_i^{(1)})$: The sum of mass from the $i$-th word in the first document must equal the count of that word in the first document.
-      - $\sum_{i=1}^{n} T_{ij} = \text{count}(w_j^{(2)})$: The sum of mass at the $j$-th word in the second document must equal the count of that word in the second document.
+      - $\sum_j T_{ij} = \text{count}(w_i^{(1)})$: The sum of mass from the $i$-th word in the first document must equal the count of that word in the first document.
+      - $\sum_i T_{ij} = \text{count}(w_j^{(2)})$: The sum of mass at the $j$-th word in the second document must equal the count of that word in the second document.
       - $T_{ij} \geq 0$: The amount of mass moved from $i$-th word to $j$-th word must be non-negative.
 
 3. **Objective Function:**
@@ -75,9 +75,9 @@ $$\text{minimize } WMD(D1, D2) = \min_{T} \sum_{i=1}^{n} \sum_{j=1}^{m} T_{ij} \
 
 subject to 
 
-$$\sum_{j=1}^{m} T_{ij} = \text{count}(w_i^{(1)}) ,\quad \text{for all }i\in{1,...,m},$$
+$$\sum_{j=1}^{m} T_{ij} = \text{count}(w_i^{(1)}) ,\quad \text{for all }i\text{ s.t. } 1\leq i \leq n,$$
 
-$$\sum_{i=1}^{n} T_{ij} = \text{count}(w_j^{(2)}) ,\quad \text{for all }j\in{1,...,m}, $$
+$$\sum_{i=1}^{n} T_{ij} = \text{count}(w_j^{(2)}) ,\quad \text{for all }j\text{ s.t. } 1\leq j \leq m $$
 
 $$T_{ij} \geq 0. $$
 
