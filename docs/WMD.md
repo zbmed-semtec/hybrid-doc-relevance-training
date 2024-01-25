@@ -89,4 +89,4 @@ The order of words does affect Word Mover's Distance (WMD). Word Mover's Distanc
 
 ## Implemenation of the WMD
 
-Here, we use [Gensim’s implemenation of the WMD](https://radimrehurek.com/gensim/auto_examples/tutorials/run_wmd.html), which uses [word2vec](https://rare-technologies.com/word2vec-tutorial/) vector embeddings of words.
+Here, we use [Gensim’s implemenation of the WMD](https://radimrehurek.com/gensim/auto_examples/tutorials/run_wmd.html), which uses [word2vec](https://rare-technologies.com/word2vec-tutorial/) vector embeddings of words. Since WMD is the measure of dissimilarity, we define $(1 + WMD)^{-1}$ as similarity score.
