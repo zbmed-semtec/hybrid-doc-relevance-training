@@ -27,7 +27,7 @@ Here's a detailed explanation of how WMD works:
 
 5. **Calculating WMD:**
    - The WMD between two documents is computed by finding the optimal transport plan that minimizes the total cost of moving words from one document to another.
-   - The resulting distance reflects the semantic dissimilarity between the two documents, considering both the meaning of the words and their distribution.
+   - The resulting distance reflects the semantic **dissimilarity** between the two documents, considering both the meaning of the words and their distribution.
 
 6. **Complexity:**
    - Computing the WMD can be computationally expensive, especially when dealing with large vocabularies. Various optimization techniques and approximations are often employed to make the calculation more feasible.
@@ -38,7 +38,7 @@ In summary, Word Mover's Distance is a measure of dissimilarity that considers b
 
 The transportation plan $T$ in the context of Word Mover's Distance (WMD) represents the optimal way to move the "mass" from the words in one document to the words in another, minimizing the overall cost. This plan is essentially a matrix where each entry $T_{ij}$ indicates the amount of mass to be moved from the $i$-th word in the first document to the $j$-th word in the second document.
 
-Let's go into more precise details about the transportation plan $T$:
+Let's go first into more precise details about the transportation plan $T$:
 
 1. **Definition of $T_{ij}$:**
    - $T_{ij}$ represents the amount of mass (words) from the $i$-th word in the first document that is moved to the $j$-th word in the second document.
