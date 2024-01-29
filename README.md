@@ -57,7 +57,7 @@ Document embeddings are created by computing the centroids of all provided word 
 
 ### Calculate Similarity Score
 
-To assess the similarity between two documents within the RELISH corpus, we employ either the [Cosine Similarity](https://github.com/zbmed-semtec/medline-preprocessing/tree/main/code/Cosine_Similarity) metric or [WMD (Word Mover’s) Distance](https://radimrehurek.com/gensim/auto_examples/tutorials/run_wmd.html). This process enables the generation of a 4-column matrix cthat includes similarity scores for pre-existing pairs of PMIDs within our corpus, along with their corresponding relevance scores.
+To assess the similarity between two documents within the RELISH corpus, we employ either the [Cosine Similarity](https://github.com/zbmed-semtec/medline-preprocessing/tree/main/code/Cosine_Similarity) metric or [WMD (Word Mover’s) Distance](./docs/WMD.md). This process enables the generation of a 4-column matrix cthat includes similarity scores for pre-existing pairs of PMIDs within our corpus, along with their corresponding relevance scores.
 
 ## Evaluation
 
