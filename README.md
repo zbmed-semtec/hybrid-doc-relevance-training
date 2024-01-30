@@ -144,7 +144,7 @@ You must pass the following arguments:
 + -up/ --use_pretrained : Whether to use a pretrained Word2Vec model (1) or not (0), uses word2vec-google-news-300 if True.
 + -dict/ --MeShIDtoPMID : File path to input MeShIDtoPMID .tsv file.
 
-To run this script, please execute the following command:
+For example, to run this script, you may execute the following command:
 
 ```
 python3 code/generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy --output data/ --params_json data/hyperparameters_word2vec.json --use_pretrained 0 --MeShIDtoPMID data/dic_MeShIDtoPMID_2022628.tsv
@@ -153,7 +153,6 @@ python3 code/generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction
 **3.2 Introducing new embeddings while optionally removing/replacing the previously identified MeSH words (i.e. either with or without Reduction):**
 
 The [`generate_doc_embeddings_after_injection_MeSHembeddings.py`](./code/generate_doc_embeddings_after_injection_MeSHembeddings.py) script uses as input not only the RELISH Tokenized npy file but also annotated-counterpart of the input tokens, i.e. RELISH annotated Tokenized npy file, in order to account for individual words of a MeSH term, which also appear independently in the text of the corresponding articles. Specifically when using reduction, the pre-annotated articles'documents can be utilized to check for the independent appearance of MeSH-terms' words. Then (when reduction and) in case of independent appearance, the word is not removed from the article's words, hence its embedding is not replaced by the newly computed embedding. This is due to the fact that we do want to take the independent presence of all words into account, hence if a word does not appear in pre-annotated tokens of an article we can be sure that the only presence of that word belongs to its presence in a MeSH term. Put differently, in case of reduction we substitute the embeddings of every word that constitutes a MeSH term (and only appears in the form of a MeSH term) with the computed embedding of that specific MeSH term.
-
 
 ```
 python3 code/generate_doc_embeddings_after_injection_MeSHembeddings.py [-i INPUT PATH] [-annoti ANNOTATED TOKENS] [-o OUTPUT PATH] [-pj PARAMS JSON] [-up USE PRETRAINED] [-dict MeShIDtoPMID] [-rd REDUCTION OR NOT]
@@ -169,7 +168,7 @@ You must pass the following arguments:
 + -dict/ --MeShIDtoPMID : File path to input MeShIDtoPMID .tsv file.
 + -rd/ --reduction : Whether to reduce the documents'words by replacing the catalogued ones with corresponding MeSHID (1) or not (0).
 
-To run this script, please execute the following command which includes reduction:
+For example, to run this script, you may execute the following command:
 
 ```
 python3 code/generate_doc_embeddings_after_injection_MeSHembeddings.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy -annoti data/RELISH/Tokenized_Input/RELISH_Annot_Tokens_Sample.npy --output data/ --params_json data/hyperparameters_word2vec.json --use_pretrained 0 --MeShIDtoPMID data/dic_MeShIDtoPMID_2022628.tsv -rd 1
@@ -219,7 +218,7 @@ You must pass the following four arguments:
 + -o/ --output : File path for the output 4 column WMD distance matrix.
 + -c/ --models_count : Number of word2vec models that have been created to be evaluated on the WMD distance matrix.
 
-For example, if you are running the code from the code folder and have the RELISH relevance matrix in the data folder, run the WMD distance creation for all hyperparameters as:
+For example, if you are running the code from the code folder and have the RELISH relevance matrix in the data folder, run the WMD creation for all hyperparameters as:
 
 ```
 python3 code/generate_wmd_similarity.py -i data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy -dict data/dic_MeShIDtoPMID_2022628.tsv -r data/relevance_w2v_blank.tsv -mod data/ -o data/wmd_distance/w2v_relevance -c 18
@@ -245,7 +244,7 @@ You must pass the following four arguments:
 
 **Also, it is crucial to verify that the prefixes used for annotation in the pre-annotated tokenized npy file match those utilized in this repository. Otherwise, the annotated words may not be recognized by the trained word2vec model, and the resulting embeddings for MeSH terms will not contribute to the computation of WMD scores.** This [notebook](./docs/Check_prefix_of_annotated_terms.ipynb) can be utilized for a quick verification and in case of different prefixes, this [code](./code/meshd_to_MeSHD.py) can be utilized to change annotated-terms' prefixes from meshd/meshq to MeSHD/MeSHQ in the pre-annotated tokenized npy file.
 
-For example, if you are running the code from the code folder and have the RELISH relevance matrix in the data folder, run the WMD distance creation for all hyperparameters as:
+As an example, if you are running the code from the code folder and have the RELISH relevance matrix in the data folder, run the WMD creation for all hyperparameters as:
 
 ```
 python3 code/generate_wmd_similarity_with_reduction.py -i data/RELISH/Tokenized_Input/RELISH_Annot_Tokens_Sample_meshd_to_MeSHD.npy -r data/relevance_w2v_blank.tsv -mod data/ -o data/wmd_distance/w2v_relevance -c 18
