@@ -1,7 +1,7 @@
 '''
 Example
 -------
-To execute the script and generate document embeddings, you can run the following command:
+To execute the script and change annotated-terms' prefix from meshd/meshq to MeSHD/MeSHQ , you can run the following command:
 
 python3 code/meshd_to_MeSHD.py --input data/RELISH/Tokenized_Input/RELISH_Annot_Tokens_Sample.npy --output data/RELISH/Tokenized_Input/RELISH_Annot_Tokens_Sample_meshd_to_MeSHD.npy
 
