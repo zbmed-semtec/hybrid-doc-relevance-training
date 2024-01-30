@@ -222,7 +222,7 @@ You must pass the following four arguments:
 For example, if you are running the code from the code folder and have the RELISH relevance matrix in the data folder, run the WMD distance creation for all hyperparameters as:
 
 ```
-python3 code/generate_wmd_similarity.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy --MeShIDtoPMID data/dic_MeShIDtoPMID_2022628.tsv -r data/relevance_w2v_blank.tsv -mod data/ -o data/wmd_distance/w2v_relevance -c 18
+python3 code/generate_wmd_similarity.py -i data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy -dict data/dic_MeShIDtoPMID_2022628.tsv -r data/relevance_w2v_blank.tsv -mod data/ -o data/wmd_distance/w2v_relevance -c 18
 ```
 
 **4.2.2 With Reduction:**
@@ -243,10 +243,12 @@ You must pass the following four arguments:
 
 **Note that the input file must be the annotated-counterpart of the input tokens to [`generate_doc_embeddings_after_injection_MeSHembeddings.py`](./code/generate_doc_embeddings_after_injection_MeSHembeddings.py).**
 
+**Also, it is crucial to verify that the prefixes used for annotation in the pre-annotated tokenized npy file match those utilized in this repository. Otherwise, the annotated words may not be recognized by the trained word2vec model, and the resulting embeddings for MeSH terms will not contribute to the computation of WMD scores.** This [notebook](./docs/Check_prefix_of_annotated_terms.ipynb) can be utilized for a quick verification and in case of different prefixes, this [code](./code/meshd_to_MeSHD.py) can be utilized to change annotated-terms' prefixes from meshd/meshq to MeSHD/MeSHQ in the pre-annotated tokenized npy file.
+
 For example, if you are running the code from the code folder and have the RELISH relevance matrix in the data folder, run the WMD distance creation for all hyperparameters as:
 
 ```
-python3 code/generate_wmd_similarity_with_reduction.py --input data/RELISH/Tokenized_Input/RELISH_Annot_Tokens_Sample.npy -r data/relevance_w2v_blank.tsv -mod data/ -o data/wmd_distance/w2v_relevance -c 18
+python3 code/generate_wmd_similarity_with_reduction.py -i data/RELISH/Tokenized_Input/RELISH_Annot_Tokens_Sample_meshd_to_MeSHD.npy -r data/relevance_w2v_blank.tsv -mod data/ -o data/wmd_distance/w2v_relevance -c 18
 ```
 
 ### Step 5: Precision@N
