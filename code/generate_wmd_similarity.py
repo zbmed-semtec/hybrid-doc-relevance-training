@@ -7,7 +7,7 @@
 '''
 Example
 -------
-To execute the script and generate document embeddings, you can run the following command:
+To execute the script and generate documents' WMD score, you can run the following command:
 
 python3 code/generate_wmd_similarity.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy --MeShIDtoPMID data/dic_MeShIDtoPMID_2022628.tsv --rel_matrix data/relevance_w2v_blank.tsv --models_dir data/ --output data/w2v_relevance --models_count 18
     
