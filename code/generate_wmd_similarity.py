@@ -23,7 +23,10 @@ from gensim import models
 import numpy as np
 import time
 
-import ast  # This is used to convert the string representation of lists to actual lists
+import ast  # This is used to convert the string representation of lists to actual lists.
+
+import nltk # Used to to remove stopwords from the MeSH-terms in MeShIDtoPMID for situations where the input tokens have had stopwords removed.
+from nltk.corpus import stopwords
 
 global_npy_dict = None
 global_word2vec = None
@@ -61,6 +64,9 @@ def generate_npy_dict(filepath_in: str, MeShIDtoPMID: str):
     
     # Now we should account for the newly inserted words
     
+    nltk.download('stopwords') # We require this for situations where the input tokens have had stopwords removed.
+    stop_words = set(stopwords.words('english'))
+    
     # Read the TSV file into a DataFrame
     df = pd.read_csv(MeShIDtoPMID, sep='\t', header=None, names=['MeSHID', 'Appearance(pmid , tokenized lowercase words)'], skiprows=1)
 
@@ -71,7 +77,16 @@ def generate_npy_dict(filepath_in: str, MeShIDtoPMID: str):
         for pmid_term in all_with_mesh_term:
             article_with_MeSHterm = int(pmid_term[0])
             try:
-                article_docs_dict[article_with_MeSHterm].append(str(meshID))   
+                pattern_to_find = [w for w in pmid_term[1:] if not w in stop_words] # removal of stopwords from MeSH-term
+                # Find indices of the pattern (MeSH-term) in the list of tokens
+                indices = [i for i in range(len(article_docs_dict[article_with_MeSHterm]) - len(pattern_to_find) + 1) 
+                           if article_docs_dict[article_with_MeSHterm][i:i+len(pattern_to_find)] == pattern_to_find]
+                
+                for index in indices:
+                    article_docs_dict[article_with_MeSHterm].insert(index, str(meshID)) # append MeSHID before the MeSH-term
+                    #article_docs_dict[article_with_MeSHterm].insert(index+len(pattern_to_find), str(meshID)) # append after the MeSH-term
+                #----------------------------------------------------------------
+                #article_docs_dict[article_with_MeSHterm].append(str(meshID)) # append MeSHID at the end of the list of tokens 
             except:
                 continue
     return article_docs_dict
