@@ -53,7 +53,7 @@ def prepare_from_npy(filepath_in: str):
         
     return (pmids, article_docs)
 
-def generate_Word2Vec_model(article_doc: list, pmids: list, params: list, filepath_out: str, use_pretrained: bool):
+def generate_Word2Vec_model(article_doc: list, pmids: list, params: dict, filepath_out: str, use_pretrained: bool):
     '''
     Generates a word2vec model from all RELISH sentences using gensim and saves it as a .model file.
 
