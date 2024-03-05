@@ -66,7 +66,7 @@ This pipeline aims to optimize hyperparameters for hybrid post(reduction) Word-2
 - **Precision@N Calculation**: Computes Precision@N scores, a measure of the relevance of retrieved documents, for the obtained cosine similarities.
 - **NDCG Score Calculation**: Computes normalized discounted cumulative gain (NDCG) scores, which assesses the quality of ranked search results based on relevance assessments.
 
-In order to start the pipeline execution use this [script](/code/main.py), and run the following command:
+In order to start the pipeline execution use this [script](./code/main.py), and run the following command:
 
 ```
 python3 code/main.py [-i TRAIN_DATA] [-v VALIDATION_DATA] [-anv ANNOTATED_VALIDATION_DATA] [-t TEST_DATA] [-ant ANNOTATED_TEST_DATA] [-gv VALIDATION_GROUND_TRUTH] [-gt TEST_GROUND_TRUTH] [-dict MeShIDtoPMID] [-rd REDUCTION_OR_NOT]
@@ -94,6 +94,6 @@ and in case of reduction, i.e. for hybrid-postreduction-Word2Doc-2Vec, you may e
 python3 code/main.py -i relish_train_tokens_removed_stopwords.npy -v relish_val_tokens_removed_stopwords.npy -anv relish_val_annotated_tokens_removed_stopwords.npy -t relish_test_tokens_removed_stopwords.npy -ant relish_test_annotated_tokens_removed_stopwords.npy -gv val_split.tsv -gt test_split.tsv -dict ../data/dic_MeShIDtoPMID_2022628.tsv -rd 1
 ```
 
-All outputs of the [script](/code/main.py) are saved in the folder named `output_of_model`. During the optimization process, we can monitor the progress via `Optuna_trials.log` saved in the folder `output_of_model`. After completing the code run, all trials' information will be saved in `optuna_study_state.csv`.
+All outputs of the [script](./code/main.py) are saved in the folder named `output_of_model`. During the optimization process, we can monitor the progress via `Optuna_trials.log` saved in the folder `output_of_model`. After completing the code run, all trials' information will be saved in `optuna_study_state.csv`.
 
-Note that this [script](/code/main.py) creates a resumable Optuna study. Specifically, if the optimization process is interrupted or stopped for any reason, or if there's a desire to continue the optimization process further after completing the code run, it's possible to resume the Optuna study that was previously created. To do so, all that's required is the file `optuna_study_storage.db`, which should be saved in the `output_of_model` folder, and then re-executing the [script](/code/main.py).
+Note that this [script](./code/main.py) creates a resumable Optuna study. Specifically, if the optimization process is interrupted or stopped for any reason, or if there's a desire to continue the optimization process further after completing the code run, it's possible to resume the Optuna study that was previously created. To do so, all that's required is the file `optuna_study_storage.db`, which should be saved in the `output_of_model` folder, and then re-executing the [script](./code/main.py).
