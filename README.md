@@ -1,4 +1,4 @@
-# Word2doc2vec-Doc-relevance
+# Hybrid-post(reduction)-Word2Doc2Vec-Doc-relevance
 This repository focuses on an approach exploring and assessing literature-based doc-2-doc recommendations using the Word2Vec technique, followed  centroid aggregation method to create document-level embeddings. The approach is applied to the RELISH dataset.
 
 ## Table of Contents
@@ -18,7 +18,8 @@ This repository focuses on an approach exploring and assessing literature-based 
         - [nDCG@N](#ndcgn)
 4. [Code Implementation](#code-implementation)
 5. [Getting Started](#getting-started)
-6. [Tutorial](#tutorial)
+6. [Phase II - Split Dataset Training](#phaseII-training)
+7. [Tutorial](#tutorial)
 
 ## About
 
@@ -89,14 +90,14 @@ First, clone the repository to your local machine using the following command:
 ###### Using HTTP:
 
 ```
-git clone https://github.com/zbmed-semtec/hybrid-word2doc2vec-doc-relevance-training.git
+git clone https://github.com/zbmed-semtec/hybrid-post-word2doc2vec-doc-relevance-training.git
 ```
 
 ###### Using SSH:
 Ensure you have set up SSH keys in your GitHub account.
 
 ```
-git clone git@github.com:zbmed-semtec/hybrid-word2doc2vec-doc-relevance-training.git
+git clone git@github.com:zbmed-semtec/hybrid-post-word2doc2vec-doc-relevance-training.git
 ```
 
 ### Step 2: Create a virtual environment and install dependencies
@@ -287,6 +288,8 @@ For example, if you are running the code from the code folder and have the 4 col
 python3 code/calculate_gain.py -i data/w2v_relevance_0.tsv -o data/w2v_ndcg_0.tsv
 ```
 
+## Phase II - Split Dataset Training
+This pipeline aims to optimize hyperparameters for hybrid post(reduction) Word-2Doc-2Vec model using Optuna, train the model with the optimal parameters, and evaluate its performance using three-class precision at 5 (Precision@5). For detailed information, please refer to directory [training](./training)
 
 ## Tutorial
 A [tutorial](./docs/Tutorial.ipynb) is accessible in the form of Jupyter notebook for the generation of embeddings.
