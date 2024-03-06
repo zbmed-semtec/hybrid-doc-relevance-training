@@ -18,8 +18,14 @@ This repository focuses on an approach exploring and assessing literature-based 
         - [nDCG@N](#ndcgn)
 4. [Code Implementation](#code-implementation)
 5. [Getting Started](#getting-started)
-6. [Phase II - Split Dataset Training](#phase-ii---split-dataset-training)
-7. [Tutorial](#tutorial)
+    - [Step 1: Clone the Repository](#step-1:-clone-the-repository)
+    - [Step 2: Create a Virtual Environment and Install Dependencies](#step-2:-create-a-virtual-environment-and-install-dependencies)
+    - [Step 3: Generate Embeddings](#step-3:-generate-embeddings)
+    - [Step 4: Calculate Similarity Score](#step-4:-calculate-similarity-score)
+    - [Step 5: Precision@N](#step-5:-precision@N)
+    - [Step 6: nDCG@N](#step-6:-ndcg@n)
+7. [Phase II - Split Dataset Training](#phase-ii---split-dataset-training)
+8. [Tutorial](#tutorial)
 
 ## About
 
@@ -86,6 +92,8 @@ The script comprises the following steps:
 
 Subsequently, the stored document embeddings are utilized for calculating cosine similarities, while the trained Word2vec model is loaded to compute the WMD score using its Gensim implementation.
 
+The concept behind the 'reduction' case involves substituting the embeddings of each word comprising a MeSH term with the computed embedding of that particular MeSH term. However, it's also essential to consider the independent presence of every word. To achieve this, we leverage tokens from pre-annotated articles: if a word doesn't appear in the pre-annotated tokens of an article, we can infer that its sole presence is within a MeSH term, allowing us to remove it from the article's words.
+
 ## Getting Started
 
 To get started with this project, follow these steps:
@@ -106,7 +114,7 @@ Ensure you have set up SSH keys in your GitHub account.
 git clone git@github.com:zbmed-semtec/hybrid-post-word2doc2vec-doc-relevance-training.git
 ```
 
-### Step 2: Create a virtual environment and install dependencies
+### Step 2: Create a Virtual Environment and Install Dependencies
 
 To create a virtual environment within your repository, run the following command:
 
@@ -184,6 +192,8 @@ python3 code/generate_doc_embeddings_after_injection_MeSHembeddings.py --input d
 Both scripts will create document embeddings, and store them and the corresponding model in separate directories. You should expect to find a total of 18 directories corresponding to the various models and embeddings.
 
 ### Step 4: Calculate Similarity Score
+
+The stored document embeddings are utilized for calculating cosine similarities.
 
 #### 4.1 Cosine Similarity:
 
