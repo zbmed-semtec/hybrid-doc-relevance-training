@@ -19,6 +19,13 @@ This repository focuses on an approach exploring and assessing literature-based 
 4. [Code Implementation](#code-implementation)
 5. [Getting Started](#getting-started)
     1. [Step 1: Clone the Repository](#step-1-clone-the-repository)
+    2. [Step 2: Create a Virtual Environment and Install Dependencies](#step-2-create-a-virtual-environment-and-install-dependencies)
+    3. [Step 3: Generate Embeddings](#step-3-generate-embeddings)
+    4. [Step 4: Calculate Similarity Score](#step-4-calculate-similarity-score)
+         + [4.1 Cosine Similarity](#4.1-cosine-similarity)
+         + [4.2 WMD Score](#4.2-wmd-score)
+    6. [Step 5: Precision@N](#step-5-precisionn)
+    7. [Step 6: nDCG@N](#step-6-ndcgn)
 7. [Phase II - Split Dataset Training](#phase-ii---split-dataset-training)
 8. [Tutorial](#tutorial)
 
@@ -191,7 +198,7 @@ Both scripts will create document embeddings, and store them and the correspondi
 
 The stored document embeddings are utilized for calculating cosine similarities.
 
-#### 4.1 Cosine Similarity:
+#### 4.1 Cosine Similarity
 
 In order to generate the cosine similarity matrix and execute this [script](./code/generate_cosine_existing_pairs.py), run the following command:
 
@@ -212,11 +219,11 @@ For example, if you are running the code from the code folder and have the RELIS
 python3 code/generate_cosine_existing_pairs.py -i data/relevance_w2v_blank.tsv -e data/ -o data/w2v_relevance -c 18
 ```
 
-#### 4.2 WMD distance:
+#### 4.2 WMD Score
 
 **4.2.1 No Reduction:**
 
-In order to generate the WMD distance matrix and execute this [script](./code/generate_wmd_similarity.py), run the following command:
+In order to generate the WMD score matrix and execute this [script](./code/generate_wmd_similarity.py), run the following command:
 
 ```
 python3 code/generate_wmd_similarity.py [-i INPUT PATH] [-dict MeShIDtoPMID] [-r RELEVANCE MATRIX] [-mod MODELS DIRECTORY] [-o OUTPUT PATH] [-c MODELS COUNT]
