@@ -22,8 +22,8 @@ This repository focuses on an approach exploring and assessing literature-based 
     2. [Step 2: Create a Virtual Environment and Install Dependencies](#step-2-create-a-virtual-environment-and-install-dependencies)
     3. [Step 3: Generate Embeddings](#step-3-generate-embeddings)
     4. [Step 4: Calculate Similarity Score](#step-4-calculate-similarity-score)
-         + [4.1 Cosine Similarity](#4.1-cosine-similarity)
-         + [4.2 WMD Score](#4.2-wmd-score)
+         + [4.1 Cosine Similarity](#41-cosine-similarity)
+         + [4.2 WMD Score](#42-wmd-score)
     6. [Step 5: Precision@N](#step-5-precisionn)
     7. [Step 6: nDCG@N](#step-6-ndcgn)
 7. [Phase II - Split Dataset Training](#phase-ii---split-dataset-training)
@@ -146,6 +146,8 @@ deactivate
 
 ### Step 3: Generate Embeddings
 
+It supports the training of the Word2vec module of the Gensim Python library and the generation of document embeddings.
+
  **3.1 Simply injecting new embeddings without removing/replacing the previously identified MeSH words (i.e. No Reduction):**
  
 The [`generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction.py`](./code/generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction.py) script uses the RELISH Tokenized npy file as input and includes a default parameter json with preset hyperparameters. You can easily adapt it for different values and parameters by modifying the [`hyperparameters_word2vec.json`](./data/hyperparameters_word2vec.json). Make sure to have the RELISH Tokenized.npy file within the directory under the data folder.
@@ -220,6 +222,8 @@ python3 code/generate_cosine_existing_pairs.py -i data/relevance_w2v_blank.tsv -
 ```
 
 #### 4.2 WMD Score
+
+we use Gensim implementation of WMD which requires to load the trained Word2Vec model.
 
 **4.2.1 No Reduction:**
 
