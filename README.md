@@ -288,7 +288,7 @@ For example, if you are running the code from the code folder and have the 4 col
 python3 code/calculate_gain.py -i data/w2v_relevance_0.tsv -o data/w2v_ndcg_0.tsv
 ```
 
-## Phase II - Split Dataset Training
+## <a name="phaseII-training"></a>Phase II - Split Dataset Training
 This pipeline aims to optimize hyperparameters for hybrid post(reduction) Word-2Doc-2Vec model using Optuna, train the model with the optimal parameters, and evaluate its performance using three-class precision at 5 (Precision@5). For detailed information, please refer to directory [training](./training)
 
 ## Tutorial
