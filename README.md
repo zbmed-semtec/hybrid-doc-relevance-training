@@ -66,7 +66,7 @@ Document embeddings are created by computing the centroids of all provided word 
 
 ### Calculate Similarity Score
 
-To assess the similarity between two documents within the RELISH corpus, we employ either the [Cosine Similarity](https://github.com/zbmed-semtec/medline-preprocessing/tree/main/code/Cosine_Similarity) metric or [WMD (Word Mover’s) Distance](./docs/WMD.md). This process enables the generation of a 4-column matrix cthat includes similarity scores for pre-existing pairs of PMIDs within our corpus, along with their corresponding relevance scores.
+To assess the similarity between two documents within the RELISH corpus, we employ either the [Cosine Similarity](https://github.com/zbmed-semtec/medline-preprocessing/tree/main/code/Cosine_Similarity) metric or [WMD (Word Mover’s Distance)](./docs/WMD.md). This process enables the generation of a 4-column matrix cthat includes similarity scores for pre-existing pairs of PMIDs within our corpus, along with their corresponding relevance scores.
 
 ## Evaluation
 
@@ -198,11 +198,11 @@ Both scripts will create document embeddings, and store them and the correspondi
 
 ### Step 4: Calculate Similarity Score
 
-The stored document embeddings are utilized for calculating cosine similarities.
+We employ either the Cosine Similarity metric or WMD (Word Mover’s Distance) score.
 
 #### 4.1 Cosine Similarity
 
-In order to generate the cosine similarity matrix and execute this [script](./code/generate_cosine_existing_pairs.py), run the following command:
+The stored document embeddings are utilized for calculating cosine similarities. In order to generate the cosine similarity matrix and execute this [script](./code/generate_cosine_existing_pairs.py), run the following command:
 
 ```
 python3 code/generate_cosine_existing_pairs.py [-i INPUT PATH] [-e EMBEDDINGS] [-o OUTPUT PATH] [-c DOC EMBEDDINGS COUNT]
