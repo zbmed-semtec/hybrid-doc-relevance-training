@@ -18,12 +18,7 @@ This repository focuses on an approach exploring and assessing literature-based 
         - [nDCG@N](#ndcgn)
 4. [Code Implementation](#code-implementation)
 5. [Getting Started](#getting-started)
-    1. [Step 1: Clone the Repository](#step-1:-clone-the-repository)
-    3. [Step 2: Create a Virtual Environment and Install Dependencies](#step-2:-create-a-virtual-environment-and-install-dependencies)
-    4. [Step 3: Generate Embeddings](#step-3:-generate-embeddings)
-    5. [Step 4: Calculate Similarity Score](#step-4:-calculate-similarity-score)
-    6. [Step 5: Precision@N](#step-5:-precisionn)
-    7. [Step 6: nDCG@N](#step-6:-ndcgn)
+   1. [Step 1: Clone the Repository](#step-1:-clone-the-repository)
 7. [Phase II - Split Dataset Training](#phase-ii---split-dataset-training)
 8. [Tutorial](#tutorial)
 
