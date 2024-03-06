@@ -12,7 +12,7 @@ This repository focuses on an approach exploring and assessing literature-based 
           - [Hyperparameters](#hyperparameters)
         - [Using Pre-trained Word2Vec models](#using-pre-trained-word2vec-models)
         - [Document Embeddings](#document-embeddings)
-    2. [Calculate Cosine Similarity](#calculate-cosine-similarity)
+    2. [Calculate Similarity Score](#calculate-similarity-score)
     3. [Evaluation](#evaluation)
         - [Precision@N](#precisionn)
         - [nDCG@N](#ndcgn)
@@ -72,13 +72,19 @@ Another metric used is the nDCG@N (normalized Discounted Cumulative Gain). This 
 
 ## Code Implementation
 
-The [`generate_embeddings.py`](./code/generate_embeddings.py) script uses the RELISH Tokenized npy file as input and supports the generation and training of Word2Vec models, generation of embeddings and saving the embeddings as pickle files.
+The [`generate_doc_embeddings_after_injection_MeSHembeddings.py`](./code/generate_doc_embeddings_after_injection_MeSHembeddings.py) script uses the RELISH Tokenized npy file as input and supports the generation and training of Word2Vec models, generation of embeddings and saving the embeddings as pickle files.
 
-The script consists of two main functions `generateWord2VecModel` and `generateDocumentEmbeddings`.
+The script comprises the following steps:
 
-`generateWord2VecModel` : This function creates a Word2vec model using the provided sentences and the inputer hyper parameter.
++ Generate word embeddings via Word2vec module of Gensim Python library.
++ Compute the embeddings of MeSHIDs via centroid of the corresponding MeSH-terms’ embeddings.
++ Post-annotation: Append the computed MeSH-embeddings to the list of word embeddings of the corresponding articles.
+    - In case of reduction:
+        - If the word forming an identified MeSH term is not present in the pre-annotated tokens : Delete the word from the corresponding article’ s words. By doing so, we take the independent presence of each word into account.
++ Compute document embeddings via centroid method.
++ Store the generated document embeddings and the corresponding Word2vec model.
 
-`generateDocumentEmbeddings` :  This function generates document embeddings from titles and abstracts using Word2Vec and centroid calculations. It can utilize either an existing or a default pretrained model for word embeddings and saves the results as .npy or .pkl files based on the specified format.
+Subsequently, the stored document embeddings are utilized for calculating cosine similarities, while the trained Word2vec model is loaded to compute the WMD score using its Gensim implementation.
 
 ## Getting Started
 
