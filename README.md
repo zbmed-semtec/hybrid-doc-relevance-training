@@ -18,7 +18,7 @@ This repository focuses on an approach exploring and assessing literature-based 
         - [nDCG@N](#ndcgn)
 4. [Code Implementation](#code-implementation)
 5. [Getting Started](#getting-started)
-    1. [Step 1: Clone the Repository](#step-1:-clone-the-repository)
+    1. [Step 1: Clone the Repository](#step-1-clone-the-repository)
 7. [Phase II - Split Dataset Training](#phase-ii---split-dataset-training)
 8. [Tutorial](#tutorial)
 
