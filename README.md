@@ -312,7 +312,8 @@ python3 code/calculate_gain.py -i data/w2v_relevance_0.tsv -o data/w2v_ndcg_0.ts
 ```
 
 ## Phase II - Split Dataset Training
-This pipeline aims to optimize hyperparameters for hybrid post(reduction) Word-2Doc-2Vec model using [Optuna](https://optuna.readthedocs.io/en/stable/faq.html), train the model with the optimal parameters, and evaluate its performance using three-class precision at 5 (Precision@5). For detailed information, please refer to directory [training](./training)
+
+This pipeline aims to optimize hyperparameters for hybrid post(reduction) Word-2Doc-2Vec approach using [Optuna](https://optuna.readthedocs.io/en/stable/faq.html). During the validation process, Word-2Doc-2Vec models are trained using suggested hyperparameter sets by Optuna, and Optuna evaluates their performance using three-class precision at 5 (Precision@5). For detailed information, please refer to directory [training](./training)
 
 ## Tutorial
 A [tutorial](./docs/Tutorial.ipynb) is accessible in the form of Jupyter notebook for the generation of embeddings.
