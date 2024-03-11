@@ -21,7 +21,7 @@ logging.basicConfig(filename=log_file, level=logging.INFO, format='%(asctime)s -
 
 def objective_wrapper(args):
     def objective(trial):
-        # Suggest hyperparameters for Doc2Vec
+        # Suggest hyperparameters for Word2Vec
         vector_size = trial.suggest_int('vector_size', 100, 600, step=5)
         window = trial.suggest_int('window', 5, 25)
         min_count = trial.suggest_int('min_count', 1, 6)
