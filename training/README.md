@@ -5,7 +5,7 @@
 To get started with this project, follow these steps:
 
 ### Step 1: Clone the Repository
-First, clone the repository to your local machine using the following command:
+First, clone the repository to your local machine using one of the following command:
 
 ###### Using HTTP:
 
@@ -18,6 +18,12 @@ Ensure you have set up SSH keys in your GitHub account.
 
 ```
 git clone git@github.com:zbmed-semtec/hybrid-post-word2doc2vec-doc-relevance-training.git
+```
+
+#### Navigate to the `training` Folder:
+
+```
+cd hybrid-post-word2doc2vec-doc-relevance-training/training
 ```
 
 ### Step 2: Create a virtual environment and install dependencies
