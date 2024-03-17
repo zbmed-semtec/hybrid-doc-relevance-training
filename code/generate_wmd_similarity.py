@@ -83,11 +83,15 @@ def generate_npy_dict(filepath_in: str, MeShIDtoPMID: str):
                            if article_docs_dict[article_with_MeSHterm][i:i+len(pattern_to_find)] == pattern_to_find]
                 
                 for shift, index in enumerate(indices):
-                    # To append MeSHID before the MeSH-term
-                    article_docs_dict[article_with_MeSHterm].insert(index + shift, str(meshID)) 
+                    # To append the MeSHID before the corresponding MeSH-term
+                    article_docs_dict[article_with_MeSHterm].insert(index + shift, str(meshID))
                     
-                    # To append after the MeSH-term:
-                    #article_docs_dict[article_with_MeSHterm].insert(index + shift + len(pattern_to_find), str(meshID)) 
+                    # To append the MeSHID after the corresponding MeSH-term:
+                    #article_docs_dict[article_with_MeSHterm].insert(index + shift + len(pattern_to_find), str(meshID))
+                    
+                    # To sandwich the Mesh-term with the corresponding MeSHID
+                    #article_docs_dict[article_with_MeSHterm].insert(index + 2*shift, str(meshID))
+                    #article_docs_dict[article_with_MeSHterm].insert(index + 2*shift + len(pattern_to_find) + 1, str(meshID)) 
                 #----------------------------------------------------------------
                 #article_docs_dict[article_with_MeSHterm].append(str(meshID)) # append MeSHID at the end of the list of tokens 
             except:
