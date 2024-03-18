@@ -22,11 +22,11 @@ logging.basicConfig(filename=log_file, level=logging.INFO, format='%(asctime)s -
 def objective_wrapper(args):
     def objective(trial):
         # Suggest hyperparameters for Word2Vec
-        vector_size = trial.suggest_int('vector_size', 100, 600, step=5)
-        window = trial.suggest_int('window', 5, 25)
+        vector_size = trial.suggest_int('vector_size', 100, 500, step=50)
+        window = trial.suggest_int('window', 5, 15)
         min_count = trial.suggest_int('min_count', 1, 6)
         epochs = trial.suggest_int('epochs', 5, 15)
-        workers = trial.suggest_int('workers', 2, 8)
+        workers = 8 #trial.suggest_int('workers', 2, 8)
         sg = trial.suggest_int('sg', 0, 1)
 
         # Use args here as needed, e.g., args.input, args.test
