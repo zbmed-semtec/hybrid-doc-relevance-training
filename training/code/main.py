@@ -29,7 +29,7 @@ if __name__ == "__main__":
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
 
-    best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=2)
+    best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=1)
 
     print("Finished Optuna optimization and Start Evaluation Test-data and Saving the Best Model")
     similarity_file = run(best_params, args, tuning=False, save_model=True)
