@@ -76,7 +76,7 @@ def generate_npy_dict(filepath_in: str=None)->dict:
     '''
     doc = np.load(filepath_in, allow_pickle=True)
     
-    print('reading npy file')
+    #print('reading npy file')
     
     article_docs_dict = {}            
     for line in doc:
@@ -89,7 +89,7 @@ def generate_npy_dict(filepath_in: str=None)->dict:
             document.extend(np.ndarray.tolist(line[2]))
             article_docs_dict[int(line[0])] = [w for w in document]
             
-    print('end of reading npy file and save it as dictionary with keys PMIDs')
+    #print('end of reading npy file and save it as dictionary with keys PMIDs')
     
     return article_docs_dict
 
@@ -132,14 +132,16 @@ def injection_MeSHembeddings_into_embeddings(model: Word2Vec, pmids: str, articl
     Parameters
     ----------
     model: Word2Vec
-            Word2Vec model.
+        Word2Vec model.
     pmids: list of str
         The list of all pmids which are processed.
-    article_doc_global: list of list of str
+    article_doc: list of list of str
         A two dimensional list of all tokenized article documents (title + abstract).
     MeShIDtoPMID
         File path for the tsv file whose rows consist of MeSHIDs and lists of [PMID, words].
     '''
+    batch_embeddings_MeSHID = []
+    batch_meshIDs = []
 
     # Read the TSV file into a DataFrame
     df = pd.read_csv(MeShIDtoPMID, sep='\t', header=None, names=['MeSHID', 'Appearance(pmid , tokenized lowercase words)'], skiprows=1)
@@ -170,31 +172,29 @@ def injection_MeSHembeddings_into_embeddings(model: Word2Vec, pmids: str, articl
 
         if counter_article:
             embeddings_MeSHID /= counter_article
-            model.wv.add_vector(str(meshID).lower(), embeddings_MeSHID)
+            #model.wv.add_vector(str(meshID).lower(), embeddings_MeSHID)
+            batch_embeddings_MeSHID.append(embeddings_MeSHID)
+            batch_meshIDs.append(str(meshID).lower())
                 
+    # Add embedding-vectors in batches
+    model.wv.add_vectors(batch_meshIDs, batch_embeddings_MeSHID)
+    
     return model  
 
 # Post-processing of the documnets' tokens to find MeSH-terms in test/validation data and to append the corresponding MeSHIDs' to tokens
-def injection_MeSHIDs_into_tokens(model: Word2Vec, pmids: str, article_doc: list, global_article_Annot_docs_dict: dict,
-                                  MeShIDtoPMID: str, reduction: int):
+def injection_MeSHIDs_into_tokens(pmids: str, article_doc: list, MeShIDtoPMID: str):
     '''
     Using the generated word embeddings and MeShIDtoPMID tsv-file, append MeSHIDs as new words to the list of tokens of the 
     corresponding articles containing the corresponding MeSH-terms.
     
     Parameters
     ----------
-    model: Word2Vec
-            Word2Vec model.
     pmids: list of str
         The list of all test/validation pmids which are processed.
     article_doc_global: list of list of str
         A two dimensional list of all tokenized test/validation article documents (title + abstract).
-    global_article_Annot_docs_dict: dict
-        Store annotated test/validation tokens in a dictionary with keys PMIDs
     MeShIDtoPMID: str
         File path for the tsv file whose rows consist of MeSHIDs and lists of [PMID, words].
-    reduction: int
-        Whether to reduce the documents'words by replacing the catalogued ones with corresponding MeSHID (1) or not (0).
     '''
 
     # Read the TSV file into a DataFrame
@@ -209,23 +209,16 @@ def injection_MeSHIDs_into_tokens(model: Word2Vec, pmids: str, article_doc: list
             article_with_MeSHterm = int(pmid_term[0])
             if article_with_MeSHterm in pmids:
                 iteration = pmids.index(article_with_MeSHterm)
-                if reduction:
-                    for word in pmid_term[1:]:
-                        try:
-                            if word not in global_article_Annot_docs_dict[article_with_MeSHterm]:
-                                article_doc[iteration].remove(word)
-                        except:
-                            continue
-
                 ArticlesList_with_MeSHterm.append(iteration) #So MeSHembeddings will be injected to all articles with corresponding MeSHIDs
 
         for itr in ArticlesList_with_MeSHterm:
+            # Here MeSHID appended at the end of the list of tokens since order of words doesn't matter for doc-embeddings/cosine-similarity
             article_doc[itr].append(str(meshID).lower())
                 
     return article_doc
 
 # Save the Word2Vec Model
-def saveWord2VecModel(model: Word2Vec, output_file: str) -> None:
+def saveWord2VecModel(model: Word2Vec, output_file: str)-> None:
     """
     Saves the Word2Vec model.
 
@@ -237,11 +230,53 @@ def saveWord2VecModel(model: Word2Vec, output_file: str) -> None:
             File path of the Word2Vec model generated.
     """
     model.save(output_file)
+    
 
 def calculate_cosine_similarity(vec1, vec2):
     return 1 - cosine(vec1, vec2)
 
-def get_similarity_scores(input_relevance_matrix, embeddings, output_matrix_name):
+def get_similarity_scores(input_relevance_matrix, embeddings_df):
+    
+    # Read Relevance matrix
+    column_names = ["PID1", "PID2", "Value"]
+    relevance_matrix_df = pd.read_csv(input_relevance_matrix, sep="\t", names = column_names, skiprows=1)
+
+    # Create an empty list to store rows of PMID-pairs and their relevance- and similarity-scores
+    rows_with_similarities = []
+    
+    # Create a list of ref and assessed PMID-pairs and their relevance-scores
+    pmid_pairs_relevance = list(zip(relevance_matrix_df["PID1"], relevance_matrix_df["PID2"], relevance_matrix_df["Value"]))
+
+    # Create a dictionary to store embeddings
+    embeddings_dict = {pmid: embedding for pmid, embedding in zip(embeddings_df['PID'], embeddings_df['Embedding'])}
+
+
+    for ref_pmid, assessed_pmid, rel_value in tqdm.tqdm(pmid_pairs_relevance, total=len(pmid_pairs_relevance),
+                                                        desc="Calculating Cosine Similarities"):
+        try:
+            ref_pmid_vector = embeddings_dict[ref_pmid]
+            assessed_pmid_vector = embeddings_dict[assessed_pmid]
+            if ref_pmid_vector is not None and assessed_pmid_vector is not None:
+                cosine_similarity = round(calculate_cosine_similarity(ref_pmid_vector, assessed_pmid_vector), 4)
+                rows_with_similarities.append([ref_pmid, assessed_pmid, rel_value, cosine_similarity])
+            else:
+                continue
+                #print(f"One of the vectors is None for ({ref_pmid}, {assessed_pmid})")
+        except KeyError as e:
+            #print(f"\nKeyError: {e}, ref_pmid: {ref_pmid}, assessed_pmid: {assessed_pmid}")
+            continue
+
+    # Create a DataFrame with columns "PID1", "PID2", "Value", "Cosine Similarity"
+    similarity_df = pd.DataFrame(rows_with_similarities, columns=["PID1", "PID2", "Value", "Cosine Similarity"])
+    
+    return similarity_df      
+
+def save_similarity_scores(input_relevance_df, output_matrix_name):
+    # Saves the updated relavance+similarity matrix 
+    input_relevance_df.to_csv(output_matrix_name, index=False, sep="\t")
+    print('Saved relavance+similarity matrix')
+    
+def get_and_save_similarity_scores(input_relevance_matrix, embeddings, output_matrix_name):
     # Read Embeddings
     embeddings_df = pd.read_pickle(embeddings)
     
@@ -260,7 +295,7 @@ def get_similarity_scores(input_relevance_matrix, embeddings, output_matrix_name
     # Create a list of ref and assessed PMID pairs
     pmid_pairs = list(zip(relevance_matrix_df["PID1"], relevance_matrix_df["PID2"]))
 
-    for ref_pmid, assessed_pmid in tqdm.tqdm(pmid_pairs, total=len(pmid_pairs), desc="Calculating Similarities"):
+    for ref_pmid, assessed_pmid in tqdm.tqdm(pmid_pairs, total=len(pmid_pairs), desc="Calculating Cosine Similarities"):
         try:
             ref_pmid_vector = embeddings_dict[ref_pmid]
             assessed_pmid_vector = embeddings_dict[assessed_pmid]
@@ -269,10 +304,10 @@ def get_similarity_scores(input_relevance_matrix, embeddings, output_matrix_name
                 relevance_matrix_df.loc[(relevance_matrix_df['PID1'] == ref_pmid) & (relevance_matrix_df['PID2'] == assessed_pmid), 
                                         'Cosine Similarity'] = cosine_similarity
             else:
-                print(f"One of the vectors is None for ({ref_pmid}, {assessed_pmid})")
+                continue
+                #print(f"One of the vectors is None for ({ref_pmid}, {assessed_pmid})")
         except KeyError as e:
-            print(f"\nKeyError: {e}, ref_pmid: {ref_pmid}, assessed_pmid: {assessed_pmid}")
-            #break
+            #print(f"\nKeyError: {e}, ref_pmid: {ref_pmid}, assessed_pmid: {assessed_pmid}")
             continue
 
     print('Added similarity scores')
@@ -289,18 +324,18 @@ def generate_embeddings(model, pmids, docs, output_file):
         embeddings_list.append(vector)
     save_embeddings_to_pickle(pmids, embeddings_list, output_file)
 
-def save_embeddings_to_pickle(pmids, embeddings_list, output_file):
-    data = {"PID": pmids, "Embedding": embeddings_list}
-    df = pd.DataFrame(data)
-    df = df.sort_values("PID")
+def save_embeddings_to_pickle(df, output_file): #(pmids, embeddings_list, output_file):
+    #data = {"PID": pmids, "Embedding": embeddings_list}
+    #df = pd.DataFrame(data)
+    #df = df.sort_values("PID")
     df.to_pickle(output_file)
     print(f"Embeddings saved to {output_file}")
 
 # Generate document embeddings using the centroid of word embeddings
-def generate_document_embeddings(model: Word2Vec, pmids: str, article_doc: list, output_file: str):
+def generate_document_embeddings(model: Word2Vec, pmids: str, article_doc: list):
     '''
-    Generates document embeddings from a titles and abstracts in a given paper using word2vec and calculating the cenroids of all given word embeddings.
-    If no gensim model is given, the 'glove-wiki-gigaword-200' gensim model is used.
+    Generates document embeddings from a titles and abstracts in a given paper using word2vec and calculating the cenroids 
+    of all given word embeddings.
     
     Parameters
     ----------
@@ -340,4 +375,8 @@ def generate_document_embeddings(model: Word2Vec, pmids: str, article_doc: list,
             document[dim] = document[dim] / len(embedding_list)
         document_embeddings.append(document)
         
-    save_embeddings_to_pickle(pmids, document_embeddings, output_file)
+    #save_embeddings_to_pickle(pmids, document_embeddings, output_file)
+    data = {"PID": pmids, "Embedding": document_embeddings}
+    embeddings_df = pd.DataFrame(data)
+    embeddings_df = embeddings_df.sort_values("PID")
+    return embeddings_df

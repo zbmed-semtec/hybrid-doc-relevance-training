@@ -25,81 +25,63 @@ def run(best_params, args, tuning=False, save_model=False):
     
     # Load the validation/test data
     if tuning:
-        start = time.time()
-        # Store annotated validation tokens in a dictionary with keys PMIDs
-        global_article_Annot_docs_dict = utilities.generate_npy_dict(args.Annot_valid)
         # use validation dataset for tuning
-        test_pmids, test_docs = utilities.process_data_from_npy(args.valid)
-        # Finding MeSH-terms in validation data in order to append the corresponding MeSHIDs' to validation tokens
-        test_docs = utilities.injection_MeSHIDs_into_tokens(model, test_pmids, test_docs, 
-                                                            global_article_Annot_docs_dict, args.MeShIDtoPMID, args.reduction)
+        start = time.time()
+        if args.reduction:
+            # Tokens of postreduction case are the same as pre-annotated tokens:
+            test_pmids, test_docs = utilities.process_data_from_npy(args.Annot_valid)
+        else:
+            test_pmids, test_docs = utilities.process_data_from_npy(args.valid)
+            # Finding MeSH-terms in validation data in order to append the corresponding MeSHIDs' to validation tokens
+            test_docs = utilities.injection_MeSHIDs_into_tokens(test_pmids, test_docs, args.MeShIDtoPMID)
+        
         print(f"Retrieved RELISH Cleaned Validation Data with Reduction={args.reduction}")
 
-        # Define a directory for storing embeddings
-        embeddings_directory = "output_of_model/doc_embeddings"
-        if not os.path.exists(embeddings_directory):
-            os.makedirs(embeddings_directory)
-
-        embeddings_file = os.path.join(embeddings_directory, "test_embeddings_pickle.pkl")
-
-        # Generate the Validation embeddings
-        utilities.generate_document_embeddings(model, test_pmids, test_docs, embeddings_file)
-        print(f"RELISH (Validation) Embeddings Pickle File generated and Saved.")
-
-        # Define the directory for storing evaluation results
-        output_directory = "output_of_model/evaluation"
-        if not os.path.exists(output_directory):
-            os.makedirs(output_directory)
-
-        # Generate and save the cosine similarity matrix
-        similarity_file = os.path.join(output_directory, "cosine_similarity.tsv")
-        utilities.get_similarity_scores(args.valid_ground_truth, embeddings_file, similarity_file)
-        print("RELISH (Validation) Cosine Similarity Matrix Saved.")
+        # Generate the Validation embeddings: Here embeddings_file is a pd.DataFrame
+        embeddings_file = utilities.generate_document_embeddings(model, test_pmids, test_docs)
+        print(f"RELISH (Validation) Embeddings generated.")
+        # Here similarity_file is a pd.DataFrame
+        similarity_file = utilities.get_similarity_scores(args.valid_ground_truth, embeddings_file)
+        print("RELISH (Validation) Cosine Similarity Matrix Generated.")
         end = time.time()
         print(f"Time Taken for Validation: {end - start} seconds.")
     
     else:
-        # Store annotated test tokens in a dictionary with keys PMIDs
-        global_article_Annot_docs_dict = utilities.generate_npy_dict(args.Annot_test)
         # use test dataset for final evaluation
-        test_pmids, test_docs = utilities.process_data_from_npy(args.test)
-        # Finding MeSH-terms in test data in order to append the corresponding MeSHIDs' to test tokens
-        test_docs = utilities.injection_MeSHIDs_into_tokens(model, test_pmids, test_docs, 
-                                                            global_article_Annot_docs_dict, args.MeShIDtoPMID, args.reduction)
+        start = time.time()
+        if args.reduction:
+            # Tokens of postreduction case are the same as pre-annotated tokens:
+            test_pmids, test_docs = utilities.process_data_from_npy(args.Annot_test)
+        else:
+            test_pmids, test_docs = utilities.process_data_from_npy(args.test)
+            # Finding MeSH-terms in test data in order to append the corresponding MeSHIDs' to test tokens
+            test_docs = utilities.injection_MeSHIDs_into_tokens(test_pmids, test_docs, args.MeShIDtoPMID)
+        
         print(f"Retrieved RELISH Cleaned Test Data with Reduction={args.reduction}")
-
-        # Define a directory for storing embeddings
-        embeddings_directory = "output_of_model/doc_embeddings"
-        if not os.path.exists(embeddings_directory):
-            os.makedirs(embeddings_directory)
-
-        embeddings_file = os.path.join(embeddings_directory, "test_embeddings_pickle.pkl")
+        
+        # Define the file path for Storing test Embeddings
+        embeddings_file = "output_of_model/doc_embeddings/test_embeddings_pickle.pkl"
 
         # Generate the embeddings
-        utilities.generate_document_embeddings(model, test_pmids, test_docs, embeddings_file)
+        embeddings_df = utilities.generate_document_embeddings(model, test_pmids, test_docs)
+        # Store the embeddings
+        utilities.save_embeddings_to_pickle(embeddings_df, embeddings_file)
         print("RELISH (Test) Embeddings Pickle File Saved")
 
-        # Define the directory for storing evaluation results
-        output_directory = "output_of_model/evaluation"
-        if not os.path.exists(output_directory):
-            os.makedirs(output_directory)
-
+        # Define the file path for Storing cosine similarity matrix
+        similarity_file = "output_of_model/evaluation/cosine_similarity.tsv"
         # Generate and save the cosine similarity matrix
-        similarity_file = os.path.join(output_directory, "cosine_similarity.tsv")
-        utilities.get_similarity_scores(args.test_ground_truth, embeddings_file, similarity_file)
+        utilities.get_and_save_similarity_scores(args.test_ground_truth, embeddings_file, similarity_file)
         print("RELISH (Test) Cosine Similarity Matrix Saved")
+        end = time.time()
+        print(f"Time Taken for Test-Phase: {end - start} seconds.")
         
+       
     if save_model:
-        # Define the directory for saving the model
-        model_directory = "output_of_model/model"
-        if not os.path.exists(model_directory):
-            os.makedirs(model_directory)
-        
-        model_file = os.path.join(model_directory, "best_Word2Vec_model")
+        # Define the file path for saving the model        
+        model_file = "output_of_model/model/Word2Vec_model"
         # Save the model
         utilities.saveWord2VecModel(model, model_file)
-        #utilities.saveWord2VecModel(model, "output_of_model/model/best_Word2Vec_model")
+    
 
-
-
-    return similarity_file
+    return similarity_file, embeddings_file, model

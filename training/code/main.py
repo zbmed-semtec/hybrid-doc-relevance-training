@@ -4,7 +4,6 @@
 
 import os
 import argparse
-from optunaTuning import run_optuna_optimization
 from train import run
 import precision
 import precision_two_class
@@ -22,26 +21,58 @@ if __name__ == "__main__":
     parser.add_argument("-dict", "--MeShIDtoPMID", type=str, help="Path to input MeShIDtoPMID .tsv file.")
     parser.add_argument("-rd", "--reduction", type=int,
                     help="Whether to reduce the documents'words by replacing the catalogued ones with corresponding MeSHID (1) or not (0)")
+    parser.add_argument("-win", "--windows", type=int,
+                    help="1: if using Windows systems && 0: if using Unix-like systems (including Ubuntu)")
     args = parser.parse_args()
     
-    # Define the directory for storing model results
+    # Define the directory for storing pipeline outputs
     output_directory = "output_of_model"
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
+    # Define the directory for saving the model
+    model_directory = "output_of_model/model"
+    if not os.path.exists(model_directory):
+        os.makedirs(model_directory)
+    # Define the Directory for Storing Embeddings
+    embeddings_directory = "output_of_model/doc_embeddings"
+    if not os.path.exists(embeddings_directory):
+        os.makedirs(embeddings_directory)
+    # Define the directory for storing evaluation results
+    results_directory = "output_of_model/evaluation"
+    if not os.path.exists(results_directory):
+        os.makedirs(results_directory)
 
-    best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=1)
-
+    if args.windows:
+        from optunaTuning_Windows import run_optuna_optimization
+        best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=2)
+    else:
+        from optunaTuning_Unix import run_optuna_optimization
+        best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=2)
+        
+    """
+    #----- Manually best_params given -------
+    best_params = {
+        "vector_size": 360,
+        "window": 12,
+        "min_count": 2,
+        "epochs": 15,
+        "workers": 2,
+        "sg" : 1
+        }
+    """
     print("Finished Optuna optimization and Start Evaluation Test-data and Saving the Best Model")
-    similarity_file = run(best_params, args, tuning=False, save_model=True)
-
-    #output_directory = "output_of_model/evaluation"
-    output_directory = os.path.join(output_directory, "evaluation")
     
-    precision_file = os.path.join(output_directory, "precision_three_class.tsv")
-    precision_file_two_class = os.path.join(output_directory, "precision_two_class.tsv")
-    dcg_file = os.path.join(output_directory, "dcg.tsv")
-    idcg_file = os.path.join(output_directory, "idcg.tsv")
-    ndcg_file = os.path.join(output_directory, "ndcg.tsv")
+    similarity_file, embeddings_file, model = run(best_params, args, tuning=False, save_model=True)
+    
+    # In case of using the same data for test and tunning one, instead of the line above, can use the line below
+    #similarity_file = "output_of_model/evaluation/best_cosine_similarity.tsv"
+    
+    # Define the file paths for the pipeline evaluation results
+    precision_file = os.path.join(results_directory, "precision_three_class.tsv")
+    precision_file_two_class = os.path.join(results_directory, "precision_two_class.tsv")
+    dcg_file = os.path.join(results_directory, "dcg.tsv")
+    idcg_file = os.path.join(results_directory, "idcg.tsv")
+    ndcg_file = os.path.join(results_directory, "ndcg.tsv")
 
     # Generate and save the three-class precision matrix
     ref_pmids, data = precision.read_file(similarity_file)
