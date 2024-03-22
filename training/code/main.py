@@ -22,7 +22,7 @@ if __name__ == "__main__":
     parser.add_argument("-rd", "--reduction", type=int,
                     help="Whether to reduce the documents'words by replacing the catalogued ones with corresponding MeSHID (1) or not (0)")
     parser.add_argument("-win", "--windows", type=int,
-                    help="1: if using Windows systems && 0: if using Unix-like systems (including Ubuntu)")
+                    help="1: if using Windows systems; 0: if using Unix-like systems (including Ubuntu)")
     args = parser.parse_args()
     
     # Define the directory for storing pipeline outputs
