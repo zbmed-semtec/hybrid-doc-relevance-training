@@ -33,7 +33,7 @@ def save_best_model_and_embeddings_and_similarity(model, embeddings_df, similari
     # Define the file path for saving the best validation model
     model_file = "output_of_model/model/best_Word2Vec_model"
     
-    # Acquire a file lock before accessing or modifying any files
+    # Acquire a file lock before accessing or modifying the model file
     with open(model_file, "w") as model_lock_file:
         msvcrt.locking(model_lock_file.fileno(), msvcrt.LK_LOCK, 0)
         # Save the model
@@ -44,7 +44,7 @@ def save_best_model_and_embeddings_and_similarity(model, embeddings_df, similari
     # Define the file path for Storing Embeddings of the Best Validation Hyperparameter Set
     embeddings_file_dest = "output_of_model/doc_embeddings/best_embeddings_pickle.pkl"
     
-    # Acquire a file lock before accessing or modifying any files
+    # Acquire a file lock before accessing or modifying the embeddings file
     with open(embeddings_file_dest, "w") as embeddings_lock_file:
         msvcrt.locking(embeddings_lock_file.fileno(), msvcrt.LK_LOCK, 0)
         # Save Embeddings for the Best Validation Hyperparameter Set
@@ -54,7 +54,7 @@ def save_best_model_and_embeddings_and_similarity(model, embeddings_df, similari
      
     # Define the file path for the best similarity file
     similarity_file_dest = "output_of_model/evaluation/best_cosine_similarity.tsv"
-    # Acquire a file lock before accessing or modifying any files
+    # Acquire a file lock before accessing or modifying the similarity file
     with open(similarity_file_dest, "w") as similarity_lock_file:
         msvcrt.locking(similarity_lock_file.fileno(), msvcrt.LK_LOCK, 0)
         # Save the best similarity file as a csv file
