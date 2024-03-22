@@ -108,9 +108,6 @@ def objective_wrapper(args):
                 best_precision = float(f.read().strip()) # .strip() removes leading and trailing whitespace characters from a string.
         else:
             best_precision = -1.0
-
-        # Debugging: Print precision values for debugging
-        print(f"Precision_5: {precision_5}, Best Precision: {best_precision}")
         
         """
         When trial.should_prune() returns True, it means that Optuna has determined that the current trial is not likely to produce 
