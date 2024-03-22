@@ -42,6 +42,7 @@ if __name__ == "__main__":
     if not os.path.exists(results_directory):
         os.makedirs(results_directory)
 
+    # Optuna can run multiple trials concurrently using n_jobs parallel processes or threads
     if args.windows:
         from optunaTuning_Windows import run_optuna_optimization
         best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=2)
