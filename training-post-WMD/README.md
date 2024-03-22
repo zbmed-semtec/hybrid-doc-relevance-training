@@ -61,11 +61,11 @@ deactivate
 
 ### Step 4: Optimization Pipeline
 
-This pipeline aims to optimize hyperparameters Word2Vec model for hybrid post WMD Word-2Doc-2Vec approach using Optuna, train the model with the optimal parameters, and evaluate its performance using three-class precision at 5 (Precision@5).
+This pipeline aims to optimize hyperparameters of Word2Vec model for hybrid post WMD Word-2Doc-2Vec approach using Optuna, train the model with the optimal parameters, and evaluate its performance using three-class precision at 5 (Precision@5).
 
 #### Pipeline Steps:
 
-- **Hyperparameter Optimization**: Utilizes Optuna to search for the best hyperparameters for Word2Vec model in hybrid post WMD Word-2Doc-2Vec approach.
+- **Hyperparameter Optimization**: Utilizes Optuna to search for the best hyperparameters of Word2Vec model within hybrid post WMD Word-2Doc-2Vec approach.
 - **Model Training**: Trains Word2Vec model for hybrid post WMD Word-2Doc-2Vec approach with the optimal hyperparameters using the training split data.
 - **Similarity Computation**: Calculates [WMD (Word Mover’s Distance)](../docs/WMD.md) similarities for the validation dataset using Gensim implementation of WMD, which utilizes the trained Word2Vec model.
 - **Precision@N Calculation**: Computes Precision@N scores, a measure of the relevance of retrieved documents, for the obtained WMD similarities.
