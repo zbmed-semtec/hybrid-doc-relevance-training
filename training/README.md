@@ -61,13 +61,13 @@ deactivate
 
 ### Step 4: Optimization Pipeline
 
-This pipeline aims to optimize hyperparameters for hybrid post(reduction) Word-2Doc-2Vec model using Optuna, train the model with the optimal parameters, and evaluate its performance using three-class precision at 5 (Precision@5).
+This pipeline aims to optimize hyperparameters of Word2Vec model for hybrid post(reduction) Word-2Doc-2Vec approach using Optuna, train the model with the optimal parameters, and evaluate its performance using three-class precision at 5 (Precision@5).
 
 #### Pipeline Steps:
 
-- **Hyperparameter Optimization**: Utilizes Optuna to search for the best hyperparameters for hybrid post(reduction) Word-2Doc-2Vec model.
-- **Model Training**: Trains hybrid post(reduction) Word-2Doc-2Vec model with the optimal hyperparameters using 80% of the training split data.
-- **Embedding Generation**: Generates embeddings for the remaining 20% of the test split data using the trained model.
+- **Hyperparameter Optimization**: Utilizes Optuna to search for the best hyperparameters of Word2Vec model within hybrid post(reduction) Word-2Doc-2Vec approach.
+- **Model Training**: Trains Word2Vec model for hybrid post(reduction) Word-2Doc-2Vec approach with the optimal hyperparameters using the training split data.
+- **Embedding Generation**: Generates embeddings for the validation data using the trained model.
 - **Cosine Similarity Computation**: Calculates cosine similarities for the generated embeddings.
 - **Precision@N Calculation**: Computes Precision@N scores, a measure of the relevance of retrieved documents, for the obtained cosine similarities.
 - **NDCG Score Calculation**: Computes normalized discounted cumulative gain (NDCG) scores, which assesses the quality of ranked search results based on relevance assessments.
@@ -91,12 +91,12 @@ You must pass the following four arguments:
 + -rd/ --reduction : Whether to reduce the documents'words by replacing the catalogued ones with corresponding MeSHID (1) or not (0).
 + -win/ --windows : Assign 1 if using Windows systems; and 0 if using Unix-like systems (including Ubuntu).
 
-To run this script for hybrid-post-Word2Doc-2Vec, on Windows systems for instance, you may execute the following command:
+For instance to run this script for hybrid-post-Word2Doc-2Vec on Windows systems, you may execute the following command:
 
 ```
 python3 code/main.py -i relish_train_tokens_removed_stopwords.npy -v relish_val_tokens_removed_stopwords.npy -anv relish_val_annotated_tokens_removed_stopwords.npy -t relish_test_tokens_removed_stopwords.npy -ant relish_test_annotated_tokens_removed_stopwords.npy -gv val_split.tsv -gt test_split.tsv -dict ../data/dic_MeShIDtoPMID_2022628.tsv -rd 0 -win 1
 ```
-and in case of reduction, i.e. for hybrid-postreduction-Word2Doc-2Vec, using Unix-like systems (including Ubuntu) for instance, you may execute the following command:
+and in case of reduction, i.e. for hybrid-postreduction-Word2Doc-2Vec, using Unix-like systems (including Ubuntu), you may execute the following command:
 ```
 python3 code/main.py -i relish_train_tokens_removed_stopwords.npy -v relish_val_tokens_removed_stopwords.npy -anv relish_val_annotated_tokens_removed_stopwords.npy -t relish_test_tokens_removed_stopwords.npy -ant relish_test_annotated_tokens_removed_stopwords.npy -gv val_split.tsv -gt test_split.tsv -dict ../data/dic_MeShIDtoPMID_2022628.tsv -rd 1 -win 0
 ```
