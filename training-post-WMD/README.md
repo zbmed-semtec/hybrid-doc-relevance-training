@@ -61,14 +61,13 @@ deactivate
 
 ### Step 4: Optimization Pipeline
 
-This pipeline aims to optimize hyperparameters for hybrid post WMD Word-2Doc-2Vec model using Optuna, train the model with the optimal parameters, and evaluate its performance using three-class precision at 5 (Precision@5).
+This pipeline aims to optimize hyperparameters Word2Vec model for hybrid post WMD Word-2Doc-2Vec approach using Optuna, train the model with the optimal parameters, and evaluate its performance using three-class precision at 5 (Precision@5).
 
 #### Pipeline Steps:
 
-- **Hyperparameter Optimization**: Utilizes Optuna to search for the best hyperparameters for hybrid post WMD Word-2Doc-2Vec model.
-- **Model Training**: Trains hybrid post WMD Word-2Doc-2Vec model with the optimal hyperparameters using 80% of the training split data.
-- **Embedding Generation**: Generates embeddings for the remaining 20% of the test split data using the trained model.
-- **Similarity Computation**: Calculates [WMD (Word Mover’s Distance)](../docs/WMD.md) similarities using Gensim implementation of WMD, which utilizes the trained Word2Vec model.
+- **Hyperparameter Optimization**: Utilizes Optuna to search for the best hyperparameters for Word2Vec model in hybrid post WMD Word-2Doc-2Vec approach.
+- **Model Training**: Trains Word2Vec model for hybrid post WMD Word-2Doc-2Vec approach with the optimal hyperparameters using the training split data.
+- **Similarity Computation**: Calculates [WMD (Word Mover’s Distance)](../docs/WMD.md) similarities for the validation dataset using Gensim implementation of WMD, which utilizes the trained Word2Vec model.
 - **Precision@N Calculation**: Computes Precision@N scores, a measure of the relevance of retrieved documents, for the obtained WMD similarities.
 - **NDCG Score Calculation**: Computes normalized discounted cumulative gain (NDCG) scores, which assesses the quality of ranked search results based on relevance assessments.
 
@@ -88,7 +87,7 @@ You must pass the following four arguments:
 + -dict/ --MeShIDtoPMID : File path to input MeShIDtoPMID (.tsv file format).
 + -win/ --windows : Assign 1 if using Windows systems; and 0 if using Unix-like systems (including Ubuntu).
 
-To run this script on Windows systems, you may execute the following command:
+For instance, to run this script on Windows systems, you may execute the following command:
 
 ```
 python3 code/main.py -i relish_train_tokens_removed_stopwords.npy -v relish_val_tokens_removed_stopwords.npy -t relish_test_tokens_removed_stopwords.npy -gv val_split.tsv -gt test_split.tsv -dict ../data/dic_MeShIDtoPMID_2022628.tsv -win 1
