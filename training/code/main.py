@@ -65,7 +65,7 @@ if __name__ == "__main__":
     
     similarity_file, embeddings_file, model = run(best_params, args, tuning=False, save_model=True)
     
-    # In case of using the same data for test and tunning one, instead of the line above, can use the line below
+    # In case of using the same data for test and tunning one, instead of the preceding line, the following line can be used:
     #similarity_file = "output_of_model/evaluation/best_cosine_similarity.tsv"
     
     # Define the file paths for the pipeline evaluation results
