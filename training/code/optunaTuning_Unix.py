@@ -84,7 +84,7 @@ def objective_wrapper(args):
             "sg" : sg
         }
 
-        # Assume run() trains the model and returns the paths to files with similarity scores,embeddings and the trained model
+        # Assume run() trains the model and returns the similarity scores,embeddings and the trained model
         similarity_df, embeddings_df, model = run(params, args, tuning = True, save_model=False)
         
         #ref_pmids, data = precision.read_file(similarity_file)
