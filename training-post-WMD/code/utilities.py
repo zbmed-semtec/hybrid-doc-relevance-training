@@ -461,7 +461,7 @@ def get_cosine_similarity_scores(input_relevance_matrix, embeddings, output_matr
     relevance_matrix_df.to_csv(output_matrix_name, index=False, sep="\t")
     print('Saved matrix')
 
-def generate_embeddings(model, pmids, docs, output_file):
+def generate_embeddings(model: Doc2Vec, pmids: List[str], docs: List[List[str]], output_file: str):
     embeddings_list = []
     for doc in docs:
         # Infer vector for each document
