@@ -316,15 +316,7 @@ def get_and_save_similarity_scores(input_relevance_matrix, embeddings, output_ma
     relevance_matrix_df.to_csv(output_matrix_name, index=False, sep="\t")
     print('Saved matrix')
 
-def generate_embeddings(model, pmids, docs, output_file):
-    embeddings_list = []
-    for doc in docs:
-        # Infer vector for each document
-        vector = model.infer_vector(doc)
-        embeddings_list.append(vector)
-    save_embeddings_to_pickle(pmids, embeddings_list, output_file)
-
-def save_embeddings_to_pickle(df, output_file): #(pmids, embeddings_list, output_file):
+def save_embeddings_to_pickle(df, output_file):
     #data = {"PID": pmids, "Embedding": embeddings_list}
     #df = pd.DataFrame(data)
     #df = df.sort_values("PID")
@@ -375,7 +367,6 @@ def generate_document_embeddings(model: Word2Vec, pmids: str, article_doc: list)
             document[dim] = document[dim] / len(embedding_list)
         document_embeddings.append(document)
         
-    #save_embeddings_to_pickle(pmids, document_embeddings, output_file)
     data = {"PID": pmids, "Embedding": document_embeddings}
     embeddings_df = pd.DataFrame(data)
     embeddings_df = embeddings_df.sort_values("PID")
