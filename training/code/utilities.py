@@ -182,7 +182,8 @@ def injection_MeSHembeddings_into_embeddings(model: Word2Vec, pmids: str, articl
     return model  
 
 # Post-processing of the documnets' tokens to find MeSH-terms in test/validation data and to append the corresponding MeSHIDs' to tokens
-def injection_MeSHIDs_into_tokens(pmids: str, article_doc: list, MeShIDtoPMID: str):
+def injection_MeSHIDs_into_tokens(pmids: str, article_doc: list, global_article_Annot_docs_dict: dict,
+                                  MeShIDtoPMID: str, reduction: int):
     '''
     Using the generated word embeddings and MeShIDtoPMID tsv-file, append MeSHIDs as new words to the list of tokens of the 
     corresponding articles containing the corresponding MeSH-terms.
@@ -193,8 +194,12 @@ def injection_MeSHIDs_into_tokens(pmids: str, article_doc: list, MeShIDtoPMID: s
         The list of all test/validation pmids which are processed.
     article_doc_global: list of list of str
         A two dimensional list of all tokenized test/validation article documents (title + abstract).
+    global_article_Annot_docs_dict: dict
+        Store annotated test/validation tokens in a dictionary with keys PMIDs
     MeShIDtoPMID: str
         File path for the tsv file whose rows consist of MeSHIDs and lists of [PMID, words].
+    reduction: int
+        Whether to reduce the documents'words by replacing the catalogued ones with corresponding MeSHID (1) or not (0).
     '''
 
     # Read the TSV file into a DataFrame
@@ -209,10 +214,17 @@ def injection_MeSHIDs_into_tokens(pmids: str, article_doc: list, MeShIDtoPMID: s
             article_with_MeSHterm = int(pmid_term[0])
             if article_with_MeSHterm in pmids:
                 iteration = pmids.index(article_with_MeSHterm)
+                if reduction:
+                    for word in pmid_term[1:]:
+                        try:
+                            if word not in global_article_Annot_docs_dict[article_with_MeSHterm]:
+                                article_doc[iteration].remove(word)
+                        except:
+                            continue
+
                 ArticlesList_with_MeSHterm.append(iteration) #So MeSHembeddings will be injected to all articles with corresponding MeSHIDs
 
         for itr in ArticlesList_with_MeSHterm:
-            # Here MeSHID appended at the end of the list of tokens since order of words doesn't matter for doc-embeddings/cosine-similarity
             article_doc[itr].append(str(meshID).lower())
                 
     return article_doc
