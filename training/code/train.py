@@ -27,6 +27,7 @@ def run(best_params, args, tuning=False, save_model=False):
     if tuning:
         # use validation dataset for tuning
         start = time.time()
+        '''
         if args.reduction:
             # Tokens of postreduction case are the same as pre-annotated tokens:
             test_pmids, test_docs = utilities.process_data_from_npy(args.Annot_valid)
@@ -34,7 +35,15 @@ def run(best_params, args, tuning=False, save_model=False):
             test_pmids, test_docs = utilities.process_data_from_npy(args.valid)
             # Finding MeSH-terms in validation data in order to append the corresponding MeSHIDs' to validation tokens
             test_docs = utilities.injection_MeSHIDs_into_tokens(test_pmids, test_docs, args.MeShIDtoPMID)
-        
+        '''
+        # Store annotated validation tokens in a dictionary with keys PMIDs
+        global_article_Annot_docs_dict = utilities.generate_npy_dict(args.Annot_valid)
+        # use validation dataset for tuning
+        test_pmids, test_docs = utilities.process_data_from_npy(args.valid)
+        # Finding MeSH-terms in validation data in order to append the corresponding MeSHIDs' to validation tokens
+        test_docs = utilities.injection_MeSHIDs_into_tokens(model, test_pmids, test_docs, 
+                                                            global_article_Annot_docs_dict, args.MeShIDtoPMID, args.reduction)
+        #---------------------------------------------------------------------------------------------------------------------        
         print(f"Retrieved RELISH Cleaned Validation Data with Reduction={args.reduction}")
 
         # Generate the Validation embeddings: Here embeddings_file is a pd.DataFrame
@@ -49,6 +58,7 @@ def run(best_params, args, tuning=False, save_model=False):
     else:
         # use test dataset for final evaluation
         start = time.time()
+        '''
         if args.reduction:
             # Tokens of postreduction case are the same as pre-annotated tokens:
             test_pmids, test_docs = utilities.process_data_from_npy(args.Annot_test)
@@ -56,7 +66,15 @@ def run(best_params, args, tuning=False, save_model=False):
             test_pmids, test_docs = utilities.process_data_from_npy(args.test)
             # Finding MeSH-terms in test data in order to append the corresponding MeSHIDs' to test tokens
             test_docs = utilities.injection_MeSHIDs_into_tokens(test_pmids, test_docs, args.MeShIDtoPMID)
-        
+        '''
+        # Store annotated test tokens in a dictionary with keys PMIDs
+        global_article_Annot_docs_dict = utilities.generate_npy_dict(args.Annot_test)
+        # use test dataset for final evaluation
+        test_pmids, test_docs = utilities.process_data_from_npy(args.test)
+        # Finding MeSH-terms in test data in order to append the corresponding MeSHIDs' to test tokens
+        test_docs = utilities.injection_MeSHIDs_into_tokens(model, test_pmids, test_docs, 
+                                                            global_article_Annot_docs_dict, args.MeShIDtoPMID, args.reduction)
+        #---------------------------------------------------------------------------------------------------------------------
         print(f"Retrieved RELISH Cleaned Test Data with Reduction={args.reduction}")
         
         # Define the file path for Storing test Embeddings
