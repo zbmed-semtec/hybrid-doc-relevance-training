@@ -41,7 +41,7 @@ def run(best_params, args, tuning=False, save_model=False):
         # use validation dataset for tuning
         test_pmids, test_docs = utilities.process_data_from_npy(args.valid)
         # Finding MeSH-terms in validation data in order to append the corresponding MeSHIDs' to validation tokens
-        test_docs = utilities.injection_MeSHIDs_into_tokens(model, test_pmids, test_docs, 
+        test_docs = utilities.injection_MeSHIDs_into_tokens(test_pmids, test_docs, 
                                                             global_article_Annot_docs_dict, args.MeShIDtoPMID, args.reduction)
         #---------------------------------------------------------------------------------------------------------------------        
         print(f"Retrieved RELISH Cleaned Validation Data with Reduction={args.reduction}")
@@ -72,7 +72,7 @@ def run(best_params, args, tuning=False, save_model=False):
         # use test dataset for final evaluation
         test_pmids, test_docs = utilities.process_data_from_npy(args.test)
         # Finding MeSH-terms in test data in order to append the corresponding MeSHIDs' to test tokens
-        test_docs = utilities.injection_MeSHIDs_into_tokens(model, test_pmids, test_docs, 
+        test_docs = utilities.injection_MeSHIDs_into_tokens(test_pmids, test_docs, 
                                                             global_article_Annot_docs_dict, args.MeShIDtoPMID, args.reduction)
         #---------------------------------------------------------------------------------------------------------------------
         print(f"Retrieved RELISH Cleaned Test Data with Reduction={args.reduction}")
