@@ -155,16 +155,16 @@ def generate_post_npy_dict_via_injection_MeSHIDs_into_tokens(filepath_in: str, M
                 
                 for shift, index in enumerate(indices):
                     # To append the MeSHID before the corresponding MeSH-term
-                    article_docs_dict[article_with_MeSHterm].insert(index + shift, str(meshID))
+                    article_docs_dict[article_with_MeSHterm].insert(index + shift, str(meshID).lower())
                     
                     # To append the MeSHID after the corresponding MeSH-term:
-                    #article_docs_dict[article_with_MeSHterm].insert(index + shift + len(pattern_to_find), str(meshID))
+                    #article_docs_dict[article_with_MeSHterm].insert(index + shift + len(pattern_to_find), str(meshID).lower())
                     
                     # To sandwich the Mesh-term with the corresponding MeSHID
-                    #article_docs_dict[article_with_MeSHterm].insert(index + 2*shift, str(meshID))
-                    #article_docs_dict[article_with_MeSHterm].insert(index + 2*shift + len(pattern_to_find) + 1, str(meshID))
+                    #article_docs_dict[article_with_MeSHterm].insert(index + 2*shift, str(meshID).lower())
+                    #article_docs_dict[article_with_MeSHterm].insert(index + 2*shift + len(pattern_to_find) + 1, str(meshID).lower())
                 #----------------------------------------------------------------
-                #article_docs_dict[article_with_MeSHterm].append(str(meshID)) # append MeSHID at the end of the list of tokens
+                #article_docs_dict[article_with_MeSHterm].append(str(meshID).lower()) # append MeSHID at the end of the list of tokens
             except:
                 continue
     return article_docs_dict
