@@ -68,10 +68,10 @@ if __name__ == "__main__":
     """
     print("Finished Optuna optimization and Start Evaluation Test-data and Saving the Best Model")
     
-    similarity_file, model = run(best_params, args, tuning=False, save_model=True)
+    #similarity_file, model = run(best_params, args, tuning=False, save_model=True)
     
     # In case of using the same data for test and tunning one, instead of the preceding line, the following line can be used:
-    #similarity_file = "output_of_model/evaluation/best_WMD_similarity.tsv"
+    similarity_file = "output_of_model/evaluation/best_WMD_similarity.tsv"
     
     
     precision_file = os.path.join(results_directory, "precision_three_class.tsv")
