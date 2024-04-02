@@ -30,7 +30,7 @@ def run(best_params, args, tuning=False, save_model=False):
         # Store Validation Relish Post-processed/annotated tokens in a dictionary with keys PMIDs
         article_post_annot_docs_dict = utilities.generate_post_npy_dict_via_injection_MeSHIDs_into_tokens(args.valid, args.MeShIDtoPMID)
         print("Prepared RELISH Post-Annot Validation Dictionary For Hybrid-WMD-Post-Word2Doc2Vec")
-
+        # Here similarity_file is a pd.DataFrame
         similarity_file = utilities.get_WMD_similarity_scores(args.valid_ground_truth, model, article_post_annot_docs_dict)
         print("RELISH (Validation) WMD-Similarity-Matrix DataFrame Generated.")
         end = time.time()
