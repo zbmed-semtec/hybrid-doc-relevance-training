@@ -159,7 +159,10 @@ def injection_MeSHembeddings_into_embeddings(pmids: str, article_doc: list, MeSh
     else:
         print('using pretrained model')
         word_vectors = api.load('word2vec-google-news-300')
-
+        
+    batch_embeddings_MeSHID = []
+    batch_meshIDs = []
+                                                 
     # Read the TSV file into a DataFrame
     df = pd.read_csv(MeShIDtoPMID, sep='\t', header=None, names=['MeSHID', 'Appearance(pmid , tokenized lowercase words)'], skiprows=1)
 
@@ -199,10 +202,14 @@ def injection_MeSHembeddings_into_embeddings(pmids: str, article_doc: list, MeSh
                 
         if counter_article:
             embeddings_MeSHID /= counter_article
-            word_vectors.wv.add_vector(str(meshID), embeddings_MeSHID)
+            #word_vectors.wv.add_vector(str(meshID), embeddings_MeSHID)
+            batch_embeddings_MeSHID.append(embeddings_MeSHID)
+            batch_meshIDs.append(str(meshID))
             for itr in ArticlesList_with_MeSHterm:
                 article_doc[itr].append(str(meshID))
                 
+    # Add embedding-vectors in batches
+    word_vectors.wv.add_vectors(batch_meshIDs, batch_embeddings_MeSHID)
     # Save the updated model
     word_vectors.save(gensim_model_path)
     
