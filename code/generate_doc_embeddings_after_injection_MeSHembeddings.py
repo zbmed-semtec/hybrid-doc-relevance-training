@@ -155,7 +155,7 @@ def injection_MeSHembeddings_into_embeddings(pmids: str, article_doc: list, MeSh
     word_vectors = None
     has_custom_model = gensim_model_path != ""
     if has_custom_model:
-        word_vectors = model.Word2Vec.load(gensim_model_path)
+        word_vectors = Word2Vec.load(gensim_model_path) # model.Word2Vec.load(gensim_model_path)
     else:
         print('using pretrained model')
         word_vectors = api.load('word2vec-google-news-300')
