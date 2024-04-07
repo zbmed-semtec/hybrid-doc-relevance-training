@@ -1,5 +1,7 @@
 **Note that in this directory, models are trained and embeddings are generated for data with Removed-Stopwords**
 
+In order to generalize the code for data including Stopwords, some changes are required in script [utilities.py](./code/utilities.py). Specifically, line 151 of function `generate_post_npy_dict_via_injection_MeSHIDs_into_tokens`, and line 282 of function `replacement_of_MeSHterms_with_MeSHIDs_in_tokens` must be replaced with `pattern_to_find = pmid_term[1:]`.
+
 ## Getting Started
 
 To get started with this project, follow these steps:
@@ -103,3 +105,4 @@ Note that this [script](./code/main.py) creates a [resumable Optuna study](https
 
 Also, the best validation's trained model and its corresponding embeddings and cosine similarities are saved by the code in file-paths `output_of_model/model/best_Word2Vec_model`, `output_of_model/doc_embeddings/best_embeddings_pickle.pkl` and `output_of_model/evaluation/best_cosine_similarity.tsv`, correspondingly. This could be helpful to avoid redundant calculations when using the same dataset for both validation and testing. The saved best trained model from the validation phase is then loaded during the test phase to perform evaluation using test data.
 
+Unfortunately, the use of `model.wv.add_vectors` to add new MeSHembedding-vectors in batches in the function `injection_MeSHembeddings_into_embeddings` of the script [utilities.py](./code/utilities.py) renders the saved best model from the tuning phase unloading. Therefore, to add new MeSHembedding-vectors, `model.wv.add_vector()` is utilized,  which may be inefficient and costly, as indicated by Gensim's warning about inefficiency.
