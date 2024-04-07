@@ -22,7 +22,7 @@ Ensure you have set up SSH keys in your GitHub account.
 git clone git@github.com:zbmed-semtec/hybrid-post-word2doc2vec-doc-relevance-training.git
 ```
 
-#### Navigate to the `training-post-WMD` Folder:
+#### Navigate to the `training-PostReduction-WMD` Folder:
 
 ```
 cd hybrid-post-word2doc2vec-doc-relevance-training/training-PostReduction-WMD
