@@ -4,7 +4,6 @@
 
 import os
 import time
-#from gensim.models import KeyedVectors
 from gensim.models import Word2Vec
 import argparse
 import utilities as utilities
@@ -43,7 +42,6 @@ def run(best_params, args, tuning=False):
     else:   
         start = time.time()
         # Load the previously saved best-trained model from the validation phase
-        #model = KeyedVectors.load("output_of_model/model/best_Word2Vec_model")
         model = Word2Vec.load("output_of_model/model/best_Word2Vec_model")
         
         # Store Test Relish Post-processed/annotated tokens in a dictionary with keys PMIDs
