@@ -1,7 +1,7 @@
 # Hybrid-post(reduction)-Word2Doc2Vec-Doc-relevance
 This repository focuses on an approach exploring and assessing literature-based doc-2-doc recommendations using the Word2Vec technique, followed  centroid aggregation method to create document-level embeddings. The approach is applied to the RELISH dataset. Note that in this directory, Word2Vec models are trained and embeddings are generated for data with Removed-Stopwords.
 
-**For Phase I, i.e. Hybrid-post(reduction)-Word2Doc2Vec-Doc-relevance and Hybrid-post(reduction)-WMD-Word2Vec-Doc-relevance which involve training using the entire Relish dataset, for a faster codebase—approximately 30% quicker—with simpler execution instructions and enhanced accuracy, employing an approach independent of preAnnot tokens for post-annotation, please refer to the directory [hybrid-post-word2doc2vec-doc-relevance](./hybrid-post-word2doc2vec-doc-relevance).**
+**For Phase I, i.e. _Hybrid-post(reduction)-Word2Doc2Vec-Doc-relevance_ and _Hybrid-post(reduction)-WMD-Word2Vec-Doc-relevance_ which involve training using the entire Relish dataset, for a faster codebase—approximately 30% quicker—with simpler execution instructions and enhanced accuracy, employing an approach independent of preAnnot tokens for post-annotation, please refer to the directory [hybrid-post-word2doc2vec-doc-relevance](./hybrid-post-word2doc2vec-doc-relevance).**
 
 ## Table of Contents
 
