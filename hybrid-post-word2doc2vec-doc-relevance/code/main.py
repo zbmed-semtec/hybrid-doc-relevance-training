@@ -17,7 +17,7 @@ from nltk.corpus import stopwords
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--input", type=str, help="Path to input (train) .npy file")
+    parser.add_argument("-i", "--input", type=str, help="Path to input dataset .npy file")
     parser.add_argument("-gt", "--ground_truth", type=str, help="Path to ground truth .tsv file")
     parser.add_argument("-pj", "--params_json", type=str, help="File path to doc2vec hyperparameters JSON")
     parser.add_argument("-dict", "--MeShIDtoPMID", type=str, help="Path to input MeShIDtoPMID .tsv file.")
