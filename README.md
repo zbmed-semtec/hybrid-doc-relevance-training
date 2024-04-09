@@ -1,5 +1,7 @@
 # Hybrid-post(reduction)-Word2Doc2Vec-Doc-relevance
-This repository focuses on an approach exploring and assessing literature-based doc-2-doc recommendations using the Word2Vec technique, followed  centroid aggregation method to create document-level embeddings. The approach is applied to the RELISH dataset.
+This repository focuses on an approach exploring and assessing literature-based doc-2-doc recommendations using the Word2Vec technique, followed  centroid aggregation method to create document-level embeddings. The approach is applied to the RELISH dataset. Note that in this directory, Word2Vec models are trained and embeddings are generated for data with Removed-Stopwords.
+
+**For using ~30% faster compact-code with much easier run-instruction which is based on more accurate approach for post-annotation, you may refer to directory [compact-code](./compact-code).**
 
 ## Table of Contents
 
@@ -315,7 +317,9 @@ python3 code/calculate_gain.py -i data/w2v_relevance_0.tsv -o data/w2v_ndcg_0.ts
 
 This pipeline aims to optimize hyperparameters for hybrid post(reduction) Word-2Doc-2Vec approach using [Optuna](https://optuna.readthedocs.io/en/stable/faq.html). During the validation process, Word-2Doc-2Vec models are trained using suggested hyperparameter sets by Optuna, and Optuna evaluates their performance using three-class precision at 5 (Precision@5).
 
-For detailed information regarding hybrid-post-Word2Doc-2Vec and hybrid-postreduction-Word2Doc-2Vec, please refer to directory [training](./training)
+For detailed information regarding hybrid-post-Word2Doc2Vec and hybrid-postreduction-Word2Doc2Vec, please refer to directory [training](./training)
+
+For detailed information regarding hybrid-post-WMD-Word2Vec and hybrid-postreduction-WMD-Word2Vec, please refer to directories [training-post-WMD](./training-post-WMD) and [training-PostReduction-WMD](./training-PostReduction-WMD), respectively.
 
 ## Tutorial
 A [tutorial](./docs/Tutorial.ipynb) is accessible in the form of Jupyter notebook for the generation of embeddings.
