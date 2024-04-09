@@ -1,6 +1,6 @@
 **Note that in this directory, models are trained and embeddings are generated for data with Removed-Stopwords**
 
-In order to generalize the code for data including Stopwords, some changes are required in script [utilities.py](./code/utilities.py). Specifically, line 151 of function `generate_post_npy_dict_via_injection_MeSHIDs_into_tokens`, and line 282 of function `replacement_of_MeSHterms_with_MeSHIDs_in_tokens` must be replaced with `pattern_to_find = pmid_term[1:]`.
+In order to generalize the code for data including Stopwords, some changes are required in script [utilities.py](./code/utilities.py). Specifically, line 151 of function `generate_postReduction_npy_dict_via_injection_MeSHIDs_into_tokens`, line 215 of function `generate_post_npy_dict_via_injection_MeSHIDs_into_tokens`, line 373 of function `replacement_of_MeSHterms_with_MeSHIDs_in_tokens`, and line 417 of function `injection_MeSHIDs_into_tokens` must be replaced with `pattern_to_find = pmid_term[1:]`.
 
 ## Getting Started
 
