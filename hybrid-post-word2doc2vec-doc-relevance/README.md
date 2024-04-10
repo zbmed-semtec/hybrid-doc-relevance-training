@@ -58,14 +58,14 @@ deactivate
 ### Step 3: Dataset
 - Download the dataset from this link: [RELISH_Tokenized_Removed_Stopwords](https://drive.google.com/file/d/1TrnWdIWlrLTCEXBeV3x8rFwd4wKVdmy9/view)
 
-### Step 4: Optimization Pipeline
+### Step 4: Create Model Pipeline
 
 This pipeline aims to create Word2Vec models using given hyperparameter sets, train the models, and evaluate their performance using three-class precision, two-class precision and nDCG scores.
 
 #### Pipeline Steps:
 
 - **Model Training**: Trains Word2Vec model with the given hyperparameters using the input tokens.
-- **Similarity Computation**: Calculates [WMD (Word Mover’s Distance)](../docs/WMD.md) similarities for input dataset using Gensim implementation of WMD, which utilizes the trained Word2Vec model.
+- **WMD Similarity Computation**: Calculates [WMD (Word Mover’s Distance)](../docs/WMD.md) similarities for input dataset using Gensim implementation of WMD, which utilizes the trained Word2Vec model.
 - **Embedding Generation**: Generates embeddings for input documents using the trained model.
 - **Cosine Similarity Computation**: Calculates cosine similarities for the generated embeddings.
 - **Precision@N Calculation**: Computes Precision@N scores, a measure of the relevance of retrieved documents, for the obtained WMD similarities and for the obtained cosine similarities.
@@ -99,4 +99,3 @@ python3 code/main.py -i RELISH_Tokenized_Removed_Stopwords.npy -gt ../data/RELIS
 ```
 
 All outputs of the [script](./code/main.py) are saved in the folder named `output_of_model`. For hyperparameter set i, the code saves the corresponding trained model, embeddings, cosine similarities, and WMD scores in the following file paths: `output_of_model/model_i/Word2Vec_model`, `output_of_model/doc_embeddings/embeddings_pickle_i.pkl`, `output_of_model/evaluation/cosine_similarity_i.tsv`, and `output_of_model/evaluation/WMD_scores/WMD_similarity_i.tsv`, respectively. Additionally, evaluation results using cosine similarities and WMD scores are stored in the folders `output_of_model/evaluation` and `output_of_model/evaluation/WMD_scores`, correspondingly, with the same naming convention.
-
