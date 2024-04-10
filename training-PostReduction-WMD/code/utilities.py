@@ -99,7 +99,7 @@ def generate_npy_dict(filepath_in: str=None)->dict:
     return article_docs_dict
 
 # Store test/validation Relish tokens in a dictionary with keys PMIDs after Post-processing the documnets' tokens to find 
-# MeSH-terms in data and to append the corresponding MeSHIDs' to tokens
+# MeSH-terms in data and to replace MeSH-terms with the corresponding MeSHIDs
 def generate_post_npy_dict_via_injection_MeSHIDs_into_tokens(filepath_in: str, MeShIDtoPMID: str)->dict:
     '''
     Retrieves data from RELISH npy files, separating pmid and the document consisting of title and abstract..
@@ -209,8 +209,8 @@ def injection_MeSHembeddings_into_embeddings(model: Word2Vec, pmids: str, articl
     MeShIDtoPMID
         File path for the tsv file whose rows consist of MeSHIDs and lists of [PMID, words].
     '''
-    #batch_embeddings_MeSHID = []
-    #batch_meshIDs = []
+    batch_embeddings_MeSHID = []
+    batch_meshIDs = []
 
     # Read the TSV file into a DataFrame
     df = pd.read_csv(MeShIDtoPMID, sep='\t', header=None, names=['MeSHID', 'Appearance(pmid , tokenized lowercase words)'], skiprows=1)
@@ -241,12 +241,41 @@ def injection_MeSHembeddings_into_embeddings(model: Word2Vec, pmids: str, articl
 
         if counter_article:
             embeddings_MeSHID /= counter_article
-            model.wv.add_vector(str(meshID).lower(), embeddings_MeSHID)
-            #batch_embeddings_MeSHID.append(embeddings_MeSHID)
-            #batch_meshIDs.append(str(meshID).lower())
+            #model.wv.add_vector(str(meshID).lower(), embeddings_MeSHID)
+            batch_embeddings_MeSHID.append(embeddings_MeSHID)
+            batch_meshIDs.append(str(meshID).lower())
                 
     # Add embedding-vectors in batches: Unfortunately using this makes the saved model unloadable!
     #model.wv.add_vectors(batch_meshIDs, batch_embeddings_MeSHID, replace  = True)
+
+    '''
+    Preallocating space for the required size means allocating memory for the entire set of vectors upfront, rather than 
+    dynamically resizing the storage as vectors are added. This can help avoid the inefficiency of adding vectors one by one.
+    '''
+    # Define the number of new embedding-vectors that must be added to the trained model
+    num_new_vectors = len(batch_embeddings_MeSHID)
+    # Dimensionality of the vectors
+    vector_size = model.vector_size
+    # Get the current number of vectors in the model
+    current_num_vectors = len(model.wv.vectors)
+    # Calculate the total number of vectors after adding the new ones
+    total_num_vectors = current_num_vectors + num_new_vectors
+    # Preallocate space for vectors with zeros
+    preallocated_vectors = np.zeros((total_num_vectors, vector_size), dtype=np.float32)
+
+    # Copy the existing vectors to the preallocated array
+    preallocated_vectors[:current_num_vectors] = model.wv.vectors
+
+    # Add the new vectors to the preallocated array
+    for i in range(num_new_vectors):
+        new_embedding = batch_embeddings_MeSHID[i]
+        new_meshID = batch_meshIDs[i]
+        preallocated_vectors[current_num_vectors + i] = new_embedding
+        # Update the vocab dictionary with the new meshID and assigning a proper integer index to it
+        model.wv.key_to_index[new_meshID] = current_num_vectors + i
+
+    # Update the model's vectors with the preallocated array
+    model.wv.vectors = preallocated_vectors
     
     return model  
 
