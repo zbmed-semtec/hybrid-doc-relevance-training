@@ -102,19 +102,21 @@ All outputs of the [script](./code/main.py) are saved in the folder named `outpu
 
 #### Step 5: Compile Results
 
-In order to compile the average result of each hyperparameter set for Precison@ and nDCG@N and generate a single TSV file each, please use this [script](code/evaluation/show_avg.py).
+In order to compile the average results of all hyperparameter sets for each group of evaluation results, i.e. for three-classPrecison@N, two-classPrecison@N and nDCG@N, and generate a single TSV file including average results of each in a table-form (like what you need in this [spreadsheet](https://docs.google.com/spreadsheets/d/10U8EkG2x1S5UAo2lrK4jNlh7ZvjucOD04lzvrm5_E9g/edit#gid=0)), please use this [script](table-presentation-of-results/show_avg.py).
 
-You must pass the following two arguments:
+ You must pass the following two arguments:
 
 + -i / --input: Path to the directory consisting of all the precision matrices/gain matrices.
 + -o/ --output: Output path along with the name of the file to save the generated compiled Precision@N / nDCG@N TSV file.
 
 Make sure to move all precision (class distribution wise) and gain files to separate folders before executing this script.
 
+First you need to make a new directory (let's call it `TableFrame`). Then you need to transfer the results of all hyperparameter sets corresponding to one of the evaluation quantities to this new directory. For example, if you want a table-form of the average results based on nDCG scores for all hyperparameter sets, please copy-paste all ndcg_0.tsv to ndcg_17.tsv files (and only these files not any additional file) in directory `TableFrame`.
+
 If you are running the code from the code folder, run the compilation script as:
 
 ```
-python3 code/evaluation/show_avg.py -i data/output/gain_matrices/ -o data/output/results_gain.tsv
+python3 table-presentation-of-results/show_avg.py -i TableFrame/ -o TableFrame/results_gain.tsv
 ```
 
 NOTE: Please do not forget to put a `'/'` at the end of the input file path. Execute the above script for both gain and precision results.
