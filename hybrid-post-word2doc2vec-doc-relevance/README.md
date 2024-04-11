@@ -99,3 +99,22 @@ python3 code/main.py -i RELISH_Tokenized_Removed_Stopwords.npy -gt ../data/RELIS
 ```
 
 All outputs of the [script](./code/main.py) are saved in the folder named `output_of_model`. For hyperparameter set i, the code saves the corresponding trained model, embeddings, cosine similarities, and WMD scores in the following file paths: `output_of_model/model_i/Word2Vec_model`, `output_of_model/doc_embeddings/embeddings_pickle_i.pkl`, `output_of_model/evaluation/cosine_similarity_i.tsv`, and `output_of_model/evaluation/WMD_scores/WMD_similarity_i.tsv`, respectively. Additionally, evaluation results using cosine similarities and WMD scores are stored in the folders `output_of_model/evaluation` and `output_of_model/evaluation/WMD_scores`, correspondingly, with the same naming convention.
+
+#### Step 5: Compile Results
+
+In order to compile the average result of each hyperparameter set for Precison@ and nDCG@N and generate a single TSV file each, please use this [script](code/evaluation/show_avg.py).
+
+You must pass the following two arguments:
+
++ -i / --input: Path to the directory consisting of all the precision matrices/gain matrices.
++ -o/ --output: Output path along with the name of the file to save the generated compiled Precision@N / nDCG@N TSV file.
+
+Make sure to move all precision (class distribution wise) and gain files to separate folders before executing this script.
+
+If you are running the code from the code folder, run the compilation script as:
+
+```
+python3 code/evaluation/show_avg.py -i data/output/gain_matrices/ -o data/output/results_gain.tsv
+```
+
+NOTE: Please do not forget to put a `'/'` at the end of the input file path. Execute the above script for both gain and precision results.
