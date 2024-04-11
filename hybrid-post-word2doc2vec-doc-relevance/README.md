@@ -100,6 +100,10 @@ python3 code/main.py -i RELISH_Tokenized_Removed_Stopwords.npy -gt ../data/RELIS
 
 All outputs of the [script](./code/main.py) are saved in the folder named `output_of_model`. For hyperparameter set i, the code saves the corresponding trained model, embeddings, cosine similarities, and WMD scores in the following file paths: `output_of_model/model_i/Word2Vec_model`, `output_of_model/doc_embeddings/embeddings_pickle_i.pkl`, `output_of_model/evaluation/cosine_similarity_i.tsv`, and `output_of_model/evaluation/WMD_scores/WMD_similarity_i.tsv`, respectively. Additionally, evaluation results using cosine similarities and WMD scores are stored in the folders `output_of_model/evaluation` and `output_of_model/evaluation/WMD_scores`, correspondingly, with the same naming convention.
 
+Unfortunately, the use of `model.wv.add_vectors` to add new MeSHembedding-vectors in batches in the function `injection_MeSHembeddings_into_embeddings` of the script [utilities.py](./code/utilities.py) renders the saved best model from the tuning phase unloading. Also using `model.wv.add_vector()` for adding single vectors to KeyedVectors, which grows by one each time, reduces significantly the execution speed of the code, as indicated by Gensim's warning about inefficiency.
+
+Therefore to add new MeSHembedding-vectors, preallocating space for the required size is utilized, which allocates memory for the entire set of vectors upfront, instead of dynamically resizing the storage as vectors are added. This approach can help mitigate the inefficiency associated with adding vectors one by one. **However vocabulary attributes may not be correspondingly updated!**
+
 #### Step 5: Compile Results
 
 In order to compile the average results of all hyperparameter sets for each group of evaluation results, i.e. for three-classPrecison@N, two-classPrecison@N and nDCG@N, and generate a single TSV file including average results of each in a table-form (like what you need in this [spreadsheet](https://docs.google.com/spreadsheets/d/10U8EkG2x1S5UAo2lrK4jNlh7ZvjucOD04lzvrm5_E9g/edit#gid=0)), please use this [script](table-presentation-of-results/show_avg.py).
@@ -111,12 +115,12 @@ In order to compile the average results of all hyperparameter sets for each grou
 
 Make sure to move all precision (class distribution wise) and gain files to separate folders before executing this script.
 
-First you need to make a new directory (let's call it `TableFrame`). Then you need to transfer the results of all hyperparameter sets corresponding to one of the evaluation quantities to this new directory. For example, if you want a table-form of the average results based on nDCG scores for all hyperparameter sets, please copy-paste all ndcg_0.tsv to ndcg_17.tsv files (and only these files not any additional file) in directory `TableFrame`.
-
-If you are running the code from the code folder, run the compilation script as:
+Putting it simply, first you need to make a new directory (let's call it `TableFrame`). Then you need to transfer the results of all hyperparameter sets corresponding to one of the evaluation quantities to this new directory. For example, if you want a table-form of the average results based on nDCG scores for all hyperparameter sets, please copy-paste all ndcg_0.tsv to ndcg_17.tsv files (**and only these files not any additional file**) to the directory `TableFrame`. Then you may run the compilation script as:
 
 ```
 python3 table-presentation-of-results/show_avg.py -i TableFrame/ -o TableFrame/results_gain.tsv
 ```
 
-NOTE: Please do not forget to put a `'/'` at the end of the input file path. Execute the above script for both gain and precision results.
+So the table-form of the average results based on nDCG scores for all hyperparameter sets are sored in file path `TableFrame/results_gain.tsv`.
+
+**NOTE: Please do not forget to put a `'/'` at the end of the input file path. Execute the above script for both gain and precision results.**
