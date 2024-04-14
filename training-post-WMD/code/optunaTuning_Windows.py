@@ -49,8 +49,8 @@ def save_best_model_and_embeddings_and_similarity(model, args, similarity_df):
     
     # Retrieve data from validation RELISH dataset
     val_pmids, val_docs = utilities.process_data_from_npy(args.valid)
-    # Find MeSH-terms in validation data in order to append the corresponding MeSHIDs' to validation tokens
-    val_docs = utilities.injection_MeSHIDs_into_tokens(model, val_pmids, val_docs, args.MeShIDtoPMID)
+    # Finding MeSH-terms in validation tokens to append the corresponding MeSHIDs to tokens
+    val_docs = utilities.injection_MeSHIDs_into_tokens(val_pmids, val_docs, args.MeShIDtoPMID)
     
     # Acquire a file lock before accessing or modifying the embeddings file
     with open(embeddings_file_dest, "w") as embeddings_lock_file:
@@ -93,7 +93,7 @@ def objective_wrapper(args):
         }
 
         # Assume run() trains the model and returns the trained model and a DataFrame with similarity scores
-        data, model = run(params, args, tuning=True, save_model=False)
+        data, model = run(params, args, tuning=True)
 
         ref_pmids = data["PID1"].unique()
 

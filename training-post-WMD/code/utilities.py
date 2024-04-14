@@ -152,19 +152,10 @@ def generate_post_npy_dict_via_injection_MeSHIDs_into_tokens(filepath_in: str, M
                 # Find indices of the pattern in the list
                 indices = [i for i in range(len(article_docs_dict[article_with_MeSHterm]) - len(pattern_to_find) + 1) 
                            if article_docs_dict[article_with_MeSHterm][i:i+len(pattern_to_find)] == pattern_to_find]
-                
-                for shift, index in enumerate(indices):
-                    # To append the MeSHID before the corresponding MeSH-term
-                    article_docs_dict[article_with_MeSHterm].insert(index + shift, str(meshID).lower())
-                    
-                    # To append the MeSHID after the corresponding MeSH-term:
-                    #article_docs_dict[article_with_MeSHterm].insert(index + shift + len(pattern_to_find), str(meshID).lower())
-                    
-                    # To sandwich the Mesh-term with the corresponding MeSHID
-                    #article_docs_dict[article_with_MeSHterm].insert(index + 2*shift, str(meshID).lower())
-                    #article_docs_dict[article_with_MeSHterm].insert(index + 2*shift + len(pattern_to_find) + 1, str(meshID).lower())
-                #----------------------------------------------------------------
-                #article_docs_dict[article_with_MeSHterm].append(str(meshID).lower()) # append MeSHID at the end of the list of tokens
+                # Iterate over the indices in reverse order
+                for index in reversed(indices):
+                    # Insert MeSHID at the beginning of the pattern
+                    article_docs_dict[article_with_MeSHterm].insert(index, str(meshID).lower())
             except:
                 continue
     return article_docs_dict
@@ -252,24 +243,52 @@ def injection_MeSHembeddings_into_embeddings(model: Word2Vec, pmids: str, articl
             batch_embeddings_MeSHID.append(embeddings_MeSHID)
             batch_meshIDs.append(str(meshID).lower())
                 
-    # Add embedding-vectors in batches
-    model.wv.add_vectors(batch_meshIDs, batch_embeddings_MeSHID)
+    # Add embedding-vectors in batches: Unfortunately using this makes the saved model unloadable!
+    #model.wv.add_vectors(batch_meshIDs, batch_embeddings_MeSHID, replace  = True)
+    
+    '''
+    Preallocating space for the required size means allocating memory for the entire set of vectors upfront, rather than 
+    dynamically resizing the storage as vectors are added. This can help avoid the inefficiency of adding vectors one by one.
+    '''
+    # Define the number of new embedding-vectors that must be added to the trained model
+    num_new_vectors = len(batch_embeddings_MeSHID)
+    # Dimensionality of the vectors
+    vector_size = model.vector_size
+    # Get the current number of vectors in the model
+    current_num_vectors = len(model.wv.vectors)
+    # Calculate the total number of vectors after adding the new ones
+    total_num_vectors = current_num_vectors + num_new_vectors
+
+    # Preallocate space for vectors with zeros
+    preallocated_vectors = np.zeros((total_num_vectors, vector_size), dtype=np.float32)
+
+    # Copy the existing vectors to the preallocated array
+    preallocated_vectors[:current_num_vectors] = model.wv.vectors
+
+    # Add the new vectors to the preallocated array
+    for i in range(num_new_vectors):
+        new_embedding = batch_embeddings_MeSHID[i]
+        new_meshID = batch_meshIDs[i]
+        preallocated_vectors[current_num_vectors + i] = new_embedding
+        # Update the vocab dictionary with the new meshID and assigning a proper integer index to it
+        model.wv.key_to_index[new_meshID] = current_num_vectors + i
+
+    # Update the model's vectors with the preallocated array
+    model.wv.vectors = preallocated_vectors
     
     return model  
 
-# Post-processing of the documnets' tokens to find MeSH-terms in test/validation data and to append the corresponding MeSHIDs' to tokens
-def injection_MeSHIDs_into_tokens(model: Word2Vec, pmids: str, article_doc: list, MeShIDtoPMID: str):
+# Post-processing of the documnets' tokens to find MeSH-terms in test/validation data and to append the corresponding MeSHIDs to tokens
+def injection_MeSHIDs_into_tokens(pmids: str, article_doc: list, MeShIDtoPMID: str):
     '''
     Using the generated word embeddings and MeShIDtoPMID tsv-file, append MeSHIDs as new words to the list of tokens of the 
     corresponding articles containing the corresponding MeSH-terms.
     
     Parameters
     ----------
-    model: Word2Vec
-        Word2Vec model.
     pmids: list of str
         The list of all test/validation pmids which are processed.
-    article_doc: list of list of str
+    article_doc_global: list of list of str
         A two dimensional list of all tokenized test/validation article documents (title + abstract).
     MeShIDtoPMID: str
         File path for the tsv file whose rows consist of MeSHIDs and lists of [PMID, words].
@@ -282,15 +301,22 @@ def injection_MeSHIDs_into_tokens(model: Word2Vec, pmids: str, article_doc: list
     df['Appearance(pmid , tokenized lowercase words)'] = df['Appearance(pmid , tokenized lowercase words)'].apply(ast.literal_eval)
     
     for meshID, all_with_mesh_term in zip(df['MeSHID'], df['Appearance(pmid , tokenized lowercase words)']):
-        ArticlesList_with_MeSHterm = []
         for pmid_term in all_with_mesh_term:
             article_with_MeSHterm = int(pmid_term[0])
-            if article_with_MeSHterm in pmids:
+            #if article_with_MeSHterm in pmids:
+            try:
                 iteration = pmids.index(article_with_MeSHterm)
-                ArticlesList_with_MeSHterm.append(iteration) #So MeSHembeddings will be injected to all articles with corresponding MeSHIDs
-
-        for itr in ArticlesList_with_MeSHterm:
-            article_doc[itr].append(str(meshID).lower())
+                
+                pattern_to_find = [w for w in pmid_term[1:] if not w in stop_words] #removal of stopwords from MeSH-term
+                # Find indices of the pattern in the list
+                indices = [i for i in range(len(article_doc[iteration]) - len(pattern_to_find) + 1) 
+                           if article_doc[iteration][i:i+len(pattern_to_find)] == pattern_to_find]
+                # Iterate over the indices in reverse order
+                for index in reversed(indices):
+                    # Insert MeSHID at the beginning of the pattern
+                    article_doc[iteration].insert(index, str(meshID).lower())
+            except:
+                continue
                 
     return article_doc
 
@@ -460,14 +486,6 @@ def get_cosine_similarity_scores(input_relevance_matrix, embeddings, output_matr
     # Saves the updated matrix 
     relevance_matrix_df.to_csv(output_matrix_name, index=False, sep="\t")
     print('Saved matrix')
-
-def generate_embeddings(model: Doc2Vec, pmids: List[str], docs: List[List[str]], output_file: str):
-    embeddings_list = []
-    for doc in docs:
-        # Infer vector for each document
-        vector = model.infer_vector(doc)
-        embeddings_list.append(vector)
-    save_embeddings_to_pickle(pmids, embeddings_list, output_file)
 
 def save_embeddings_to_pickle(pmids, embeddings_list, output_file):
     data = {"PID": pmids, "Embedding": embeddings_list}

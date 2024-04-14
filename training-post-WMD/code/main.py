@@ -50,7 +50,7 @@ if __name__ == "__main__":
     # Optuna can run multiple trials concurrently using n_jobs parallel processes or threads
     if args.windows:
         from optunaTuning_Windows import run_optuna_optimization
-        best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=2)
+        best_params, best_trial = run_optuna_optimization(args, n_trials=1, n_jobs=1)
     else:
         from optunaTuning_Unix import run_optuna_optimization
         best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=2)
@@ -58,20 +58,21 @@ if __name__ == "__main__":
     """
     #----- Manually best_params given -------
     best_params = {
-        "vector_size": 150,
-        "window": 9,
+        "vector_size": 500,
+        "window": 11,
         "min_count": 1,
-        "epochs": 7,
+        "epochs": 12,
         "workers": 8,
         "sg" : 1
         }
     """
+    
     print("Finished Optuna optimization and Start Evaluation Test-data and Saving the Best Model")
     
-    #similarity_file, model = run(best_params, args, tuning=False, save_model=True)
+    similarity_file = run(best_params, args, tuning=False)
     
     # In case of using the same data for test and tunning one, instead of the preceding line, the following line can be used:
-    similarity_file = "output_of_model/evaluation/best_WMD_similarity.tsv"
+    #similarity_file = "output_of_model/evaluation/best_WMD_similarity.tsv"
     
     
     precision_file = os.path.join(results_directory, "precision_three_class.tsv")
@@ -99,5 +100,10 @@ if __name__ == "__main__":
     all_pmids, ndcg_matrix = calculate_gain.fill_ndcg_scores(dcg_file, idcg_file)
     calculate_gain.write_to_tsv(all_pmids, ndcg_matrix, ndcg_file)
     print("DCG, IDCG, and NDCG matrices saved")
-
+    # Delete dcg and idcg files whose results are summarized in ndcg
+    try:
+        os.remove(os.path.join(results_directory, "dcg.tsv"))
+        os.remove(os.path.join(results_directory, "idcg.tsv"))
+    except FileNotFoundError:
+        pass
 
