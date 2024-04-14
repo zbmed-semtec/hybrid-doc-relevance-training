@@ -55,7 +55,7 @@ if __name__ == "__main__":
         best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=2)
     else:
         from optunaTuning_Unix import run_optuna_optimization
-        best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=6)
+        best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=2)
         
     '''
     #----- Manually best_params given -------
