@@ -1,4 +1,6 @@
-**Note that in this directory, embeddings are generated for MeSHIDs with prefixes meshd/meshq/meshc/meshu, i.e. all articles' tokens are in lowercase.**
+**Note that in this directory, models are trained and embeddings are generated for data with Removed-Stopwords**
+
+In order to generalize the code for data including Stopwords, some changes are required in script [utilities.py](./code/utilities.py). Specifically, `pattern_to_find = [w for w in pmid_term[1:] if not w in stop_words]` in line 151 of function `generate_post_npy_dict_via_injection_MeSHIDs_into_tokens`, and line 310 of function `injection_MeSHIDs_into_tokens` must be replaced with `pattern_to_find = pmid_term[1:]`.
 
 ## Getting Started
 
@@ -101,4 +103,8 @@ All outputs of the [script](./code/main.py) are saved in the folder named `outpu
 
 Note that this [script](./code/main.py) creates a [resumable Optuna study](https://optuna.readthedocs.io/en/stable/tutorial/20_recipes/001_rdb.html#rdb). Specifically, if the optimization process is interrupted or stopped for any reason, or if there's a desire to continue the optimization process further after completing the code run, it's possible to resume the Optuna study that was previously created. To do so, all that's required is the file `optuna_study_storage.db`, which should be saved in the `output_of_model` folder, and then re-executing the [script](./code/main.py).
 
-Also, the best validation's trained model and its corresponding embeddings and cosine similarities are saved by the code in file-paths `output_of_model/model/best_Word2Vec_model`, `output_of_model/doc_embeddings/best_embeddings_pickle.pkl` and `output_of_model/evaluation/best_cosine_similarity.tsv`, correspondingly. This could be helpful to avoid redundant calculations when using the same dataset for both validation and testing.
+Also, the best validation's trained model and its corresponding embeddings and cosine similarities are saved by the code in file-paths `output_of_model/model/best_Word2Vec_model`, `output_of_model/doc_embeddings/best_embeddings_pickle.pkl` and `output_of_model/evaluation/best_WMD_similarity.tsv`, correspondingly. This could be helpful to avoid redundant calculations when using the same dataset for both validation and testing. The saved best trained model from the validation phase is then loaded during the test phase to perform evaluation using test data.
+
+Unfortunately, using `model.wv.add_vectors` to add new MeSHembedding vectors in batches in the `injection_MeSHembeddings_into_embeddings` function of the [utilities.py](./code/utilities.py) script causes the best model stored from the tuning phase to be unloaded. Also, using `model.wv.add_vector()` to add single vectors to KeyedVectors, which grows by one each time, significantly reduces the execution speed of the code, as indicated by Gensim's inefficiency warning.
+
+Therefore to add new MeSHembedding-vectors, preallocating space for the required size is utilized, which allocates memory for the entire set of vectors upfront, instead of dynamically resizing the storage as vectors are added. This approach can help mitigate the inefficiency associated with adding vectors one by one. **However vocabulary attributes may not be correspondingly updated!**
