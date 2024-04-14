@@ -4,7 +4,6 @@
 
 import os
 import time
-#from gensim.models import KeyedVectors
 from gensim.models import Word2Vec
 import argparse
 import utilities as utilities
@@ -55,7 +54,6 @@ def run(best_params, args, tuning=False):
     else: # Test Phase
         start = time.time()
         # Load the previously saved best-trained model from the validation phase
-        #model = KeyedVectors.load("output_of_model/model/best_Word2Vec_model")
         model = Word2Vec.load("output_of_model/model/best_Word2Vec_model")
         
         # use test dataset for final evaluation
