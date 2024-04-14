@@ -37,6 +37,7 @@ def save_best_model_and_embeddings_and_similarity(model, embeddings_df, similari
     # Define the file path for the best similarity file
     similarity_file_dest = "output_of_model/evaluation/best_cosine_similarity.tsv"
     
+    #-------------- For Unix-like systems (including Ubuntu) ---------------------------------------
     # Acquire a file lock before accessing or modifying the model file
     with open(model_file, "w") as model_lock_file:
         fcntl.flock(model_lock_file.fileno(), fcntl.LOCK_EX)
@@ -84,8 +85,8 @@ def objective_wrapper(args):
             "sg" : sg
         }
 
-        # Assume run() trains the model and returns the similarity scores,embeddings and the trained model
-        similarity_df, embeddings_df, model = run(params, args, tuning = True, save_model=False)
+        # Assume run() trains the model and returns the paths to files with similarity scores,embeddings and the trained model
+        similarity_df, embeddings_df, model = run(params, args, tuning = True)
         
         #ref_pmids, data = precision.read_file(similarity_file)
         ref_pmids = similarity_df["PID1"].unique()

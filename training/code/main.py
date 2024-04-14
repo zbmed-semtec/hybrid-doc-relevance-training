@@ -4,25 +4,28 @@
 
 import os
 import argparse
+#from optunaTuning import run_optuna_optimization
 from train import run
 import precision
 import precision_two_class
 import calculate_gain
 
+#--- To remove stopwords from the MeSH-terms in MeShIDtoPMID -----
+import nltk
+from nltk.corpus import stopwords
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input", type=str, help="Path to input (train) .npy file")
     parser.add_argument("-v", "--valid", type=str, help="Path to validation data .npy file")
-    parser.add_argument("-anv", "--Annot_valid", type=str, help="Path to Annotated validation data .npy file")
     parser.add_argument("-t", "--test", type=str, help="Path to test data .npy file")
-    parser.add_argument("-ant", "--Annot_test", type=str, help="Path to Annotated test data .npy file")
     parser.add_argument("-gv", "--valid_ground_truth", type=str, help="Path to validation ground truth .tsv file")
     parser.add_argument("-gt", "--test_ground_truth", type=str, help="Path to test ground truth .tsv file")
     parser.add_argument("-dict", "--MeShIDtoPMID", type=str, help="Path to input MeShIDtoPMID .tsv file.")
     parser.add_argument("-rd", "--reduction", type=int,
                     help="Whether to reduce the documents'words by replacing the catalogued ones with corresponding MeSHID (1) or not (0)")
     parser.add_argument("-win", "--windows", type=int,
-                    help="1: if using Windows systems; 0: if using Unix-like systems (including Ubuntu)")
+                    help="1: if using Windows systems && 0: if using Unix-like systems (including Ubuntu)")
     args = parser.parse_args()
     
     # Define the directory for storing pipeline outputs
@@ -41,32 +44,36 @@ if __name__ == "__main__":
     results_directory = "output_of_model/evaluation"
     if not os.path.exists(results_directory):
         os.makedirs(results_directory)
-
+   
+    # ---- We require this for situations where the input tokens have had stopwords removed -----------
+    nltk.download('stopwords')
+    stop_words = set(stopwords.words('english'))
+    #--------------------------------------------------------------------------------------------------
     # Optuna can run multiple trials concurrently using n_jobs parallel processes or threads
     if args.windows:
         from optunaTuning_Windows import run_optuna_optimization
         best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=2)
     else:
         from optunaTuning_Unix import run_optuna_optimization
-        best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=2)
+        best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=6)
         
-    """
+    '''
     #----- Manually best_params given -------
     best_params = {
-        "vector_size": 360,
-        "window": 12,
+        "vector_size": 610,
+        "window": 26,
         "min_count": 2,
-        "epochs": 15,
-        "workers": 2,
+        "epochs": 23,
+        "workers": 8,
         "sg" : 1
         }
-    """
+    '''
     print("Finished Optuna optimization and Start Evaluation Test-data and Saving the Best Model")
     
-    #similarity_file, embeddings_file, model = run(best_params, args, tuning=False, save_model=True)
+    similarity_file = run(best_params, args, tuning=False)
     
-    # In case of using the same data for test and tunning one, instead of the preceding line, the following line can be used:
-    similarity_file = "output_of_model/evaluation/best_cosine_similarity.tsv"
+    # In case of using the same data for test and tunning
+    #similarity_file = "output_of_model/evaluation/best_cosine_similarity.tsv"
     
     # Define the file paths for the pipeline evaluation results
     precision_file = os.path.join(results_directory, "precision_three_class.tsv")
