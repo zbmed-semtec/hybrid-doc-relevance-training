@@ -60,8 +60,8 @@ def calculate_precision(sorted_collection: pd.DataFrame, n: int) -> float:
         Value of Precision@n.
     """
     top_n = sorted_collection[:n]
-    # true_positives_n = len(top_n[top_n["Value"] == 2])  # three classes
-    true_positives_n = len(top_n[(top_n["Value"] == 2) | (top_n["Value"] == 1)]) # two classes
+    true_positives_n = len(top_n[top_n["Value"] == 2])  # three classes
+    # true_positives_n = len(top_n[(top_n["Value"] == 2) | (top_n["Value"] == 1)]) # two classes
     precision_n = round(true_positives_n/n, 4)
     return precision_n
 
@@ -102,7 +102,7 @@ def generate_matrix(ref_pmids: list, data: pd.DataFrame) -> np.array:
     precision_matrix : np.array
         Generated precision matrix.
     """
-    value_of_n = [5, 10, 15, 20, 25, 50]
+    value_of_n = [5, 10, 15, 20]
     precision_matrix = np.empty(shape=(len(ref_pmids), len(value_of_n)))
     for pmid_index, pmid in enumerate(ref_pmids):
         sorted_collection = sort_collection(pmid, data)
@@ -124,10 +124,10 @@ def write_to_tsv(ref_pmids: list, precision_matrix: np.array, output_filepath: s
     output_filepath : str
         File path to save the TSV file.
     """
-    matrix = pd.DataFrame(precision_matrix, columns=['P@5', 'P@10', 'P@15', 'P@20', 'P@25', 'P@50'])
+    matrix = pd.DataFrame(precision_matrix, columns=['P@5', 'P@10', 'P@15', 'P@20'])
     matrix.insert(0, 'PIDs', ref_pmids)
     # Calculate and append average of each precision score
-    average_values = ['Average'] + list(matrix[['P@5', 'P@10', 'P@15', 'P@20', 'P@25', 'P@50']]
+    average_values = ['Average'] + list(matrix[['P@5', 'P@10', 'P@15', 'P@20']]
                                         .mean(axis=0).round(4))
     matrix.loc[len(matrix.index)] = average_values
     pd.DataFrame(matrix).to_csv(output_filepath, sep="\t")
