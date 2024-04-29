@@ -3,10 +3,13 @@
 # This file includes the modifications to the source codes according to this project!
 
 import os
+import fnmatch
+import json
+import shutil
+import time
 import argparse
-from train import run
+import utilities
 import precision
-import precision_two_class
 import calculate_gain
 
 if __name__ == "__main__":
@@ -19,72 +22,69 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--classes", type=int, default=3, help="Number of classes")
     parser.add_argument("-win", "--windows", type=int,
                     help="1: if using Windows systems; 0: if using Unix-like systems (including Ubuntu)")
-
     args = parser.parse_args()
     
-    # Define the directory for storing pipeline outputs
-    output_directory = "output_of_model"
+    permissions = 0o755  # This sets permissions to rwxr-xr-x
+
+    # 1) Define the directory for storing pipeline outputs
+    output_directory = f"output_{args.classes}"
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
-    # Define the directory for saving the model
-    model_directory = "output_of_model/model"
+    os.chmod(output_directory, permissions)
+
+    # 2) Define the directory for saving the model
+    model_directory = f"output_{args.classes}/model"
     if not os.path.exists(model_directory):
         os.makedirs(model_directory)
-    # Define the Directory for Storing Embeddings
-    embeddings_directory = "output_of_model/doc_embeddings"
+    os.chmod(model_directory, permissions)
+
+    # 3) Define the Directory for Storing Embeddings
+    embeddings_directory = f"output_{args.classes}/embeddings"
     if not os.path.exists(embeddings_directory):
         os.makedirs(embeddings_directory)
-    # Define the directory for storing evaluation results
-    results_directory = "output_of_model/evaluation"
+    os.chmod(embeddings_directory, permissions)
+
+     # 4) Define the directory for storing evaluation results
+    results_directory = f"output_{args.classes}/evaluation"
     if not os.path.exists(results_directory):
         os.makedirs(results_directory)
-        
-    # Optuna can run multiple trials concurrently using n_jobs parallel processes or threads
-    if args.windows:
-        from optunaTuning_Windows import run_optuna_optimization
-        best_params, best_trial = run_optuna_optimization(args, n_trials=2, n_jobs=2)
-    else:
-        from optunaTuning_Unix import run_optuna_optimization
-        best_params, best_trial = run_optuna_optimization(args, n_trials=1, n_jobs=2)
+    os.chmod(results_directory, permissions)
 
-    
-    """
-    #----- Manually best_params given -------
-    best_params = {
-        "vector_size": 560,
-        "window": 22,
-        "min_count": 2,
-        "epochs": 15,
-        "workers": 2,
-        "sg" : 1
-        }
-    """
-    print("Finished Optuna optimization and Start Evaluation Test-data and Saving the Best Model")
-    
-    similarity_file = run(best_params, args, tuning=False)
-    
-    # In case of using the same data for test and tunning phase, instead of the preceding line, the following line can be used:
-    #similarity_file = "output_of_model/evaluation/best_cosine_similarity.tsv"
-    
-    precision_file = os.path.join(results_directory,  f"precision_{args.classes}.tsv")
-    precision_file_two_class = os.path.join(results_directory, "precision_two_class.tsv")
+    # 5) Define the file paths to store the evaluation results
+    # log_file = os.path.join(results_directory,f"fastText_optuna_{args.classes}.log")
+    precision_file = os.path.join(results_directory, f"precision_{args.classes}.tsv")
     dcg_file = os.path.join(results_directory, f"dcg_{args.classes}.tsv")
     idcg_file = os.path.join(results_directory, f"idcg_{args.classes}.tsv")
     ndcg_file = os.path.join(results_directory, f"ndcg_{args.classes}.tsv")
 
-    # Generate and save the three-class precision matrix
+    # 6) Run optuna optimization based on the operating system
+    # Optuna can run multiple trials concurrently using n_jobs parallel processes or threads
+    if args.windows:
+        from optunaTuningWindows import run_optuna_optimization
+        start = time.time()
+        # NOTE: FOR OPTUNA HYPERPARAMETER REPRODUCIBILITY n_jobs should always be 1
+        best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=1)
+        print("Finished optuna optimization. Time taken:", time.time()-start)
+    else:
+        from optunaTuningUnix import run_optuna_optimization
+        start = time.time()
+        # NOTE: FOR OPTUNA HYPERPARAMETER REPRODUCIBILITY n_jobs should always be 1
+        best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=1)
+        print("Finished optuna optimization. Time taken:", time.time()-start)
+
+    # 7) Define the file paths to store the similarity file based on optuna trial run results
+    similarity_file = os.path.join(results_directory, f"best_cosine_similarity_{args.classes}.tsv")
+    
+    # 8) Generate and save the precision matrix
     ref_pmids, data = precision.read_file(similarity_file)
     matrix = precision.generate_matrix(ref_pmids, data, args.classes)
     precision.write_to_tsv(ref_pmids, matrix, precision_file, data)
-    print("Precision matrix saved")
+    print("Final precision matrix saved")
 
-    # Generate and save the DCG and IDCG matrices
+    # 9) Generate and save the DCG and IDCG matrices
     sim_matrix = calculate_gain.load_cosine_sim_matrix(similarity_file)
     calculate_gain.get_dcg_matrix(sim_matrix, dcg_file)
     calculate_gain.get_identity_dcg_matrix(sim_matrix, idcg_file)
     all_pmids, ndcg_matrix = calculate_gain.fill_ndcg_scores(dcg_file, idcg_file)
     calculate_gain.write_to_tsv(all_pmids, ndcg_matrix, ndcg_file)
-    print("DCG, IDCG, and NDCG matrices saved")
-
-
-
+    print("Final DCG, IDCG, and NDCG matrices saved")

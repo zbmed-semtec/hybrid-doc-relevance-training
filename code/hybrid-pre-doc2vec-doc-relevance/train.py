@@ -6,65 +6,55 @@ import os
 import time
 from gensim.models import Doc2Vec
 import argparse
+import logging
 import utilities as utilities
 
-def run(best_params, args, tuning=False):
+def run(best_params, args, tuning=False, save_model=False):
     
     # Validation Phase
     if tuning:
-        # Load the training data
+        # 1) Load the training data
         train_pmids, train_docs = utilities.process_data_from_npy(args.input)
-        print("Retrieved RELISH Cleaned Training Data")
+        logging.info("Retrieved RELISH Cleaned Training Data")
 
+        # 2) Train the model with 80% of the data (i.e. training data) and best parameters
         start = time.time()
-        # Train the model with 80% of the data (i.e. training data) and best parameters
         model = utilities.createDoc2VecModel(train_pmids, train_docs, best_params)
-        print("RELISH Hybrid Dord2Vec Model Generated.")
-        print(model, "Model is being used.")
+        logging.info("RELISH Doc2Vec Model Generated.")
+        logging.info("Model is being used.")
+
+        # 3) Set the validation/test data to be used based on tuning parameter
+        if tuning:
+            dataset_type = "Validation"
+            data_file = args.valid
+            ground_truth = args.valid_ground_truth
+        else:
+            dataset_type = "Test"
+            data_file = args.test
+            ground_truth = args.test_ground_truth
     
-        # use validation dataset for tuning
-        test_pmids, test_docs = utilities.process_data_from_npy(args.valid)
-        print(f"Retrieved RELISH Cleaned Validation Data")
-
-        # Generate the Validation embeddings: Here embeddings_file is a pd.DataFrame
-        embeddings_file = utilities.generate_embeddings(model, test_pmids, test_docs)
-        print(f"RELISH (Validation) Embeddings Pickle File Generated.")
-
-        # Generate cosine similarity matrix: Here similarity_file is a pd.DataFrame
-        similarity_file = utilities.get_similarity_scores(args.valid_ground_truth, embeddings_file)
-        print("RELISH (Validation) Cosine Similarity Matrix Generated.")
-        end = time.time()
-        print(f"Time Taken for Validation: {end - start} seconds.")
+       # 4) Load the data from npy file
+        pmids, docs = utilities.process_data_from_npy(data_file)
+        logging.info(f"Retrieved RELISH Cleaned {dataset_type} Data")
         
-        return similarity_file, embeddings_file, model
-    
-    else: # Test Phase
-        
-        start = time.time()
-        
-        # Load the previously saved best-trained model from the validation phase
-        model = Doc2Vec.load("output_of_model/model/best_Doc2Vec_model")
- 
-        # use test dataset for final evaluation
-        test_pmids, test_docs = utilities.process_data_from_npy(args.test)
-        print(f"Retrieved RELISH Cleaned Test Data")
+        # 5) Generate the embeddings: pd.DataFrame for loaded docs
+        embeddings_df = utilities.generate_embeddings(model, pmids, docs)
+        logging.info(f"RELISH {dataset_type} Embeddings Pickle File Generated.")
 
-        # Define the file path for Storing test Embeddings
-        embeddings_file = f"output_of_model/doc_embeddings/test_embeddings_pickle_{args.classes}.pkl"
-        # Generate the embeddings
-        embeddings_df = utilities.generate_embeddings(model, test_pmids, test_docs)
-        # Store the embeddings
-        utilities.save_embeddings_to_pickle(embeddings_df, embeddings_file)
-        print("RELISH (Test) Embeddings Pickle File Saved")
+        # 6) Generate the cosine similarity matrix: pd.DataFrame for the generated embeddings
+        similarity_df = utilities.get_similarity_scores(ground_truth, embeddings_df)
+        logging.info(f"RELISH {dataset_type} Cosine Similarity Matrix Generated.")
 
-        # Define the file path for Storing cosine similarity matrix
-        similarity_file = f"output_of_model/evaluation/cosine_similarity_{args.classes}.tsv"
-        # Generate and save the cosine similarity matrix
-        utilities.get_and_save_similarity_scores(args.test_ground_truth, embeddings_file, similarity_file)
-        print("RELISH (Test) Cosine Similarity Matrix Saved")
-        
-        end = time.time()
-        print(f"Time Taken for Test-Phase: {end - start} seconds.")
+        # 7) If the dataset type is "Test", then save the dataframes to a file each
+        if dataset_type=='Test':
+            embeddings_file = f"output_{args.classes}/embeddings/test_embeddings_{args.classes}.pkl"
+            similarity_file = f"output_{args.classes}/evaluation/test_cosine_similarity_{args.classes}.tsv"
+            utilities.save_embeddings_to_pickle(embeddings_df, embeddings_file)
+            utilities.save_similarity_to_tsv(similarity_df, similarity_file)
 
+        # 8) Save the model in the given path if specified
+        if save_model:
+            model_file = f"output_{args.classes}/model/Doc2Vec_model_{args.classes}"
+            utilities.saveDoc2VecModel(model, model_file)
 
-        return similarity_file
+        return similarity_df, embeddings_df, model
