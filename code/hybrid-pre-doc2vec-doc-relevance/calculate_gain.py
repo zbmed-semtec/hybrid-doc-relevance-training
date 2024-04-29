@@ -45,7 +45,7 @@ def get_dcg_matrix(similarity_matrix: pd.DataFrame, output_file: str):
     """
     # dcg_matrix = similarity_matrix.sort_values(['PMID Reference', 'Cosine Similarity'],
     #                                            ascending=[True, False], ignore_index=True)
-    dcg_matrix = similarity_matrix.sort_values(['PID1', 'Cosine Similarity'],
+    dcg_matrix = similarity_matrix.sort_values(['PMID1', 'Cosine Similarity'],
                                                ascending=[True, False], ignore_index=True)                                               
     dcg_matrix.index = dcg_matrix.index + 1
     # dcg_matrix.to_csv("./data/doc2vec-doc/dcg_doc2vec-doc.tsv", sep='\t')
@@ -63,7 +63,7 @@ def get_identity_dcg_matrix(similarity_matrix: pd.DataFrame, output_file: str):
     """
     # idcg_matrix = similarity_matrix.sort_values(['PMID Reference', 'Relevance Assessment'],
     #                                             ascending=[True, False], ignore_index=True)
-    idcg_matrix = similarity_matrix.sort_values(['PID1', 'Value'],
+    idcg_matrix = similarity_matrix.sort_values(['PMID1', 'Value'],
                                                 ascending=[True, False], ignore_index=True)                                                
     idcg_matrix.index = idcg_matrix.index + 1
     # idcg_matrix.to_csv("./data/doc2vec-doc/idcg_doc2vec-doc.tsv", sep='\t')
@@ -139,15 +139,15 @@ def fill_ndcg_scores(dcg_matrix: str, idcg_matrix: str) -> Tuple[List[Any], ndar
     idcg_matrix = pd.read_csv(idcg_matrix, sep="\t")
     # Get list of all Reference PMIDs
     # all_pmids = sorted((dcg_matrix['PMID Reference'].unique()))
-    all_pmids = sorted((dcg_matrix['PID1'].unique()))
+    all_pmids = sorted((dcg_matrix['PMID1'].unique()))
     # Creates an empty numpy matrix
     ndcg_matrix = np.empty(shape=(len(all_pmids), len(value_of_n)))
 
     for pmid_index, pmid in enumerate(all_pmids):
         # all_assessed_pmids = pd.DataFrame(dcg_matrix.loc[dcg_matrix['PMID Reference'] == pmid])
         # sorted_assessed_pmids = pd.DataFrame(idcg_matrix.loc[idcg_matrix['PMID Reference'] == pmid])
-        all_assessed_pmids = pd.DataFrame(dcg_matrix.loc[dcg_matrix['PID1'] == pmid])
-        sorted_assessed_pmids = pd.DataFrame(idcg_matrix.loc[idcg_matrix['PID1'] == pmid])
+        all_assessed_pmids = pd.DataFrame(dcg_matrix.loc[dcg_matrix['PMID1'] == pmid])
+        sorted_assessed_pmids = pd.DataFrame(idcg_matrix.loc[idcg_matrix['PMID1'] == pmid])
 
         for index, n in enumerate(value_of_n):
             dcg_score = calculate_dcg_at_n(n, all_assessed_pmids)
@@ -171,7 +171,7 @@ def write_to_tsv(pmids: list, ndcg_matrix: np.matrix, output_file: str):
 
     ndcg_matrix = pd.DataFrame(ndcg_matrix, columns=['nDCG@5', 'nDCG@10', 'nDCG@15', 'nDCG@20'])
     # Insert all PMIDs
-    ndcg_matrix.insert(0, 'PIDs', pmids)
+    ndcg_matrix.insert(0, 'PMIDs', pmids)
     # Calculate and append average of each nDCG score
     average_values = ['Average'] + list(ndcg_matrix[['nDCG@5', 'nDCG@10', 'nDCG@15', 'nDCG@20']]
                                         .mean(axis=0).round(4))

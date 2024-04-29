@@ -18,9 +18,9 @@ def read_file(tsv_file: str) -> Tuple[List, pd.DataFrame]:
     data : pd.Dataframe
         Pandas Dataframe cosisting of 4 columns: PMID1, PMID2, Relevance, Cosine similarity.
     """
-    colnames = ["PID1", "PID2", "Value", "Cosine Similarity"]
+    colnames = ["PMID1", "PMID2", "Value", "Cosine Similarity"]
     data = pd.read_csv(tsv_file, sep='\t', header=0, names=colnames)
-    ref_pmids = data["PID1"].unique()
+    ref_pmids = data["PMID1"].unique()
     return ref_pmids, data
 
 
@@ -38,8 +38,8 @@ def sort_collection(pmid: str, data: pd.DataFrame) -> pd.DataFrame:
     sorted_collection : pd.Dataframe
         Sorted Pandas Dataframe based on the given PMID .
     """
-    collection = data[data['PID1'] == pmid]
-    sorted_collection = collection.sort_values(['PID1', 'Cosine Similarity'],
+    collection = data[data['PMID1'] == pmid]
+    sorted_collection = collection.sort_values(['PMID1', 'Cosine Similarity'],
                                                ascending=[True, False], ignore_index=True)
     return sorted_collection
 
@@ -85,7 +85,7 @@ def generate_vector(ref_pmids: list, data: pd.DataFrame, classes: int) -> np.arr
         Generated precision vector.
     """
     value_of_n = 5
-    ref_pmids_filtered = [pmid for pmid in ref_pmids if len(data[data['PID1'] == pmid]) >= 20]
+    ref_pmids_filtered = [pmid for pmid in ref_pmids if len(data[data['PMID1'] == pmid]) >= 20]
     precision_vector = np.empty(shape=(len(ref_pmids_filtered), 1))
     for pmid_index, pmid in enumerate(ref_pmids_filtered):
         sorted_collection = sort_collection(pmid, data)
@@ -109,7 +109,7 @@ def generate_matrix(ref_pmids: list, data: pd.DataFrame, classes: int) -> np.arr
         Generated precision matrix.
     """
     value_of_n = [5, 10, 15, 20]
-    ref_pmids_filtered = [pmid for pmid in ref_pmids if len(data[data['PID1'] == pmid]) >= max(value_of_n)]
+    ref_pmids_filtered = [pmid for pmid in ref_pmids if len(data[data['PMID1'] == pmid]) >= max(value_of_n)]
     precision_matrix = np.empty(shape=(len(ref_pmids_filtered), len(value_of_n)))
     for pmid_index, pmid in enumerate(ref_pmids_filtered):
         sorted_collection = sort_collection(pmid, data)
@@ -133,10 +133,10 @@ def write_to_tsv(ref_pmids: list, precision_matrix: np.array, output_filepath: s
         Pandas Dataframe cosisting of 4 columns: PMID1, PMID2, Relevance, Cosine similarity.
     """
     # Filter out PMIDs with less than 20 instances
-    ref_pmids_filtered = [pmid for pmid in ref_pmids if len(data[data['PID1'] == pmid]) >= 20]
+    ref_pmids_filtered = [pmid for pmid in ref_pmids if len(data[data['PMID1'] == pmid]) >= 20]
     matrix = pd.DataFrame(precision_matrix, columns=['P@5', 'P@10', 'P@15', 'P@20'])
 
-    matrix.insert(0, 'PIDs', ref_pmids_filtered)
+    matrix.insert(0, 'PMIDs', ref_pmids_filtered)
     # Calculate and append average of each precision score
     average_values = ['Average'] + list(matrix[['P@5', 'P@10', 'P@15', 'P@20']]
                                         .mean(axis=0).round(4))
