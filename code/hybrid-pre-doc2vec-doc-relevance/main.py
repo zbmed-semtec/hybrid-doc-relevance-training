@@ -51,7 +51,6 @@ if __name__ == "__main__":
     os.chmod(results_directory, permissions)
 
     # 5) Define the file paths to store the evaluation results
-    # log_file = os.path.join(results_directory,f"fastText_optuna_{args.classes}.log")
     precision_file = os.path.join(results_directory, f"precision_{args.classes}.tsv")
     dcg_file = os.path.join(results_directory, f"dcg_{args.classes}.tsv")
     idcg_file = os.path.join(results_directory, f"idcg_{args.classes}.tsv")

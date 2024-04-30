@@ -63,7 +63,7 @@ def objective_wrapper(args):
         window = trial.suggest_int('window', 5, 15)
         min_count = trial.suggest_int('min_count', 1, 5)
         epochs = trial.suggest_int('epochs', 5, 15)
-        workers = 8 # Always set to 8
+        workers = 1 # Always set to 1
         dm = trial.suggest_int('dm', 0, 1) 
         seed = 42 # Ensuring reproducibility
 
