@@ -8,3 +8,5 @@ matplotlib==3.8.0
 matplotlib-inline==0.1.6
 optuna==3.5.0
 scikit-learn==1.4.0
+POT==0.9.3
+nltk==3.8.1
