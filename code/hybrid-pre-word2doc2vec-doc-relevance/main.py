@@ -1,5 +1,5 @@
 # Source code: 
-# https://github.com/zbmed-semtec/word2doc2vec-doc-relevance-training/blob/main/code/train_model/main.py
+# https://github.com/zbmed-semtec/doc2vec-doc-relevance-training/blob/main/code/train_model/main.py
 # This file includes the modifications to the source codes according to this project!
 
 import os
@@ -51,7 +51,6 @@ if __name__ == "__main__":
     os.chmod(results_directory, permissions)
 
     # 5) Define the file paths to store the evaluation results
-    # log_file = os.path.join(results_directory,f"fastText_optuna_{args.classes}.log")
     precision_file = os.path.join(results_directory, f"precision_{args.classes}.tsv")
     dcg_file = os.path.join(results_directory, f"dcg_{args.classes}.tsv")
     idcg_file = os.path.join(results_directory, f"idcg_{args.classes}.tsv")

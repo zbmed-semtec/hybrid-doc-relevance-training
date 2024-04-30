@@ -79,7 +79,7 @@ def generate_Word2Vec_model(pmids: list, article_doc: list, params: dict) -> Wor
     return wv_model
 
 # Save the Word2Vec Model
-def saveWord2Doc2VecModel(model: Word2Vec, output_file: str) -> None:
+def saveWord2VecModel(model: Word2Vec, output_file: str) -> None:
     """
     Saves the Word2Vec model.
 

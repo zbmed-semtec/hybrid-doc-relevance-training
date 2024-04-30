@@ -48,7 +48,7 @@ def save_model_data(args, model, embeddings, similarity):
     similarity_file = f"output_{args.classes}/evaluation/best_cosine_similarity_{args.classes}.tsv"
 
     # 2) Save the model
-    save_data_with_lock(model_file, model, utilities.saveWord2Doc2VecModel)
+    save_data_with_lock(model_file, model, utilities.saveWord2VecModel)
 
     # 3) Save the embeddings
     save_data_with_lock(embeddings_file, embeddings, utilities.save_embeddings_to_pickle)
@@ -65,7 +65,7 @@ def objective_wrapper(args):
         window = trial.suggest_int('window', 5, 15)
         min_count = trial.suggest_int('min_count', 1, 6)
         epochs = trial.suggest_int('epochs', 5, 15)
-        workers = 8 #trial.suggest_int('workers', 2, 8)
+        workers = 1 # Always set to 1
         sg = trial.suggest_int('sg', 0, 1)
         seed = 42 # Ensure reproducibility
 
@@ -172,7 +172,7 @@ def run_optuna_optimization(args , n_trials=10, n_jobs=1):
         restored_sampler = optuna.samplers.TPESampler(seed=42)
 
     # 4) Load the existing study or create a new one
-    study = optuna.create_study(direction='maximize', study_name="Hybrid-Pre_Word2Doc2Vec_tuning", 
+    study = optuna.create_study(direction='maximize', study_name="Hybrid_Pre_Word2Doc2Vec_tuning", 
                                 storage=study_storage, load_if_exists=True, sampler=restored_sampler)
 
     # 5) Define a callback to log the trial information

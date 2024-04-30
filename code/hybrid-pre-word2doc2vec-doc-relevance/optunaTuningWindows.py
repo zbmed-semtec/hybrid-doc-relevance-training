@@ -46,7 +46,7 @@ def save_model_data(args, model, embeddings, similarity):
     similarity_file = f"output_{args.classes}/evaluation/best_cosine_similarity_{args.classes}.tsv"
 
     # 2) Save the model
-    save_data_with_lock(model_file, model, utilities.saveWord2Doc2VecModel)
+    save_data_with_lock(model_file, model, utilities.saveWord2VecModel)
 
     # 3) Save the embeddings
     save_data_with_lock(embeddings_file, embeddings, utilities.save_embeddings_to_pickle)
@@ -59,11 +59,11 @@ def objective_wrapper(args):
     def objective(trial):
 
         # 1) Suggest hyperparameters for Doc2Vec
-        vector_size = trial.suggest_int('vector_size', 100, 500, step=5)
+        vector_size = trial.suggest_int('vector_size', 100, 500, step=50)
         window = trial.suggest_int('window', 5, 15)
         min_count = trial.suggest_int('min_count', 1, 5)
         epochs = trial.suggest_int('epochs', 5, 15)
-        workers = 8 # Always set to 8
+        workers = 1 # Always set to 1
         sg = trial.suggest_int('sg', 0, 1) 
         seed = 42 # Ensuring reproducibility
 
