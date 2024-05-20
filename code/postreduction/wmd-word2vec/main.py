@@ -21,11 +21,11 @@ if __name__ == "__main__":
     parser.add_argument("-gv", "--valid_ground_truth", type=str, help="Path to validation ground truth .tsv file")
     parser.add_argument("-gt", "--test_ground_truth", type=str, help="Path to test ground truth .tsv file")
     parser.add_argument("-dict", "--MeShIDtoPMID", type=str, help="Path to input MeShIDtoPMID .tsv file.")
-    parser.add_argument("-c", "--classes", type=int, default=3, help="Number of classes")
     parser.add_argument("-win", "--windows", type=int,
-                    help="1: if using Windows systems && 0: if using Unix-like systems (including Ubuntu)")
-    args = parser.parse_args()
+                    help="1: if using Windows systems; 0: if using Unix-like systems (including Ubuntu)")
     
+    args = parser.parse_args()
+   
     permissions = 0o755  # This sets permissions to rwxr-xr-x
 
     # 1) Define the directory for storing pipeline outputs
