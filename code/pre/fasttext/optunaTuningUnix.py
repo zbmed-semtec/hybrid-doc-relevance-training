@@ -42,9 +42,9 @@ def save_data_with_lock(file_path, data, save_function):
 def save_model_data(args, model, embeddings, similarity):
 
     # 1) Define the file path to save the model data
-    model_file = f"pre_word2doc2vec_output_{args.classes}/model/fastText_best_model_{args.classes}"
-    embeddings_file = f"pre_word2doc2vec_output_{args.classes}/embeddings/best_embeddings_{args.classes}.pkl"
-    similarity_file = f"pre_word2doc2vec_output_{args.classes}/evaluation/best_cosine_similarity_{args.classes}.tsv"
+    model_file = f"output_{args.classes}/model/fastText_best_model_{args.classes}"
+    embeddings_file = f"output_{args.classes}/embeddings/best_embeddings_{args.classes}.pkl"
+    similarity_file = f"output_{args.classes}/evaluation/best_cosine_similarity_{args.classes}.tsv"
 
     # 2) Save the model
     save_data_with_lock(model_file, model, utilities.save_model)
@@ -62,7 +62,7 @@ def objective_wrapper(args):
         # 1) Suggest hyperparameters for fastText
         vector_size = trial.suggest_int('vector_size', 100, 500, step=50)
         window = trial.suggest_int('window', 5, 15)
-        min_count = trial.suggest_int('min_count', 1, 6)
+        min_count = trial.suggest_int('min_count', 1, 3)
         epochs = trial.suggest_int('epochs', 5, 15)
         workers = 1 # Always set to 1
         sg = trial.suggest_int('sg', 0, 1)
@@ -93,7 +93,7 @@ def objective_wrapper(args):
         precision_5 = list(np.mean(vector, axis=0).round(4))
 
         # 5) Load the previously saved best precision value
-        best_precision_path = f"pre_word2doc2vec_output_{args.classes}/best_precision_{args.classes}.txt"
+        best_precision_path = f"output_{args.classes}/best_precision_{args.classes}.txt"
         if os.path.exists(best_precision_path):
             with open(best_precision_path, "r") as f:
                 best_precision = float(f.read().strip()) # .strip() removes leading and trailing whitespace characters from a string.
@@ -141,16 +141,16 @@ def run_optuna_optimization(args , n_trials=10, n_jobs=1):
     """
 
     # 1) Define the log file to log the results
-    log_directory = f"pre_word2doc2vec_output_{args.classes}"
+    log_directory = f"output_{args.classes}"
     if not os.path.exists(log_directory):
         os.makedirs(log_directory)
 
-    log_file = f"pre_word2doc2vec_output_{args.classes}/Optuna_trials_{args.classes}.log"
+    log_file = f"output_{args.classes}/Optuna_trials_{args.classes}.log"
     logging.basicConfig(filename=log_file, level=logging.INFO, format='%(asctime)s - %(levelname)s: %(message)s')
 
 
     # 2) Define the SQLite storage backend for the study
-    study_storage = f"sqlite:///pre_word2doc2vec_output_{args.classes}/optuna_study_storage_{args.classes}.db"
+    study_storage = f"sqlite:///output_{args.classes}/optuna_study_storage_{args.classes}.db"
     """
     Note: The storage backend, such as SQLite in this case, is responsible for recording the study's trials but does not keep the state of samplers or pruners. 
     
@@ -163,7 +163,7 @@ def run_optuna_optimization(args , n_trials=10, n_jobs=1):
     """
 
     # 3) Load the existing optuna sampler if any
-    sampler_file = f"pre_word2doc2vec_output_{args.classes}/optuna_sampler_{args.classes}.pkl"
+    sampler_file = f"output_{args.classes}/optuna_sampler_{args.classes}.pkl"
     try:
         restored_sampler = pickle.load(open(sampler_file, "rb"))
         print('Loading the existing study sampler!')
@@ -199,7 +199,7 @@ def run_optuna_optimization(args , n_trials=10, n_jobs=1):
         study.optimize(objective_wrapper(args), n_trials=n_trials, callbacks=[pbar_callback], n_jobs=n_jobs)
 
     # 7) Save the study state
-    study.trials_dataframe().to_csv(f"pre_word2doc2vec_output_{args.classes}/optuna_study_state_{args.classes}.csv")
+    study.trials_dataframe().to_csv(f"output_{args.classes}/optuna_study_state_{args.classes}.csv")
 
     # 8) Save the sampler
     with open(sampler_file, "wb") as fout:

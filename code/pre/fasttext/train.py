@@ -17,7 +17,7 @@ def run(best_params, args, tuning=False, save_model=False):
     start = time.time()
     model = utilities.create_fasttext_model(train_pmids, train_docs, best_params)
     logging.info(f"Time taken to train the model: {time.time() - start} seconds")
-    logging.info("RELISH Hybrid Word2Vec Model Generated.")
+    logging.info("RELISH fastText Model Generated.")
     logging.info("Model is being used.")
 
     # 3) Set the validation/test data to be used based on tuning parameter

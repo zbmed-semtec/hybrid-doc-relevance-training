@@ -4,6 +4,7 @@
 
 import tqdm
 import gensim
+import logging
 import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cosine
@@ -78,7 +79,7 @@ def create_fasttext_model(pmids: List[str], docs: List[List[str]], params: dict)
     model = FastText(**params)
     model.build_vocab(docs)
     model.train(docs, total_examples=model.corpus_count, epochs=model.epochs)
-    print(f"Test dataset vocabulary size: {model.wv.vectors.shape}")
+    logging.info(f"Test dataset vocabulary size: {model.wv.vectors.shape}")
     return model
 
 def save_model(model: FastText, output_file: str) -> None:
@@ -158,8 +159,7 @@ def get_similarity_scores(input_relevance_matrix: str, embeddings_df: pd.DataFra
                 continue
         except KeyError as e:
             print(f"\nKeyError: {e}, ref_pmid: {ref_pmid}, assessed_pmid: {assessed_pmid}")
-            break
-
+            
     return relevance_matrix_df
 
 
@@ -190,20 +190,29 @@ def generate_document_embeddings(model: FastText, pmids: str, article_doc: list)
     gensim_model_path: str (optional)
         The filepath of the custom gensimModel.
     '''
+    total_missing_words = 0
+    total_unique_set_missing_words = []
+    word_count = 0
     missing_words = 0
     iteration = 0
     document_embeddings = []
     for iteration in range(len(pmids)):
+        missing_words = 0
         # Retrieve word embeddings.
         embedding_list = []
         for word in article_doc[iteration]:
+            word_count += 1
             try:
                 embedding_list.append(model.wv[word])
             except:
                 missing_words += 1
-
+                total_missing_words += 1
+                total_unique_set_missing_words.append(word)
         # Generate document embeddings from word embeddings using word-vector centroids.
+        logging.info(f"OOV words for {pmids[iteration]}: {missing_words} from a total of {word_count} words")
+        
         if len(embedding_list) == 0:
+            logging.info(f"No word embeddings found for this document: {iteration} , {pmids[iteration]}")
             # This can be caused by a high min-count parameter or missing vocabulary when using a pretrained model
             document_embeddings.append([])
             continue
@@ -215,6 +224,9 @@ def generate_document_embeddings(model: FastText, pmids: str, article_doc: list)
             document[dim] = document[dim] / len(embedding_list)
         document_embeddings.append(document)
 
+    logging.info(f"Total missing words: {total_missing_words} and total unique words: {len(set(total_unique_set_missing_words))}")
+    
+    
     data = {"PMID": pmids, "Embedding": document_embeddings}
     embeddings_df = pd.DataFrame(data)
     embeddings_df = embeddings_df.sort_values("PMID")
