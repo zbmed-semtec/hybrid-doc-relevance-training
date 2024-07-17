@@ -1,5 +1,5 @@
 # Hybrid-Pre-Doc2vec
-This directory contains the code for the Hybrid-Pre-Doc2vec approach. This method leverages the pre-annotated text of the RELISH Corpus, utilizes the doc2vec model to generate word embeddings, and calculates the centroid to produce document embeddings.
+This directory contains the code for the Hybrid-Pre-Doc2vec approach. This method leverages the pre-annotated text of the RELISH Corpus, utilizes the doc2vec model to generate document embeddings.
 
 ## Input Data
 
