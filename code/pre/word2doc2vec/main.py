@@ -23,25 +23,25 @@ if __name__ == "__main__":
     permissions = 0o755  # This sets permissions to rwxr-xr-x
 
     # 1) Define the directory for storing pipeline outputs
-    output_directory = f"pre_word2doc2vec_output_{args.classes}"
+    output_directory = f"output_{args.classes}"
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
     os.chmod(output_directory, permissions)
 
     # 2) Define the directory for saving the model
-    model_directory = f"pre_word2doc2vec_output_{args.classes}/model"
+    model_directory = f"output_{args.classes}/model"
     if not os.path.exists(model_directory):
         os.makedirs(model_directory)
     os.chmod(model_directory, permissions)
 
     # 3) Define the Directory for Storing Embeddings
-    embeddings_directory = f"pre_word2doc2vec_output_{args.classes}/embeddings"
+    embeddings_directory = f"output_{args.classes}/embeddings"
     if not os.path.exists(embeddings_directory):
         os.makedirs(embeddings_directory)
     os.chmod(embeddings_directory, permissions)
 
      # 4) Define the directory for storing evaluation results
-    results_directory = f"pre_word2doc2vec_output_{args.classes}/evaluation"
+    results_directory = f"output_{args.classes}/evaluation"
     if not os.path.exists(results_directory):
         os.makedirs(results_directory)
     os.chmod(results_directory, permissions)
