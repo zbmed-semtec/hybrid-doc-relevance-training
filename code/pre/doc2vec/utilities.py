@@ -4,6 +4,7 @@
 
 import tqdm
 import gensim
+import logging
 import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cosine
@@ -82,7 +83,8 @@ def createDoc2VecModel(pmids: List[str], docs: List[List[str]], params: dict) ->
     model.build_vocab(tagged_data)
     model.train(tagged_data, total_examples=model.corpus_count,
                 epochs=model.epochs)
-
+    
+    logging.info(f"Dataset vocabulary size: {model.wv.vectors.shape}")
     return model
 
 # Save the Doc2Vec Model
@@ -163,7 +165,6 @@ def get_similarity_scores(input_relevance_matrix: str, embeddings_df: pd.DataFra
                 continue
         except KeyError as e:
             print(f"\nKeyError: {e}, ref_pmid: {ref_pmid}, assessed_pmid: {assessed_pmid}")
-            break
 
     return relevance_matrix_df
 

@@ -1,39 +1,32 @@
-# Hybrid-post(reduction)-Word2Doc2Vec-Doc-relevance
-This repository focuses on an approach exploring and assessing literature-based doc-2-doc recommendations using the Word2Vec technique, followed  centroid aggregation method to create document-level embeddings. The approach is applied to the RELISH dataset. Note that in this directory, Word2Vec models are trained and embeddings are generated for data with Removed-Stopwords.
+# Hybrid-doc-relevance-training
+This repository focuses on exploring and assessing literature-based doc-2-doc recommendations using the embeddings alng with integrating semantics to it using the RELISH corpus. We explore 7 different algorithms to explore the borader domain of integrating semantics with embeddings. The 7 different algorithms are broadly classified based on the algorithm we propose: pre annotation, post annotation and postreduction annotation. The models that we use for these approaches are the doc2vec model, word2doc2vec model and wmd_word2vec model.
 
-**For Phase I, i.e. _Hybrid-post(reduction)-Word2Doc2Vec-Doc-relevance_ and _Hybrid-post(reduction)-WMD-Word2Vec-Doc-relevance_ which involve training using the entire Relish dataset, for a faster codebase—approximately 30% quicker—with simpler execution instructions and enhanced accuracy, employing an approach independent of preAnnot tokens for post-annotation, please refer to the directory [hybrid-post-word2doc2vec-doc-relevance](./hybrid-post-word2doc2vec-doc-relevance).**
 
 ## Table of Contents
 
 1. [About](#about)
-2. [Input Data](#input-data)
-3. [Pipeline](#pipeline)
-    1. [Generate Embeddings](#generate-embeddings)
-        - [Using Trained Word2Vec models](#using-trained-word2vec-models)
-          - [Parameters](#parameters)
-          - [Hyperparameters](#hyperparameters)
-        - [Using Pre-trained Word2Vec models](#using-pre-trained-word2vec-models)
-        - [Document Embeddings](#document-embeddings)
-    2. [Calculate Similarity Score](#calculate-similarity-score)
-    3. [Evaluation](#evaluation)
-        - [Precision@N](#precisionn)
-        - [nDCG@N](#ndcgn)
+2. [Approaches](#appraches)
+3. [Models](#models)
+4. [Input Data](#input-data)
+5. [Repository structure]()
 4. [Code Implementation](#code-implementation)
-5. [Getting Started](#getting-started)
-    1. [Step 1: Clone the Repository](#step-1-clone-the-repository)
-    2. [Step 2: Create a Virtual Environment and Install Dependencies](#step-2-create-a-virtual-environment-and-install-dependencies)
-    3. [Step 3: Generate Embeddings](#step-3-generate-embeddings)
-    4. [Step 4: Calculate Similarity Score](#step-4-calculate-similarity-score)
-         + [4.1 Cosine Similarity](#41-cosine-similarity)
-         + [4.2 WMD Score](#42-wmd-score)
-    6. [Step 5: Precision@N](#step-5-precisionn)
-    7. [Step 6: nDCG@N](#step-6-ndcgn)
+6. [Getting Started](#getting-started)
 7. [Phase II - Split Dataset Training](#phase-ii---split-dataset-training)
-8. [Tutorial](#tutorial)
+8. [Tutorials](#tutorial)
 
 ## About
 
+1. [About](#about)
+
+This repository focuses on exploring and assessing literature-based doc-2-doc recommendations using the embeddings alng with integrating semantics to it using the RELISH corpus. We explore 7 different algorithms to explore the borader domain of integrating semantics with embeddings. The 7 different algorithms are broadly classified based on the algorithm we propose: pre annotation, post annotation and postreduction annotation. The models that we use for these approaches are the doc2vec model, word2doc2vec model and wmd_word2vec model.
+
 Our approach involves utilizing [Word2Vec](https://arxiv.org/pdf/1310.4546.pdf) for capturing word-level semantics and generating word embeddings. We create a dictionary and save it as a TSV file, linking each detected MeSH ID in the Relish corpus to the corresponding articles and the identified MeSH term within each article. Then we apply the centroid approach to generate the embedding for each MeSH ID. More specifically, we calculate the centroid of the embeddings of MeSH terms associated with a MeSH ID as the representative embedding for that MeSH ID. Subsequently, we add the computed MeSH embeddings to the list of word embeddings for the respective articles. Finally, we once again employ the centroid approach to generate document-level embeddings. This involves calculating the centroids of word embeddings corresponding to a document, incorporating the word embeddings within the document's title and abstract, along with the appended MeSH embeddings.
+
+2. [Approaches](#appraches)
++ Pre-annotation Approach
++ Post-Annotation Approach
++ Post-Reduction Annotation Approach
+
 
 ## Input Data
 

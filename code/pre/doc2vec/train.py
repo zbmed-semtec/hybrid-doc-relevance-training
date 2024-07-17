@@ -8,7 +8,6 @@ import utilities as utilities
 
 def run(best_params, args, tuning=False, save_model=False):
     
-
     # 1) Load the training data
     train_pmids, train_docs = utilities.process_data_from_npy(args.input)
     logging.info("Retrieved RELISH Cleaned Training Data")
