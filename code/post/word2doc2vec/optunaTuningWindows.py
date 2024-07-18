@@ -63,7 +63,7 @@ def objective_wrapper(args):
         # 1) Suggest hyperparameters for Word2Vec
         vector_size = trial.suggest_int('vector_size', 100, 500, step=50)
         window = trial.suggest_int('window', 5, 15)
-        min_count = trial.suggest_int('min_count', 1, 5)
+        min_count = trial.suggest_int('min_count', 1, 3)
         epochs = trial.suggest_int('epochs', 5, 15)
         workers = 1 # Always set to 1
         sg = trial.suggest_int('sg', 0, 1) 
