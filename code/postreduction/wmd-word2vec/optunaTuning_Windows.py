@@ -42,16 +42,12 @@ def save_model_data(args, model, embeddings, similarity):
 
     # 1) Define the file path to save the model data
     model_file = f"output_{args.classes}/model/WMD_Word2Vec_best_model_{args.classes}"
-    # embeddings_file = f"output_{args.classes}/embeddings/best_embeddings_{args.classes}.pkl"
     similarity_file = f"output_{args.classes}/evaluation/best_wmd_similarity_{args.classes}.tsv"
 
     # 2) Save the model
     save_data_with_lock(model_file, model, utilities.saveWord2VecModel)
 
-    # 3) Save the embeddings
-    # save_data_with_lock(embeddings_file, embeddings, utilities.save_embeddings_to_pickle)
-
-    # 4) Save the similarity scores
+    # 3) Save the similarity scores
     save_data_with_lock(similarity_file, similarity, utilities.save_similarity_to_tsv)
 
 
@@ -61,7 +57,7 @@ def objective_wrapper(args):
         # 1) Suggest hyperparameters for Word2Vec
         vector_size = trial.suggest_int('vector_size', 100, 500, step=50)
         window = trial.suggest_int('window', 5, 15)
-        min_count = trial.suggest_int('min_count', 1, 5)
+        min_count = trial.suggest_int('min_count', 1, 3)
         epochs = trial.suggest_int('epochs', 5, 15)
         workers = 1 # Always set to 1
         sg = trial.suggest_int('sg', 0, 1) 

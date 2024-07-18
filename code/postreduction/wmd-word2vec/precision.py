@@ -19,7 +19,7 @@ def read_file(tsv_file: str) -> Tuple[List, pd.DataFrame]:
     data : pd.Dataframe
         Pandas Dataframe cosisting of 4 columns: PMID1, PMID2, Relevance, Cosine similarity.
     """
-    colnames = ["PMID1", "PMID2", "Value", "Cosine Similarity"]
+    colnames = ["PMID1", "PMID2", "Value", "WMD"]
     data = pd.read_csv(tsv_file, sep='\t', header=0, names=colnames)
     ref_pmids = data["PMID1"].unique()
     return ref_pmids, data
@@ -40,7 +40,7 @@ def sort_collection(pmid: str, data: pd.DataFrame) -> pd.DataFrame:
         Sorted Pandas Dataframe based on the given PMID .
     """
     collection = data[data['PMID1'] == pmid]
-    sorted_collection = collection.sort_values(['PMID1', 'Cosine Similarity'],
+    sorted_collection = collection.sort_values(['PMID1', 'WMD'],
                                                ascending=[True, False], ignore_index=True)
     return sorted_collection
 
