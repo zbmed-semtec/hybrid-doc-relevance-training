@@ -30,7 +30,7 @@ def load_cosine_sim_matrix(cosine_similarity_matrix: str) -> pd.DataFrame:
     sim_matrix : pd.Dataframe
         Cosine similarity matrix.
     """
-    colnames = ["PMID1", "PMID2", "Value", "Cosine Similarity"]    
+    colnames = ["PMID1", "PMID2", "Value", "WMD"]    
     sim_matrix = pd.read_csv(cosine_similarity_matrix, sep='\t', header=0, names=colnames)
     return sim_matrix
 
@@ -44,9 +44,9 @@ def get_dcg_matrix(similarity_matrix: pd.DataFrame, output_file: str):
     similarity_matrix : pd.Dataframe
         Cosine similarity matrix.
     """
-    # dcg_matrix = similarity_matrix.sort_values(['PMID Reference', 'Cosine Similarity'],
+    # dcg_matrix = similarity_matrix.sort_values(['PMID Reference', 'WMD'],
     #                                            ascending=[True, False], ignore_index=True)
-    dcg_matrix = similarity_matrix.sort_values(['PMID1', 'Cosine Similarity'],
+    dcg_matrix = similarity_matrix.sort_values(['PMID1', 'WMD'],
                                                ascending=[True, False], ignore_index=True)                                               
     dcg_matrix.index = dcg_matrix.index + 1
     # dcg_matrix.to_csv("./data/doc2vec-doc/dcg_doc2vec-doc.tsv", sep='\t')
