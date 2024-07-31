@@ -356,7 +356,7 @@ def get_WMD_distance(model: Word2Vec, document1: list, document2: list):
 
 def get_WMD_similarity_scores(input_relevance_matrix: str, model: Word2Vec,  article_post_annot_docs_dict: dict) -> pd.DataFrame:
     """
-    Creates a 4 column matrix by appending cosine similarity scores for all existing pairs
+    Creates a 4 column matrix by appending WMD scores for all existing pairs
     of PMIDs to the Relevance matrix.
     Parameters
     ----------
@@ -369,31 +369,28 @@ def get_WMD_similarity_scores(input_relevance_matrix: str, model: Word2Vec,  art
     output_matrix_name : str
         File path for the generated 4 column matrix.
     """
-    # Read Relevance matrix
+    # 1) Read Relevance matrix
     column_names = ["PMID1", "PMID2", "Value"]
     relevance_matrix_df = pd.read_csv(input_relevance_matrix, sep="\t", names = column_names, skiprows=1)
     
-    # Create an empty list to store rows of PMID-pairs and their relevance- and similarity-scores
-    rows_with_wmd_similarities = []
+    # 2) Adds empty columns to the file to store similarity scores
+    relevance_matrix_df["WMD"] = ""
     
-    # Create a list of ref and assessed PMID-pairs and their relevance-scores
+    # 3) Create a list of ref and assessed PMID-pairs and their relevance-scores
     pmid_pairs_relevance = list(zip(relevance_matrix_df["PMID1"], relevance_matrix_df["PMID2"], relevance_matrix_df["Value"]))
     
+    # 4) Calculate the WMD between the document embeddings and update the relevance matrix dataframe
     for ref_pmid, assessed_pmid, rel_value in tqdm.tqdm(pmid_pairs_relevance, total=len(pmid_pairs_relevance), 
                                                         desc="Calculating WMD Similarities"):
         try:
             ref_doc = article_post_annot_docs_dict[int(ref_pmid)]
             assessed_doc = article_post_annot_docs_dict[int(assessed_pmid)]
             WMD_similarity = round(1./(1. + get_WMD_distance(model, ref_doc, assessed_doc) ), 4)
-            rows_with_wmd_similarities.append([ref_pmid, assessed_pmid, rel_value, WMD_similarity])
+            relevance_matrix_df.loc[(relevance_matrix_df['PMID1'] == ref_pmid) & (relevance_matrix_df['PMID2'] == assessed_pmid), 'WMD'] = WMD_similarity
         except KeyError as e:
-            continue
-
-    # Create a DataFrame with columns "PMID1", "PMID2", "Value", "WMD Similarity"
-    wmd_similarity_df = pd.DataFrame(rows_with_wmd_similarities, columns=["PMID1", "PMID2", "Value", "WMD Similarity"])
-    logging.info('Added similarity scores and saved as pd.DataFrame.')
+            print(f"\nKeyError: {e}, ref_pmid: {ref_pmid}, assessed_pmid: {assessed_pmid}")
     
-    return wmd_similarity_df
+    return relevance_matrix_df
     
 def save_similarity_to_tsv(df: pd.DataFrame, output_file: str) -> None:
     """

@@ -11,7 +11,6 @@ import pandas as pd
 import numpy as np
 from typing import Any, List, Tuple
 from numpy import ndarray
-#import hyperparameter_optimization.hyperparameter_optimization as hp
 
 import warnings
 # Ignore the specific warning
@@ -30,8 +29,7 @@ def load_cosine_sim_matrix(cosine_similarity_matrix: str) -> pd.DataFrame:
     sim_matrix : pd.Dataframe
         Cosine similarity matrix.
     """
-    colnames = ["PMID1", "PMID2", "Value", "WMD"]    
-    sim_matrix = pd.read_csv(cosine_similarity_matrix, sep='\t', header=0, names=colnames)
+    sim_matrix = pd.read_csv(cosine_similarity_matrix, sep='\t')
     return sim_matrix
 
 
