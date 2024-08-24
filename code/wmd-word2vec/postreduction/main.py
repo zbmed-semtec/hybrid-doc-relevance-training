@@ -3,8 +3,9 @@
 # This file includes the modifications to the source codes according to this project!
 
 import os
-import argparse
 import time
+import yaml
+import argparse
 from train import run
 import precision
 import calculate_gain
@@ -16,11 +17,10 @@ from nltk.corpus import stopwords
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input", type=str, help="Path to input (train) .npy file")
-    parser.add_argument("-v", "--valid", type=str, help="Path to validation data .npy file")
     parser.add_argument("-t", "--test", type=str, help="Path to test data .npy file")
-    parser.add_argument("-gv", "--valid_ground_truth", type=str, help="Path to validation ground truth .tsv file")
-    parser.add_argument("-gt", "--test_ground_truth", type=str, help="Path to test ground truth .tsv file")
+    parser.add_argument("-g", "--ground_truth", type=str, help="Path to test ground truth .tsv file")
     parser.add_argument("-dict", "--MeShIDtoPMID", type=str, help="Path to input MeShIDtoPMID .tsv file.")
+    parser.add_argument("-c", "--classes", type=int, default=3, help="Number of classes")
     parser.add_argument("-win", "--windows", type=int,
                     help="1: if using Windows systems; 0: if using Unix-like systems (including Ubuntu)")
     
@@ -63,31 +63,39 @@ if __name__ == "__main__":
     stop_words = set(stopwords.words('english'))
     #--------------------------------------------------------------------------------------------------
 
-    # 6) Run optuna optimization based on the operating system
+    # 6) Define the directory for the hyperparameter yaml file
+    parameter_file = os.path.join(os.curdir, "code/wmd-word2vec/hyperparameters.yaml")
+    os.chmod(parameter_file, permissions)
+    with open(parameter_file, 'r') as file:
+            content = yaml.safe_load(file)
+            params = content['params']
+            n_trials = content['iterations']['n_trials']['value']
+
+    # 7) Run optuna optimization based on the operating system
     # Optuna can run multiple trials concurrently using n_jobs parallel processes or threads
     if args.windows:
         from optunaTuningWindows import run_optuna_optimization
         start = time.time()
         # NOTE: FOR OPTUNA HYPERPARAMETER REPRODUCIBILITY n_jobs should always be 1
-        best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=1)
+        best_params, best_trial = run_optuna_optimization(args, params, n_trials, n_jobs=1)
         print("Finished optuna optimization. Time taken:", time.time()-start)
     else:
         from optunaTuningUnix import run_optuna_optimization
         start = time.time()
         # NOTE: FOR OPTUNA HYPERPARAMETER REPRODUCIBILITY n_jobs should always be 1
-        best_params, best_trial = run_optuna_optimization(args, n_trials=100, n_jobs=1)
+        best_params, best_trial = run_optuna_optimization(args, params, n_trials, n_jobs=1)
         print("Finished optuna optimization. Time taken:", time.time()-start)
 
-    # 7) Define the file paths to store the similarity file based on optuna trial run results
+    # 8) Define the file paths to store the similarity file based on optuna trial run results
     similarity_file = os.path.join(results_directory, f"best_cosine_similarity_{args.classes}.tsv")
     
-    # 8) Generate and save the precision matrix
+    # 9) Generate and save the precision matrix
     ref_pmids, data = precision.read_file(similarity_file)
     matrix = precision.generate_matrix(ref_pmids, data, args.classes)
     precision.write_to_tsv(ref_pmids, matrix, precision_file, data)
     print("Final precision matrix saved")
 
-    # 9) Generate and save the DCG and IDCG matrices
+    # 10) Generate and save the DCG and IDCG matrices
     sim_matrix = calculate_gain.load_cosine_sim_matrix(similarity_file)
     calculate_gain.get_dcg_matrix(sim_matrix, dcg_file)
     calculate_gain.get_identity_dcg_matrix(sim_matrix, idcg_file)

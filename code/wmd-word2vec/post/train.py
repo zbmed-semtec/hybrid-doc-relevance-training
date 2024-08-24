@@ -32,16 +32,12 @@ def run(best_params, args, save_model=False):
     article_post_annot_docs_dict = utilities.generate_post_npy_dict_via_injection_MeSHIDs_into_tokens(data_file, args.MeShIDtoPMID)
     logging.info(f"Prepared RELISH Post-Annotation {data_file} Dictionary For Hybrid-WMD-Post-Word2Doc2Vec")
         
+    
     # 6) Generate WMD similarity: pd.DataFrame 
     similarity_df = utilities.get_WMD_similarity_scores(ground_truth, model, article_post_annot_docs_dict)
     logging.info(f"RELISH {data_file} WMD-Similarity-Matrix DataFrame Generated.")
 
-    # 7) If the dataset type is "Test", then save the dataframes to a file each
-    if dataset_type== 'Test':
-        similarity_file = f"output_{args.classes}/evaluation/test_wmd_similarity_{args.classes}.tsv"
-        utilities.save_similarity_to_tsv(similarity_df, similarity_file)
-
-    # 8) Save the model in the given path if specified
+    # 7) Save the model in the given path if specified
     if save_model:
         model_file = f"output_{args.classes}/model/WMD_Word2Vec_model_{args.classes}"
         utilities.saveWord2VecModel(model, model_file)

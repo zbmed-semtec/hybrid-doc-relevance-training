@@ -100,7 +100,7 @@ def generate_npy_dict(filepath_in: str=None)->dict:
 # MeSH-terms in data and to append the corresponding MeSHIDs' to tokens
 def generate_post_npy_dict_via_injection_MeSHIDs_into_tokens(filepath_in: str, MeShIDtoPMID: str) -> dict:
     '''
-    Retrieves data from RELISH npy files, separating pmid and the document consisting of title and abstract..
+    Retrieves data from RELISH npy files, separating pmid and the document consisting of title and abstract.
 
     Parameters
     ----------

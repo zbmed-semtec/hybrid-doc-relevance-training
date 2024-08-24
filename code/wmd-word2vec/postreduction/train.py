@@ -4,66 +4,43 @@
 
 import os
 import time
+import logging
 from gensim.models import Word2Vec
 import utilities as utilities
 
-def run(best_params, args, tuning=False):
+def run(best_params, args, save_model=False):
     
-    # Validation phase
-    if tuning:
-        # Load the training data
-        train_pmids, train_docs = utilities.process_data_from_npy(args.input)
-        print("Retrieved RELISH Cleaned Training Data")
+    # 1) Load the training data
+    train_pmids, train_docs = utilities.process_data_from_npy(args.input)
+    logging.info("Retrieved RELISH Cleaned Training Data")
 
-        start = time.time()
-        # Train the model with 80% of the data (i.e. training data) and best parameters
-        model = utilities.createWord2VecModel(train_pmids, train_docs, best_params)
-        # Finding MeSH-terms in training tokens to compute the corresponding MeSHIDs' embeddings and incorporate them into trained model
-        model = utilities.injection_MeSHembeddings_into_embeddings(model, train_pmids, train_docs, args.MeShIDtoPMID)
-        end = time.time()
-        print(f"Time taken to train the model: {end - start} seconds.")
-        print("RELISH Word2Vec Model Generated and MeSHIDs' Embeddings Injected.")
-        print(model, "Model is being used.")
+    # 2) Train the model with 80% of the data (i.e. training data) and best parameters
+    start = time.time()    
+    model = utilities.createWord2VecModel(train_pmids, train_docs, best_params)
         
-        start = time.time()        
-        # Store Validation Relish Post-processed/annotated tokens in a dictionary with keys PMIDs
-        article_post_annot_docs_dict = utilities.generate_post_npy_dict_via_injection_MeSHIDs_into_tokens(args.valid, args.MeShIDtoPMID)
-        print("Prepared RELISH Post-Annot Validation Dictionary For Hybrid-WMD-PostReduction-Word2Doc2Vec")
-        # Here similarity_file is a pd.DataFrame
-        similarity_file = utilities.get_WMD_similarity_scores(args.valid_ground_truth, model, article_post_annot_docs_dict)
-        print("RELISH (Validation) WMD-Similarity-Matrix DataFrame Generated.")
-        end = time.time()
-        print(f"Time Taken for Validation: {end - start} seconds.")
-        
-        return similarity_file, model
+    # 3) Finding MeSH-terms in training tokens to compute the corresponding MeSHIDs' embeddings and incorporate them into trained model
+    model = utilities.injection_MeSHembeddings_into_embeddings(model, train_pmids, train_docs, args.MeShIDtoPMID)
+    end = time.time()
+    logging.info(f"Time taken to train the model: {end - start} seconds.")
+    logging.info("RELISH Word2Vec Model Generated and MeSHIDs' Embeddings Injected.")
+    logging.info("Model is being used.")
+             
+    # 4) Set the test data to be used based on tuning parameter
+    dataset_type = "Test"
+    data_file = args.test
+    ground_truth = args.ground_truth
+
+    # 5) Replacement of MeSH-terms in tokens with the corresponding MeSHIDs and store as a dictionary with keys as PMIDs
+    article_post_annot_docs_dict = utilities.generate_post_npy_dict_via_injection_MeSHIDs_into_tokens(args.test, args.MeShIDtoPMID)
+    logging.info(f"Prepared RELISH Post-Annot {data_file} Dictionary For Hybrid-WMD-PostReduction-Word2Doc2Vec")
+
+    # 6) Generate and save the WMD similarity matrix
+    similarity_df = utilities.get_WMD_similarity_scores(ground_truth, model, article_post_annot_docs_dict)
+    logging.info("RELISH Test WMD Similarity Matrix Saved")
     
-    # Test phase
-    else:   
-        start = time.time()
-        # Load the previously saved best-trained model from the validation phase
-        model = Word2Vec.load("output_of_model/model/best_Word2Vec_model")
-        
-        # Store Test Relish Post-processed/annotated tokens in a dictionary with keys PMIDs
-        article_post_annot_docs_dict = utilities.generate_post_npy_dict_via_injection_MeSHIDs_into_tokens(args.test, args.MeShIDtoPMID)
-        print("Prepared RELISH Post-Annot Test Dictionary For Hybrid-WMD-PostReduction-Word2Doc2Vec")
-
-        # Define the file path for Storing WMD similarity matrix
-        similarity_file = "output_of_model/evaluation/WMD_similarity.tsv"
-        # Generate and save the WMD similarity matrix
-        utilities.get_and_save_WMD_similarity_scores(args.test_ground_truth, model, article_post_annot_docs_dict, similarity_file)
-        print("RELISH (Test) WMD Similarity Matrix Saved ... and Generating Test-embeddings START!")
-        
-        # Retrieve data from Test RELISH dataset for generating embeddings
-        test_pmids, test_docs = utilities.process_data_from_npy(args.test)
-        # Replacement of MeSH-terms in test tokens with the corresponding MeSHIDs
-        test_docs = utilities.replacement_of_MeSHterms_with_MeSHIDs_in_tokens(test_pmids, test_docs, args.MeShIDtoPMID)
+    # 7) Save the model in the given path if specified
+    if save_model:
+        model_file = f"output_{args.classes}/model/WMD_Word2Vec_model_{args.classes}"
+        utilities.saveWord2VecModel(model, model_file)
     
-        # Define the file path for Storing Embeddings of the test Set
-        embeddings_file = "output_of_model/doc_embeddings/test_embeddings_pickle.pkl"
-        # Generate Embeddings for the Best Validation Hyperparameter Set
-        utilities.generate_document_embeddings(model, test_pmids, test_docs, embeddings_file)
-        
-        end = time.time()
-        print(f"Time Taken for Test-Phase: {end - start} seconds.")
-
-        return similarity_file
+    return similarity_df, model

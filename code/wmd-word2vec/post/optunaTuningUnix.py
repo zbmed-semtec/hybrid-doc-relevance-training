@@ -49,7 +49,7 @@ def save_model_data(args, model, similarity):
     save_data_with_lock(model_file, model, utilities.saveWord2VecModel)
 
     # 3) Save the similarity scores
-    save_data_with_lock(similarity_file, similarity, utilities.save_WMD_similarity_scores)
+    save_data_with_lock(similarity_file, similarity, utilities.save_similarity_to_tsv)
     
 
 # Define Objective Function for Optimization

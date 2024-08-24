@@ -106,8 +106,10 @@ def generate_post_npy_dict_via_injection_MeSHIDs_into_tokens(filepath_in: str, M
 
     Parameters
     ----------
-    filepath_in: str
-        The filepath of the RELISH Validation/Test npy file.
+    pmids: list
+        List of PMIDs
+    docs: list
+        List of RELISH preprocessed documents.
     Returns
     ----------
     dict of nump array
@@ -337,8 +339,6 @@ def saveWord2VecModel(model: Word2Vec, output_file: str) -> None:
     """
     model.save(output_file)
 
-def calculate_cosine_similarity(vec1, vec2):
-    return 1 - cosine(vec1, vec2)
 
 def get_WMD_distance(model: Word2Vec, document1: list, document2: list):
     
@@ -375,14 +375,14 @@ def get_WMD_similarity_scores(input_relevance_matrix: str, model: Word2Vec,  art
         File path for the generated 4 column matrix.
     """
     # Read Relevance matrix
-    column_names = ["PID1", "PID2", "Value"]
+    column_names = ["PMID1", "PMID2", "Value"]
     relevance_matrix_df = pd.read_csv(input_relevance_matrix, sep="\t", names = column_names, skiprows=1)
     
     # Create an empty list to store rows of PMID-pairs and their relevance- and similarity-scores
     rows_with_wmd_similarities = []
     
     # Create a list of ref and assessed PMID-pairs and their relevance-scores
-    pmid_pairs_relevance = list(zip(relevance_matrix_df["PID1"], relevance_matrix_df["PID2"], relevance_matrix_df["Value"]))
+    pmid_pairs_relevance = list(zip(relevance_matrix_df["PMID1"], relevance_matrix_df["PMID2"], relevance_matrix_df["Value"]))
     
     for ref_pmid, assessed_pmid, rel_value in tqdm.tqdm(pmid_pairs_relevance, total=len(pmid_pairs_relevance), 
                                                         desc="Calculating WMD Similarities"):
@@ -394,8 +394,8 @@ def get_WMD_similarity_scores(input_relevance_matrix: str, model: Word2Vec,  art
         except KeyError as e:
             continue
 
-    # Create a DataFrame with columns "PID1", "PID2", "Value", "WMD Similarity"
-    wmd_similarity_df = pd.DataFrame(rows_with_wmd_similarities, columns=["PID1", "PID2", "Value", "WMD"])
+    # Create a DataFrame with columns "PMID1", "PMID2", "Value", "WMD Similarity"
+    wmd_similarity_df = pd.DataFrame(rows_with_wmd_similarities, columns=["PMID1", "PMID2", "Value", "WMD"])
     print('Added similarity scores and saved as pd.DataFrame.')
     
     return wmd_similarity_df
@@ -421,21 +421,21 @@ def get_and_save_WMD_similarity_scores(input_relevance_matrix: str, model: Word2
         File path for the generated 4 column matrix.
     """
     # Read Relevance matrix
-    column_names = ["PID1", "PID2", "Value"]
+    column_names = ["PMID1", "PMID2", "Value"]
     relevance_matrix_df = pd.read_csv(input_relevance_matrix, sep="\t", names = column_names, skiprows=1)
 
     # Adds empty columns to the file to store similarity scores
     relevance_matrix_df["WMD Similarity"] = ""
     
     # Create a list of ref and assessed PMID pairs
-    pmid_pairs = list(zip(relevance_matrix_df["PID1"], relevance_matrix_df["PID2"]))
+    pmid_pairs = list(zip(relevance_matrix_df["PMID1"], relevance_matrix_df["PMID2"]))
     
     for ref_pmid, assessed_pmid in tqdm.tqdm(pmid_pairs, total=len(pmid_pairs), desc="Calculating WMD Similarities"):
         try:
             ref_doc = article_post_annot_docs_dict[int(ref_pmid)]
             assessed_doc = article_post_annot_docs_dict[int(assessed_pmid)]
             WMD_similarity = round(1./(1. + get_WMD_distance(model, ref_doc, assessed_doc) ), 4)
-            relevance_matrix_df.loc[(relevance_matrix_df['PID1'] == ref_pmid) & (relevance_matrix_df['PID2'] == assessed_pmid), 
+            relevance_matrix_df.loc[(relevance_matrix_df['PMID1'] == ref_pmid) & (relevance_matrix_df['PMID2'] == assessed_pmid), 
                                         'WMD Similarity'] = WMD_similarity
         except KeyError as e:
             #print(f"\nKeyError: {e}, ref_pmid: {ref_pmid}, assessed_pmid: {assessed_pmid}")
@@ -454,7 +454,7 @@ def get_cosine_similarity_scores(input_relevance_matrix, embeddings, output_matr
     embeddings_df = pd.read_pickle(embeddings)
     
     # Read Relevance matrix
-    column_names = ["PID1", "PID2", "Value"]
+    column_names = ["PMID1", "PMID2", "Value"]
     relevance_matrix_df = pd.read_csv(input_relevance_matrix, sep="\t", names = column_names, skiprows=1)
 
     # Adds empty columns to the file to store similarity scores
@@ -463,10 +463,10 @@ def get_cosine_similarity_scores(input_relevance_matrix, embeddings, output_matr
     #print(relevance_matrix_df)
 
     # Create a dictionary to store embeddings
-    embeddings_dict = {pmid: embedding for pmid, embedding in zip(embeddings_df['PID'], embeddings_df['Embedding'])}
+    embeddings_dict = {pmid: embedding for pmid, embedding in zip(embeddings_df['PMID'], embeddings_df['Embedding'])}
 
     # Create a list of ref and assessed PMID pairs
-    pmid_pairs = list(zip(relevance_matrix_df["PID1"], relevance_matrix_df["PID2"]))
+    pmid_pairs = list(zip(relevance_matrix_df["PMID1"], relevance_matrix_df["PMID2"]))
 
     for ref_pmid, assessed_pmid in tqdm.tqdm(pmid_pairs, total=len(pmid_pairs), desc="Calculating Similarities"):
         try:
@@ -474,7 +474,7 @@ def get_cosine_similarity_scores(input_relevance_matrix, embeddings, output_matr
             assessed_pmid_vector = embeddings_dict[assessed_pmid]
             if ref_pmid_vector is not None and assessed_pmid_vector is not None:
                 cosine_similarity = round(calculate_cosine_similarity(ref_pmid_vector, assessed_pmid_vector), 4)
-                relevance_matrix_df.loc[(relevance_matrix_df['PID1'] == ref_pmid) & (relevance_matrix_df['PID2'] == assessed_pmid), 
+                relevance_matrix_df.loc[(relevance_matrix_df['PMID1'] == ref_pmid) & (relevance_matrix_df['PMID2'] == assessed_pmid), 
                                         'Cosine Similarity'] = cosine_similarity
             else:
                 continue
@@ -491,9 +491,9 @@ def get_cosine_similarity_scores(input_relevance_matrix, embeddings, output_matr
     print('Saved matrix')
 
 def save_embeddings_to_pickle(pmids, embeddings_list, output_file):
-    data = {"PID": pmids, "Embedding": embeddings_list}
+    data = {"PMID": pmids, "Embedding": embeddings_list}
     df = pd.DataFrame(data)
-    df = df.sort_values("PID")
+    df = df.sort_values("PMID")
     df.to_pickle(output_file)
     print(f"Embeddings saved to {output_file}")
 
@@ -542,3 +542,16 @@ def generate_document_embeddings(model: Word2Vec, pmids: str, article_doc: list,
         document_embeddings.append(document)
         
     save_embeddings_to_pickle(pmids, document_embeddings, output_file)
+
+def save_similarity_to_tsv(df: pd.DataFrame, output_file: str) -> None:
+    """
+    Save the DataFrame containing similarity scores to a TSV file.
+
+    Parameters:
+    ----------
+    df : pd.DataFrame
+        DataFrame to be saved, containing similarity scores among other data.
+    output_file : str
+        The file path where the DataFrame will be saved as a TSV.
+    """
+    df.to_csv(output_file, index=False, sep="\t")

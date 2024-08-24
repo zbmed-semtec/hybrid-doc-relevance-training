@@ -11,7 +11,6 @@ import pandas as pd
 import numpy as np
 from typing import Any, List, Tuple
 from numpy import ndarray
-#import hyperparameter_optimization.hyperparameter_optimization as hp
 
 import warnings
 # Ignore the specific warning
@@ -20,24 +19,23 @@ warnings.filterwarnings("ignore", message="invalid value encountered in scalar d
 
 def load_cosine_sim_matrix(cosine_similarity_matrix: str) -> pd.DataFrame:
     """
-    Loads and return a pandas dataframe object of the cosine similarity matrix.
+    Loads and return a pandas dataframe object of the WMD matrix.
     Parameters
     ----------
     cosine_similarity_matrix : str
-        Filepath for the cosine similarity matrix of existing pairs in the TSV format.
+        Filepath for the WMD matrix of existing pairs in the TSV format.
     Returns
     -------
     sim_matrix : pd.Dataframe
         Cosine similarity matrix.
     """
-    colnames = ["PMID1", "PMID2", "Value", "WMD"]    
-    sim_matrix = pd.read_csv(cosine_similarity_matrix, sep='\t', header=0, names=colnames)
+    sim_matrix = pd.read_csv(cosine_similarity_matrix, sep='\t')
     return sim_matrix
 
 
 def get_dcg_matrix(similarity_matrix: pd.DataFrame, output_file: str):
     """
-    Sorts the cosine similarity matrix based on the cosine similarity values (descending order) for each Reference PMID
+    Sorts the WMD matrix based on the WMD values (descending order) for each Reference PMID
     and creates a new TSV file based on the sorted values.
     Parameters
     ----------
@@ -55,7 +53,7 @@ def get_dcg_matrix(similarity_matrix: pd.DataFrame, output_file: str):
 
 def get_identity_dcg_matrix(similarity_matrix: pd.DataFrame, output_file: str):
     """
-    Sorts the cosine similarity matrix based on the Relevance assessment scores (2's, 1's, 0's) for each Reference PMID
+    Sorts the WMD matrix based on the Relevance assessment scores (2's, 1's, 0's) for each Reference PMID
     and creates a new TSV file based on the sorted values.
     Parameters
     ----------
@@ -124,9 +122,9 @@ def fill_ndcg_scores(dcg_matrix: str, idcg_matrix: str) -> Tuple[List[Any], ndar
     Parameters
     ----------
     dcg_matrix : str
-        Filepath for TSV file of cosine similarity values sorted in the descending order.
+        Filepath for TSV file of WMD values sorted in the descending order.
     idcg_matrix : str
-        Filepath for TSV file of cosine similarity values sorted based on relevance scores.
+        Filepath for TSV file of WMD values sorted based on relevance scores.
     Returns
     -------
     all_pmids : list
