@@ -56,11 +56,11 @@ deactivate
 ### Step 3: Dataset
 
 
-- Use the [Download_Data.sh](./Download_Data.sh) script to download the Split Dataset by running the following commands:
+- Use the [Download_Dataset.sh](./Download_Dataset.sh) script to download the Split Dataset by running the following commands:
 
 ```
-chmod +777 Download_Data.sh
-./Download_Data.sh
+chmod +777 Download_Dataset.sh
+./Download_Dataset.sh
 ```
 This script makes sure that the necessary folders are created and the files are downloaded in the corresponding folders.
 
@@ -75,12 +75,10 @@ This script makes sure that the necessary folders are created and the files are 
    └─ Split_Dataset
       ├─ Data
       │  ├─ train.npy
-      │  ├─ test.npy
-      │  └─ valid.npy
+      │  └─ test.npy
       └─ Ground_truth
          ├─ train.tsv
-         ├─ test.tsv
-         └─ valid.tsv
+         └─ test.tsv
 ```
 
 
@@ -99,33 +97,23 @@ Pipeline Steps:
 In order to start the pipeline execution use this script, and run the following command:
 
  ``` 
-python3 code/pre/fasttext/main.py [-i INPUT] [-v VALIDATION_FILE] [-t TEST_FILE] [-gv VALIDATION_GROUND_TRUTH] [-gt TEST_GROUND_TRUTH] [-c NO_OF CLASSES] [-win WINDOWS/LINUX]
+python3 code/fasttext/pre/main.py [-i INPUT] [-t TEST_FILE] [-g GROUND_TRUTH] [-c NO_OF CLASSES] [-win WINDOWS/LINUX]
  ``` 
 
  You must pass the following four arguments:
 
 + -i/ --input : File path to the RELISH Train split dataset (.npy file format).
-+ -v/ --valid : File path to the RELISH Validation split dataset (.npy file format).
 + -t/ --test : File path to the RELISH Test split dataset (.npy file format).
-+ -gv/ --valid_ground_truth : File path for the Validation split ground truth (.tsv file format).
-+ -gt/ --test_ground_truth : File path for the Test split ground truth (.tsv file format).
++ -g/ --ground_truth : File path for the Test split ground truth (.tsv file format).
 + -c/ --classes : No. of classes to perform optimization on (Integer 2 or 3/ Default value is 3).
 + -win/ --windows : 1 - if using Windows systems; 0 - if using Unix-like systems (including Ubuntu)
 
 To run this script, please execute the following command:
 
  ``` 
-python3 code/pre/fasttext/main.py -i data/Split_Dataset/train.npy -v data/Split_Dataset/valid.npy -t data/Split_Dataset/test.npy -gv data/Split_Dataset/Ground_truth/valid.tsv -gt data/Split_Dataset/Ground_truth/test.tsv -c 3 -win 0
+python3 code/fasttext/pre/main.py -i data/Split_Dataset/train.npy -t data/Split_Dataset/test.npy -g data/Split_Dataset/Ground_truth/test.tsv -c 3 -win 0
  ``` 
 
 Precision@N and NDCG scores are saved as TSV files in the following folder path: `\output_2\evaluation\`  for 2 class distribution and `\output_3\evaulation\` for 3 class distribution for further analysis and reporting.
 
 Make sure to run the model training twice for both the class distributions by changing the value of the -c/ --classes flag to 2 and 3.
-
-**NOTE:** As of now, we use the test file as our validation dataset during the model training. Make sure to replace the validation dataset with the truth dataset as well as validation groundtruth file with the test groundtruth file.
-
-For replacing the validation data with the test data, please execute the following command:
-
-``` 
-python3 code/pre/fasttext/main.py -i data/Split_Dataset/train.npy -v data/Split_Dataset/test.npy -t data/Split_Dataset/test.npy -gv data/Split_Dataset/Ground_truth/test.tsv -gt data/Split_Dataset/Ground_truth/test.tsv -c 3 -win 0
-``` 
