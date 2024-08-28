@@ -1,6 +1,10 @@
-**Note that in this directory, models are trained and embeddings are generated for data with Removed-Stopwords**
+# Hybrid-PostReduction-WMD-Word2vec
 
-In order to generalize the code for data including Stopwords, some changes are required in script [utilities.py](./code/utilities.py). Specifically, `pattern_to_find = [w for w in pmid_term[1:] if not w in stop_words]` in line 151 of function `generate_post_npy_dict_via_injection_MeSHIDs_into_tokens`, and line 311 of function `replacement_of_MeSHterms_with_MeSHIDs_in_tokens` must be replaced with `pattern_to_find = pmid_term[1:]`.
+This directory contains the code for the Hybrid-PostReduction-WMD-Word2vec approach. This method leverages the plain text of the RELISH corpus, utilizes the word2vec model to generate word embeddings, and calculates their centroid to produce document embeddings.
+
+# Input Data
+The input data for this approach includes plain text (title and abstract) of the documents within the RELISH Corpus. The plain text is then converted into preprocessed tokens and are stored in the RELISH.npy file, which contains preprocessed arrays of PMIDs, document titles, and abstracts. These arrays are produced through an extensive preprocessing pipeline, detailed in the (relish-preprocessing repository](https://github.com/zbmed-semtec/relish-preprocessing?tab=readme-ov-file#text-preprocessing-for-generating-embeddings). The preprocessed tokenized data is split into training and test datasets based on specific criteria used in the splitting algorithm as explained [here](https://github.com/zbmed-semtec/relish-preprocessing?tab=readme-ov-file#splitting-the-data).
+
 
 ## Getting Started
 
@@ -12,20 +16,14 @@ First, clone the repository to your local machine using one of the following com
 ###### Using HTTP:
 
 ```
-git clone https://github.com/zbmed-semtec/hybrid-post-word2doc2vec-doc-relevance-training.git
+git clone https://github.com/zbmed-semtec/hybrid-doc-relevance-training.git
 ```
 
 ###### Using SSH:
 Ensure you have set up SSH keys in your GitHub account.
 
 ```
-git clone git@github.com:zbmed-semtec/hybrid-post-word2doc2vec-doc-relevance-training.git
-```
-
-#### Navigate to the `training-PostReduction-WMD` Folder:
-
-```
-cd hybrid-post-word2doc2vec-doc-relevance-training/training-PostReduction-WMD
+git clone git@github.com:zbmed-semtec/hybrid-doc-relevance-training.git
 ```
 
 ### Step 2: Create a virtual environment and install dependencies
@@ -56,14 +54,35 @@ deactivate
 ```
 
 ### Step 3: Dataset
-- Download the dataset from this link: [Split_Dataset](https://drive.google.com/drive/folders/1Bq_U5207utn7tvSt_HLVdOdYR5QW7MMN)
-- Keep the data in the below-specified format
 
-![image](https://github.com/zbmed-semtec/doc2vec-doc-relevance-training/assets/62026329/7b585c09-1fc3-4122-bf27-42c957de6edf)
+- Use the [Download_Dataset.sh](./Download_Dataset.sh) script to download the Split Dataset by running the following commands:
+
+```
+chmod +777 Download_Dataset.sh
+./Download_Dataset.sh
+```
+This script makes sure that the necessary folders are created and the files are downloaded in the corresponding folders.
+
+**OR**
+
+
+- You could also download the dataset from this link: [Split_Dataset](https://drive.google.com/drive/folders/1Bq_U5207utn7tvSt_HLVdOdYR5QW7MMN). Please make sure to keep the data in the below specified format.
+
+```
+📦 /hybrid-doc-relevance-training
+└─ data
+   └─ Split_Dataset
+      ├─ Data
+      │  ├─ train.npy
+      │  └─ test.npy
+      └─ Ground_truth
+         ├─ train.tsv
+         └─ test.tsv
+```
 
 ### Step 4: Optimization Pipeline
 
-This pipeline aims to optimize hyperparameters of Word2Vec model for hybrid post WMD Word-2Doc-2Vec approach using Optuna, train the model with the optimal parameters, and evaluate its performance using three-class precision at 5 (Precision@5).
+This pipeline aims to optimize hyperparameters of Word2Vec model for hybrid post WMD Word2Vec approach using Optuna, train the model with the optimal parameters, and evaluate its performance using three-class precision at 5 (Precision@5).
 
 #### Pipeline Steps:
 
@@ -73,37 +92,27 @@ This pipeline aims to optimize hyperparameters of Word2Vec model for hybrid post
 - **Precision@N Calculation**: Computes Precision@N scores, a measure of the relevance of retrieved documents, for the obtained WMD similarities.
 - **NDCG Score Calculation**: Computes normalized discounted cumulative gain (NDCG) scores, which assesses the quality of ranked search results based on relevance assessments.
 
-In order to start the pipeline execution use this [script](./code/main.py), and run the following command:
+In order to start the pipeline execution use this script, and run the following command:
 
 ```
-python3 code/main.py [-i TRAIN_DATA] [-v VALIDATION_DATA] [-t TEST_DATA] [-gv VALIDATION_GROUND_TRUTH] [-gt TEST_GROUND_TRUTH] [-dict MeShIDtoPMID] [-win USING_WINDOWS]
+python3 code/wmd-word2vec/postreduction/main.py [-i TRAIN_DATA] [-t TEST_DATA] [-g GROUND_TRUTH] [-dict MeShIDtoPMID] [-win USING_WINDOWS]
 ```
 
 You must pass the following four arguments:
 
 + -i/ --input : File path to RELISH Train split dataset (.npy file format).
-+ -v/ --valid :  File path to RELISH Validation split dataset (.npy file format).
 + -t/ --test :  File path to the RELISH Test split dataset (.npy file format).
-+ -gv/ --valid_ground_truth : File path for the Validation split ground truth (.tsv file format).
-+ -gt/ --test_ground_truth : File path for the Test split ground truth (.tsv file format).
++ -g/ --ground_truth : File path for the Test split ground truth (.tsv file format).
 + -dict/ --MeShIDtoPMID : File path to input MeShIDtoPMID (.tsv file format).
 + -win/ --windows : Assign 1 if using Windows systems; and 0 if using Unix-like systems (including Ubuntu).
 
-For instance, to run this script on Windows systems, you may execute the following command:
+To run this script, please execute the following command:
 
 ```
-python3 code/main.py -i relish_train_tokens_removed_stopwords.npy -v relish_val_tokens_removed_stopwords.npy -t relish_test_tokens_removed_stopwords.npy -gv val_split.tsv -gt test_split.tsv -dict ../data/dic_MeShIDtoPMID_2022628.tsv -win 1
-```
-and when using Unix-like systems (including Ubuntu), you may execute the following command:
-```
-python3 code/main.py -i relish_train_tokens_removed_stopwords.npy -v relish_val_tokens_removed_stopwords.npy -t relish_test_tokens_removed_stopwords.npy -gv val_split.tsv -gt test_split.tsv -dict ../data/dic_MeShIDtoPMID_2022628.tsv -win 0
+python3 code/wmd-word2vec/postreduction/main.py -i data/Split_Dataset/train.npy -t data/Split_Dataset/test.npy -g data/Split_Dataset/Ground_truth/test.tsv -dict data/mesh_to_pmid_dict.tsv -c 3 -win 0
 ```
 
-All outputs of the [script](./code/main.py) are saved in the folder named `output_of_model`. During the optimization process, we can monitor the progress via `Optuna_trials.log` saved in the folder `output_of_model`. After completing the code run, all trials' information will be saved in `optuna_study_state.csv`.
-
-Note that this [script](./code/main.py) creates a [resumable Optuna study](https://optuna.readthedocs.io/en/stable/tutorial/20_recipes/001_rdb.html#rdb). Specifically, if the optimization process is interrupted or stopped for any reason, or if there's a desire to continue the optimization process further after completing the code run, it's possible to resume the Optuna study that was previously created. To do so, all that's required is the file `optuna_study_storage.db`, which should be saved in the `output_of_model` folder, and then re-executing the [script](./code/main.py). Prior to resuming an existing Optuna study, you have the flexibility to adjust the number of trials (`n_trials`) or the number of threads (`n_jobs`) in the [main.py]((./code/main.py)) script, giving you the ability to increase or decrease them as required.
-
-Also, the best validation's trained model and its corresponding embeddings and cosine similarities are saved by the code in file-paths `output_of_model/model/best_Word2Vec_model`, `output_of_model/doc_embeddings/best_embeddings_pickle.pkl` and `output_of_model/evaluation/best_WMD_similarity.tsv`, correspondingly. This could be helpful to avoid redundant calculations when using the same dataset for both validation and testing. The saved best trained model from the validation phase is then loaded during the test phase to perform evaluation using test data.
+### NOTE:
 
 Unfortunately, using `model.wv.add_vectors` to add new MeSHembedding vectors in batches in the `injection_MeSHembeddings_into_embeddings` function of the [utilities.py](./code/utilities.py) script causes the best model stored from the tuning phase to be unloaded. Also, using `model.wv.add_vector()` to add single vectors to KeyedVectors, which grows by one each time, significantly reduces the execution speed of the code, as indicated by Gensim's inefficiency warning.
 
