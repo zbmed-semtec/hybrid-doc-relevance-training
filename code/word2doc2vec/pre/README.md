@@ -3,7 +3,7 @@ This directory contains the code for the Hybrid-Pre-Word2doc2vec approach. This 
 
 ## Input Data
 
-The input data for this approach includes text annotated using the MeSH vocabulary via the [Whatizit tool](https://academic.oup.com/bioinformatics/article/24/2/296/227269?login=true). The complete annotation pipeline is detailed in the [repository documentation](https://github.com/zbmed-semtec/whatizit-dictionary-ner/tree/main/docs). The annotated text is then converted into preprocessed tokens and are stored in the RELISH.npy file, which contains preprocessed arrays of PMIDs, document titles, and abstracts. These arrays are produced through an extensive preprocessing pipeline, detailed in the [relish-preprocessing repository](https://github.com/zbmed-semtec/relish-preprocessing?tab=readme-ov-file#text-preprocessing-for-generating-embeddings). The preprocessed tokenized data is split into training, testing, and validation datasets based on specific criteria used in  the splitting algorithm as explained [here](https://github.com/zbmed-semtec/relish-preprocessing?tab=readme-ov-file#splitting-the-data). For a detailed explanation of the data annotation, data preprocessing and the algorithm please refer [here](../../../README.md).
+The input data for this approach includes text annotated using the MeSH vocabulary via the [Whatizit tool](https://academic.oup.com/bioinformatics/article/24/2/296/227269?login=true). The complete annotation pipeline is detailed in the [repository documentation](https://github.com/zbmed-semtec/whatizit-dictionary-ner/tree/main/docs). The annotated text is then converted into preprocessed tokens and are stored in the RELISH.npy file, which contains preprocessed arrays of PMIDs, document titles, and abstracts. These arrays are produced through an extensive preprocessing pipeline, detailed in the [relish-preprocessing repository](https://github.com/zbmed-semtec/relish-preprocessing?tab=readme-ov-file#text-preprocessing-for-generating-embeddings). The preprocessed tokenized data is split into training and test datasets based on specific criteria used in  the splitting algorithm as explained [here](https://github.com/zbmed-semtec/relish-preprocessing?tab=readme-ov-file#splitting-the-data). For a detailed explanation of the data annotation, data preprocessing and the algorithm please refer [here](../../../README.md).
 
 ## Getting Started
 
@@ -82,7 +82,7 @@ This script makes sure that the necessary folders are created and the files are 
 ```
 
 
-### Step 4: Generate Embeddings
+### Step 4: Optimization Pipeline
 
 This step optimizes hyperparameters for a Word2vec model using Optuna, train the model with the optimal parameters, and evaluate its performance using precision at N (Precision@N) and normalized discounted cumulative gain (NDCG) metrics.
 
