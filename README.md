@@ -378,3 +378,7 @@ To begin using this project, follow the instructions outlined for your chosen ap
 **[preprocess](code/preprocess/)**: Contains all preprocessing scripts and instructions.
 
 Navigate to the relevant folder to access the specific code and detailed instructions for executing each approach.
+
+
+## ⚠️NOTE
+The datasets for this project are downloaded using the [Download_Dataset.sh](./Download_Dataset.sh) script. When running the script, ensure that you comment the lines not corresponding to the dataset of the approach you are using.
