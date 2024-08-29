@@ -1,36 +1,55 @@
 # Hybrid-doc-relevance-training
-This repository explores various hybrid embedding approaches for assessing literature-based document-2-document recommendations by integrating semantics using the RELISH corpus. We explore three different algorithms to explore embedding semantics. The algorithms are classified based on the proposed approach: pre-annotation, post-annotation and post-reduction annotation. Each algorithm employs different models such as doc2vec model, word2doc2vec model and fastText. The following sections detail each of these algorithms along with the input data preprocessing and execution instructions.
+This repository explores various **hybrid embedding approache**s** for assessing literature-based document-2-document recommendations by integrating semantics using the **RELISH corpus**. We explore  three different algorithms: **pre-annotation**, **post-annotation**, and **post-reduction annotation**. Each algorithm uses different models such as **Doc2Vec**, **Word2Vec**, and **FastText**. Below, you’ll find detailed explanations of each approach, along with input data preprocessing and execution instructions.
+
+# 📚🔍Table of Contents
+
++ [About](#📝about)
++ [Input Data](#📂input-data)
++ [Approaches](#🔀approaches)
+    1. [Pre-annotation Approach](#1-pre-annotation-approach)
+        - [Data Annotation and Preprocessing](#data-annotation-and-preprocessing)
+        - [Pipeline](#pipeline)
+    2. [Post-annotation Approach](#2-post-annotation-approach)
+        - [Data Preprocessing and Dictionary Creation](#data-preprocessing-and-dictionary-creation)
+        - [Pipeline](#pipeline-1)
+    3. [Post-reduction Annotation Approach](#3-postreduction-annotation-approach)
+        - [Data Preprocessing](#data-preprocessing-1)
+        - [Pipeline](#pipeline-2)
++ [Algorithms](#algorithms)
+    1. [Word2doc2vec](#1-word2doc2vec)
+    2. [Doc2vec](#2-doc2vec)
+    3. [WMD-Word2vec](#3-wmd-word2vec)
+    4. [fastText](#4-fasttext)
++ [Getting Started](#🚀getting-started)
 
 
-# Table of Contents
+# 📝About
 
-1. [About](#about)
-2. [Input Data]()
-3. [Pre-annotation Approach](#pre-annotation-approach)
-    - [Data Annotation and Preprocessing](#data-annotation-and-preprocessing)
-    - [Pipeline](#pipeline)
-4. [Post-annotation Approach](#post-annotation-approach)
-    - [Data Preprocessing](#data-preprocessing)
-    - [Pipeline](#pipeline-1)
-5. [Post-reduction annotation Approach](#post-reduction-annotation-approach)
-    - [Data Preprocessing](#data-preprocessing-1)
-    - [Pipeline](#pipeline-2)
-4. [Models](#models)
-6. [Repository structure]()
-7. [Code Implementation](#code-implementation)
-8. [Getting Started](#getting-started)
+The main objective of this repository is to explore a Hybrid approach combining semantics with document embeddings. The objective is to enhance the representation of biomedical texts by incorporating semantics through the annotation of the RELISH Corpus using the [Medical Subject Headings](https://www.nlm.nih.gov/mesh/meshhome.html) (MeSH) vocabulary. By employing dictionary-based Named Entity Recognition (NER), medical terms are grouped into unified entities, creating a semantic layer that goes beyond plain text. This method evaluates how effectively neural network models capture contextual information when enriched with semantic data.
+
+The algorithms are categorized based on the order of annotation and embedding generation:
+
+1. **Pre-annotation**: Embeddings are generated after the text is annotated.
+2. **Post-annotation**: Embeddings are created first, with semantics incorporated afterward.
+3. **Post-reduction Annotation**: Similar to post-annotation, but with an additional focus on reducing redundancy in the data.
+
+Models are trained using a split dataset and evaluated on document-to-document recommendations using metrics like precision@N and nDCG@N.
 
 
-# About
-The main objective of the Hybrid-doc-relevance repository is to explore a Hybrid approach which combines semantics with document embeddings. The idea is to annotate the RELISH Corpus using a biomedical vocabulary: [Medical Subject Headings](https://www.nlm.nih.gov/mesh/meshhome.html) (MeSH) and employ a dictionary-based named entity recognition to group medical terms into single entities. This approach aims to incorporate semantics as a layer instead of plain text to evaluate how well neural network models capture context. Depending on the algorithm—pre-annotation, post-annotation, and post-reduction annotation—we control the order of incorporating semantics into the document embeddings. The pre-annotation algorithm uses the annotated text and then generates embeddings for a document, while post-annotation and post-reduction annotation use plain text and incorporate semantics after generating embeddings for a document. We train the models using a split dataset and evaluate the efficacy of document-to-document recommendations using evaluation metrics like precision@N and nDCG@N on the test dataset.
+
+# 📂Input Data
+
+For details on the RELISH Corpus, please refer to our [relish-preprocessing](https://github.com/zbmed-semtec/relish-preprocessing) repository, which describes data extraction and processing. Depending on the algorithm, the input data changes:
+
++ **Pre-annotation**: Uses annotated text.
++ **Post-annotation and Post-reduction Annotation**: Use plain text.
 
 
-# Input Data
+# 🔀Approaches
 
-For details on the RELISH Corpus, please refer to our [relish-preprocessing](https://github.com/zbmed-semtec/relish-preprocessing) repository, where the data extraction and processing are described. As mentioned above, depending on the algorithm, the input data changes. For the pre-annotation approaches, we make use of the annotated text while for post-annotation and post-reduction annotation approaches, we make use of the plain text.
+We define three approaches: Pre-annotation, Post-annotation, and Post-reduction Annotation.
 
-
-# Pre-annotation Approach
+# 1. Pre-annotation Approach
 
 This approach makes use of the annotated text of the RELISH Corpus and feeds it into the neural network models depending on the chosen model: doc2vec, word2doc2vec, fastText. The annotated data is split into train and test datasets following certain criteria as explained [here](https://github.com/zbmed-semtec/relish-preprocessing?tab=readme-ov-file#splitting-the-data). We train the models using the training dataset, generate embeddings for the test dataset, optimize the best hyperparameter configuration using Optuna, and evaluate the approach using precision@N and nDCG@N evaluation metrics.
 
@@ -124,7 +143,7 @@ At the end of this process, we expect to have a TSV file for the dataset with th
 </div>
 
 
-Please refer to the [main documentation](docs/xml_translate/README.md) for a more detailed explanation and execution instructions of the of XML Translation.
+Please refer to the [code](./code/data-preprocessing/xml_translate/) and the [main documentation](docs/xml_translate/README.md) for a more detailed explanation and execution instructions of the of XML Translation.
 
 ### Step 2: Data preprocessing
 
@@ -132,7 +151,7 @@ The next step is to apply some preprocessing to the publications. This process i
 
 ### i. Structure words removal
 
-Both the code and the documentation is located in the [relish-preprocessing repository](https://github.com/zbmed-semtec/relish-preprocessing) since it is a common step in every document-to-document similarity approach. We defined as "Structure words" those terms that are introduced in the text to better structure the abstract. In the table shown above, we can see that, for example, the words "BACKGROUND: " and "OBJECTIVE: " are written at the start of the abstract. These terms do not provide any meaningful information and are not found in every publication and, since in the end we try to measure the similarity between documents, they can artificially increase the similarity of two publications that are not related otherwise.
+Both the [code](https://github.com/zbmed-semtec/relish-preprocessing/tree/main/code/structure-words-removal) and the [documentation](https://github.com/zbmed-semtec/relish-preprocessing/blob/main/code/structure-words-removal/README.md) is located in the [relish-preprocessing repository](https://github.com/zbmed-semtec/relish-preprocessing) since it is a common step in every document-to-document similarity approach. We defined as "Structure words" those terms that are introduced in the text to better structure the abstract. In the table shown above, we can see that, for example, the words "BACKGROUND: " and "OBJECTIVE: " are written at the start of the abstract. These terms do not provide any meaningful information and are not found in every publication and, since in the end we try to measure the similarity between documents, they can artificially increase the similarity of two publications that are not related otherwise.
 
 These structure words usually follow a pattern: most of them are in capital letters (not always), they all end with a colon and an empty space ": " and they are always located at the beginning of a sentence. Using these rules, we developed an algorithm to identify and eliminate them. This step is summarized as follows:
 
@@ -164,7 +183,7 @@ To describe the development of evidence-based electronic prescribing (e-prescrib
 
 The code for text preprocessing and tokenization can be found in the [relish-preprocessing](https://github.com/zbmed-semtec/relish-preprocessing/tree/main/code/data-preprocessing) repository and is described [here](https://github.com/zbmed-semtec/relish-preprocessing?tab=readme-ov-file#text-preprocessing-for-generating-embeddings). 
 
-However, a specific preprocessing [script](code/preprocess/text-preprocess/preprocess.py) was developed for the hybrid approaches. Instead of using the default phrase preprocessing found in relish-preprocessing repository [(here)](https://github.com/zbmed-semtec/relish-preprocessing/blob/main/code/data-preprocessing/preprocessing.py), the steps produced in here are particular for the hybrid approaches. The results produced are expected to be the same, but execution time is greatly improved in this approach. The main difference is to not include the biological tokenizer `en_core_sci_lg` from the sciSpacy module, since its use is not recommended for this approach. The summary of the process is as follows:
+However, a specific preprocessing [script](code/preprocess/text-preprocess/preprocess.py) was developed for the hybrid approaches. Instead of using the default phrase preprocessing found in relish-preprocessing repository [here](https://github.com/zbmed-semtec/relish-preprocessing/blob/main/code/data-preprocessing/preprocessing.py), the steps produced in here are particular for the hybrid approaches. The results produced are expected to be the same, but execution time is greatly improved in this approach. The main difference is to not include the biological tokenizer `en_core_sci_lg` from the sciSpacy module, since its use is not recommended for this approach. The summary of the process is as follows:
 
 1. Lower case everything and split by white spaces.
 
@@ -197,35 +216,36 @@ Once the text is annotated, preprocessed and tokenized, we split the dataset int
 
 Once the input data is correctly formatted, we proceed to train the neural network models using the training dataset. For the pre-annotation approach, we have defined the following approaches:
 
-+ [`hybrid-pre-word2doc2vec`](code/pre/word2doc2vec)
-+ [`hybrid-pre-wmd-word2vec`](code/pre/wmd-word2vec)
-+ [`hybrid-pre-doc2vec`](code/pre/doc2vec)
-+ [`hybrid-pre-fastText`](code/pre/fasttext)
++ [`hybrid-pre-word2doc2vec`](code/word2doc2vec/pre)
++ [`hybrid-pre-wmd-word2vec`](code/wmd-word2vec/pre)
++ [`hybrid-pre-doc2vec`](code/doc2vec/pre)
++ [`hybrid-pre-fastText`](code/fasttext/pre)
 
-Each approach has a dedicated directory within the `./code/pre/` folder, containing the necessary files and documentation for execution. Detailed instructions for running each approach can be found within their respective folders.
+Each approach has a dedicated directory within the `./code/` folder, containing the necessary files and documentation for execution. Detailed instructions for running each approach can be found within their respective folders.
 
 ------------------------------------
 ------------------------------------
 
 
-# Post-annotation Approach
+# 2. Post-annotation Approach
 
-This approach makes use of the plain preprocessed and tokenized text of the RELISH Corpus and feeds it into the neural network models depending on the chosen model: word2vec and fastText. The annotated data is split into train and test datasets following certain criteria as explained [here](https://github.com/zbmed-semtec/relish-preprocessing?tab=readme-ov-file#splitting-the-data). We train the models using the training dataset, generate embeddings for the test dataset, optimize the best hyperparameter configuration using Optuna, and evaluate the approach using precision@N and nDCG@N evaluation metrics.
-The idea of this approach is for the neural network model to learn context using plainn text but then later incorporate a layer of semantics by injecting mesh embeddings into the model's trained vocabulary. 
+The hybrid post-annotation approach is a method that combines traditional word embeddings with semantic information from a structured vocabulary—in this case, MeSH (Medical Subject Headings) terms—to enhance the context captured by the model. This approach is implemented in two main stages: training and testing.
+
+**Training Phase:** Initially, the model is trained on the raw text data (titles and abstracts) to generate embeddings. These embeddings capture the context of words based on their co-occurrence in the corpus. After the initial embeddings are generated, the model is enhanced by incorporating semantic information. Specifically, MeSH terms that appear in the training documents are identified, and the corresponding MeSH IDs are used to compute new embeddings. These embeddings are calculated as the centroid (average) of the embeddings of words associated with each MeSH term. The computed MeSH embeddings are then integrated into the Word2Vec model, associating them with the respective MeSH IDs.
+
+**Testing Phase:** During testing, the trained model is applied to new data (test documents). The process involves identifying MeSH terms in the new documents and appending the corresponding MeSH IDs as tokens within the text. This allows the model to recognize and utilize these MeSH terms during the generation of embeddings, ensuring that the semantic context provided by MeSH terms is factored into the final document representations.
 
 The following section explains the input data for this particular approach, the preprocessing steps needed and the entire pipeline. 
 
-
 ## Data Preprocessing and Dictionary Creation
 
-The input data for Post-annotation approach consists of three files:
+The post-annotation approach relies heavily on properly prepared data inputs, which include:
 
-
-+ **[mesh_to_pmid_dict.tsv](data/mesh_to_pmid_dict.tsv)**: TSV file derived from annotated Relish XMLs.
++ **[mesh_to_pmid_dict.tsv](data/mesh_to_pmid_dict.tsv)**: This TSV file is derived from the annotated RELISH XML files and plays a central role in the approach. It contains a detailed dictionary that maps MeSH terms to their corresponding document IDs (PMIDs) and lists of tokenized words found in those documents. This structured format allows the model to integrate MeSH-specific embeddings effectively.
 + **RELISH Preprocessed tokens:** Preprocessed tokens derived from the RELISH documents. These tokens are stored in the RELISH.npy file, which contains preprocessed arrays comprising of PMIDs, document titles, and abstracts. These arrays are generated through an extensive preprocessing pipeline, as elaborated in the [relish-preprocessing repository](https://github.com/zbmed-semtec/relish-preprocessing). Within this preprocessing pipeline, both the title and abstract texts undergo several stages of refinement: structural words are eliminated, text is converted to lowercase, and finally, tokenization is employed, resulting in arrays of individual words.
 
 ### Step 1: Dictionary Creation
-The input data for this step are the annotated RELISH XML files. Similar to the XML Translation stage for Pre-annotation approach, here we create a dictionary by parsing throught the annotated RELISH XML files, list down the MESH IDs, their occurence in every doucment and all the MeSH terms that are synonyms of the same MeSH term. The TSV file consists of two columns: MeSHID and Appearance (pmid, tokenized lowercase words).
+The input data for this step are the annotated RELISH XML files. Similar to the XML Translation stage for Pre-annotation approach, here we create a dictionary by parsing throught the annotated RELISH XML files, list down the MESH IDs, their occurences in every document and the tokenized words that represent the MeSH terms. The TSV file consists of two columns: MeSHID and Appearance (pmid, tokenized lowercase words).
 
 The small subset of the dictionary TSV file looks as follows:
 
@@ -259,8 +279,9 @@ MeSHD020079
 </tr>
 </table>
 
-### Step 2: Text Preprocessing
+The code and the documentation for creating the dictionary can be found within this [folder](./code/preprocess/dictionary_creation/).
 
+### Step 2: Text Preprocessing
 
 The input data for this method consists of preprocessed tokens of RELISH Corpus generated by the pipeline as detailed in the [relish-preprocessing](https://github.com/zbmed-semtec/relish-preprocessing) repository. The pipeline consists of both the title and abstract of the documents undergoing removal of structural words, structural words are eliminated, text is converted to lowercase, and finally, tokenization is employed. The preprocessed tokens are stored as arrays in a .npy file.
 
@@ -270,10 +291,90 @@ Once the text is preprocessed and tokenized, we split the dataset into a trainin
 
 ## Pipeline
 
-Once the input data is correctly formatted, we proceed to train the neural network models using the training dataset. For the post-annotation approach, we have defined the following approaches:
+With the input data correctly formatted and the TSV dictionary in place, the next step is to train the neural network models using the training dataset. For the hybrid post-annotation approach, several specific approaches have been defined, each with its own dedicated directory and instructions for execution. These include:
 
-+ [`hybrid-post-word2doc2vec`](code/post/word2doc2vec)
-+ [`hybrid-post-wmd-word2vec`](code/post/wmd-word2vec)
-+ [`hybrid-post-fastText`](code/post/fasttext)
++ [`hybrid-post-word2doc2vec`](code/word2doc2vec/post)
++ [`hybrid-post-wmd-word2vec`](code/wmd-word2vec/post)
++ [`hybrid-post-fastText`](code/fasttext/post)
 
-Each approach has a dedicated directory within the `./code/post/` folder, containing the necessary files and documentation for execution. Detailed instructions for running each approach can be found within their respective folders.
+Each of these approaches uses the preprocessed tokens and the dictionary created from the TSV file to generate embeddings that incorporate both the raw text and the semantic information provided by MeSH IDs. 
+
+
+------------------------------------
+------------------------------------
+
+# 3. Postreduction-annotation Approach
+
+The postreduction-annotation approach is a method designed to integrate traditional word embeddings with semantic information from a structured vocabulary—in this case, MeSH (Medical Subject Headings) terms - by replacing specific MeSH terms in the text with their corresponding MeSH IDs, instead of merely appending them. 
+
+**Training Phase:** In the training phase, the model is first trained on raw text data (titles and abstracts) to generate initial word embeddings. These embeddings capture the context of words based on their co-occurrence patterns in the training corpus. After generating the initial embeddings, the model is further enhanced by incorporating semantic information from MeSH terms. Specifically, for each MeSH term that appears in the training documents, the corresponding MeSH ID is identified. The model then calculates new embeddings for these MeSH IDs as the centroid (average) of the embeddings of words associated with each MeSH term. These computed MeSH embeddings are integrated into the Word2Vec model, associating them directly with the respective MeSH IDs, effectively embedding the semantic information into the model.
+
+**Testing Phase:** During the testing phase, the trained model is applied to new data (test documents). The process differs from the post-annotation approach by directly replacing the MeSH terms in the test documents with their corresponding MeSH IDs rather than simply appending the MeSH IDs to the text. This replacement ensures that the model processes the standardized MeSH IDs directly, rather than the varied natural language terms. By doing so, the semantic context provided by the MeSH terms is fully integrated into the generation of document embeddings.
+
+The following section explains the input data for this particular approach, the preprocessing steps needed and the entire pipeline. 
+
+## Data Preprocessing and Dictionary Creation
+
+The postreduction-annotation approach also relies heavily on properly prepared data inputs, which include:
+
+
++ **[mesh_to_pmid_dict.tsv](data/mesh_to_pmid_dict.tsv)**: This TSV file is derived from the annotated RELISH XML files and plays a central role in the approach. It contains a detailed dictionary that maps MeSH terms to their corresponding document IDs (PMIDs) and lists of tokenized words found in those documents. This structured format allows the model to integrate MeSH-specific embeddings effectively.
+
++ **RELISH Preprocessed tokens:** Preprocessed tokens derived from the RELISH documents. These tokens are stored in the RELISH.npy file, which contains preprocessed arrays comprising of PMIDs, document titles, and abstracts. These arrays are generated through an extensive preprocessing pipeline, as elaborated in the [relish-preprocessing repository](https://github.com/zbmed-semtec/relish-preprocessing). Within this preprocessing pipeline, both the title and abstract texts undergo several stages of refinement: structural words are eliminated, text is converted to lowercase, and finally, tokenization is employed, resulting in arrays of individual words.
+
+### Step 1: Dictionary Creation
+
+This step mirrors the process in the post-annotation approach, where a dictionary is created from the annotated RELISH XML files to map MeSH terms to PMIDs and tokenized words.
+
+The code and documentation for creating this dictionary are available in this [folder](./code/preprocess/dictionary_creation/).
+
+### Step 2: Text Preprocessing
+
+The text preprocessing step is identical to that in the post-annotation approach, involving the removal of structural words, conversion to lowercase, and tokenization to prepare the text data for the model.
+
+### Step 3: Data Splitting
+
+Similarly, the data splitting process follows the same methodology as in the post-annotation approach, dividing the dataset into training and test sets according to predefined criteria.
+
+## Pipeline
+
+
+With the input data correctly formatted and the TSV dictionary in place, the next step is to train the neural network models using the training dataset. For the hybrid post-annotation approach, several specific approaches have been defined, each with its own dedicated directory and instructions for execution. These include:
+
++ [`hybrid-postreduction-word2doc2vec`](code/word2doc2vec/postreduction)
++ [`hybrid-postreduction-wmd-word2vec`](code/wmd-word2vec/postreduction)
++ [`hybrid-postreduction-fastText`](code/fasttext/postreduction)
+
+Each approach has a dedicated directory within the `./code/` folder, containing the necessary files and documentation for execution. Detailed instructions for running each approach can be found within their respective folders.
+
+
+# 🌐Algorithms
+
+## 1. Word2doc2vec
+The Word2Doc2Vec approach leverages [Word2Vec](https://arxiv.org/pdf/1310.4546) to capture the semantic meaning of words and produce word embeddings. In this method, individual word vectors are averaged to create a centroid representation for each document. This centroid approach aggregates the word embeddings into a cohesive document-level vector, enabling a better comparison of documents based on their titles and abstracts. We make use of both the variants of Word2Vec: Skip-gram (SG) model, which predicts context words from a given target word, or the Continuous Bag of Words (CBOW) model, which predicts the target word based on surrounding context words. 
+
+## 2. Doc2vec
+[Doc2Vec](https://arxiv.org/pdf/1405.4053v2) is an extension of the Word2Vec model, specifically designed to generate vector representations for entire documents rather than individual words. It achieves this by incorporating the context of words within a document, along with a unique document identifier, to learn distributed representations of documents in a continuous vector space. We make use of both the variants of Doc2Vec: the Distributed Memory (DM) model and the Distributed Bag of Words (DBOW) model. The DM model predicts a target word based on both its context words and the document vector, effectively capturing the semantic meaning of the entire document. In contrast, the DBOW model predicts context words directly from the document vector, which focuses more on global document-level information. 
+
+
+## 3. WMD-Word2vec
+WMD-Word2Vec utilizes [Word2Vec](https://arxiv.org/pdf/1310.4546) to generate word embeddings, incorporating both its variants: the Skip-gram (SG) model, which predicts context words based on a given target word, and the Continuous Bag of Words (CBOW) model, which predicts the target word from its surrounding context words. After training the Word2Vec model, we apply Word Mover's Distance (WMD) to evaluate the semantic similarity between documents, using the word embeddings to measure the distance between word vectors across different documents.
+
+## 4. fastText
+[fastText](https://fasttext.cc/) improves word embeddings by decomposing words into character n-grams, enabling the model to capture subword information and better handle out-of-vocabulary terms. In our approach, we utilize FastText to create comprehensive word embeddings for document titles and abstracts. These word embeddings are then aggregated into document-level representations using a centroid method. Additionally, we leverage both FastText variants: the Continuous Bag of Words (CBOW) model, which predicts target words from context, and the Skip-gram model, which predicts context words from a given target word. 
+
+# 🚀Getting Started
+
+To begin using this project, follow the instructions outlined for your chosen approach. The necessary code and execution guidelines are organized into distinct folders within the [`code`](./code) folder:
+
+**[word2doc2vec](code/word2doc2vec/)**: Includes scripts for pre, post, and post-reduction approaches.
+
+**[doc2vec](code/doc2vec)**: Contains the implementation for the pre-annotation approach.
+
+**[wmd-word2vec](code/wmd-word2vec/)**: Provides code for pre, post, and post-reduction approaches.
+
+**[fasttext](code/fasttext/)**: Features implementations for pre, post, and post-reduction approaches.
+
+**[preprocess](code/preprocess/)**: Contains all preprocessing scripts and instructions.
+
+Navigate to the relevant folder to access the specific code and detailed instructions for executing each approach.
