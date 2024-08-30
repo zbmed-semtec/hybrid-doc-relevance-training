@@ -2,7 +2,6 @@
 # https://github.com/zbmed-semtec/doc2vec-doc-relevance-training/blob/main/code/train_model/utilities.py
 # This file includes the modifications to the source codes according to this project!
 
-import wandb
 import tqdm
 import numpy as np
 import pandas as pd
