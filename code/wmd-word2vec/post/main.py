@@ -86,7 +86,7 @@ if __name__ == "__main__":
         print("Finished optuna optimization. Time taken:", time.time()-start)
 
     # 8) Define the file paths to store the similarity file based on optuna trial run results
-    similarity_file = os.path.join(results_directory, f"best_wmd_similarity_{args.classes}.tsv")
+    similarity_file = os.path.join(results_directory, f"best_similarity_{args.classes}.tsv")
     
     # 9) Generate and save the precision matrix
     ref_pmids, data = precision.read_file(similarity_file)

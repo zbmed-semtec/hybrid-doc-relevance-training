@@ -42,7 +42,7 @@ def save_model_data(args, model, embeddings, similarity):
 
     # 1) Define the file path to save the model data
     model_file = f"output_{args.classes}/model/WMD_Word2Vec_best_model_{args.classes}"
-    similarity_file = f"output_{args.classes}/evaluation/best_wmd_similarity_{args.classes}.tsv"
+    similarity_file = f"output_{args.classes}/evaluation/best_similarity_{args.classes}.tsv"
 
     # 2) Save the model
     save_data_with_lock(model_file, model, utilities.saveWord2VecModel)

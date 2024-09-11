@@ -73,21 +73,21 @@ if __name__ == "__main__":
 
     # 7) Run optuna optimization based on the operating system
     # Optuna can run multiple trials concurrently using n_jobs parallel processes or threads
-    if args.windows:
-        from optunaTuningWindows import run_optuna_optimization
-        start = time.time()
-        # NOTE: FOR OPTUNA HYPERPARAMETER REPRODUCIBILITY n_jobs should always be 1
-        best_params, best_trial = run_optuna_optimization(args, params, n_trials, n_jobs=1)
-        print("Finished optuna optimization. Time taken:", time.time()-start)
-    else:
-        from optunaTuningUnix import run_optuna_optimization
-        start = time.time()
-        # NOTE: FOR OPTUNA HYPERPARAMETER REPRODUCIBILITY n_jobs should always be 1
-        best_params, best_trial = run_optuna_optimization(args, params, n_trials, n_jobs=1)
-        print("Finished optuna optimization. Time taken:", time.time()-start)
+    # if args.windows:
+    #     from optunaTuningWindows import run_optuna_optimization
+    #     start = time.time()
+    #     # NOTE: FOR OPTUNA HYPERPARAMETER REPRODUCIBILITY n_jobs should always be 1
+    #     best_params, best_trial = run_optuna_optimization(args, params, n_trials, n_jobs=1)
+    #     print("Finished optuna optimization. Time taken:", time.time()-start)
+    # else:
+    #     from optunaTuningUnix import run_optuna_optimization
+    #     start = time.time()
+    #     # NOTE: FOR OPTUNA HYPERPARAMETER REPRODUCIBILITY n_jobs should always be 1
+    #     best_params, best_trial = run_optuna_optimization(args, params, n_trials, n_jobs=1)
+    #     print("Finished optuna optimization. Time taken:", time.time()-start)
 
     # 8) Define the file paths to store the similarity file based on optuna trial run results
-    similarity_file = os.path.join(results_directory, f"best_cosine_similarity_{args.classes}.tsv")
+    similarity_file = os.path.join(results_directory, f"best_similarity_{args.classes}.tsv")
     
     # 9) Generate and save the precision matrix
     ref_pmids, data = precision.read_file(similarity_file)
