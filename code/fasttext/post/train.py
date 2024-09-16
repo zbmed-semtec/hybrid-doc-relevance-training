@@ -45,14 +45,7 @@ def run(best_params, args, save_model=False):
     similarity_df = utilities.get_similarity_scores(ground_truth, embeddings_df)
     logging.info(f"RELISH {dataset_type} Cosine Similarity Matrix Generated.")
 
-    # 9) If the dataset type is "Test", then save the dataframes to a file each
-    if dataset_type== 'Test':
-        embeddings_file = f"output_{args.classes}/embeddings/test_embeddings_{args.classes}.pkl"
-        similarity_file = f"output_{args.classes}/evaluation/test_cosine_similarity_{args.classes}.tsv"
-        utilities.save_embeddings_to_pickle(embeddings_df, embeddings_file)
-        utilities.save_similarity_to_tsv(similarity_df, similarity_file)
-
-    # 10) Save the model in the given path if specified
+    # 9) Save the model in the given path if specified
     if save_model:
         model_file = f"output_{args.classes}/model/fastText_model_{args.classes}"
         utilities.save_model(model, model_file)
