@@ -106,10 +106,10 @@ def generate_post_npy_dict_via_injection_MeSHIDs_into_tokens(filepath_in: str, M
 
     Parameters
     ----------
-    pmids: list
-        List of PMIDs
-    docs: list
-        List of RELISH preprocessed documents.
+    filepath_in : str
+        Filepath for npy file.
+    MeShIDtoPMID : str
+        Filepath for mesh to pmid dict.
     Returns
     ----------
     dict of nump array

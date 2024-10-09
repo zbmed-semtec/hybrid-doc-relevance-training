@@ -42,8 +42,13 @@ def save_data_with_lock(file_path, data, save_function):
 def save_model_data(args, model, similarity):
 
     # 1) Define the file path to save the model data
+<<<<<<< Updated upstream
     model_file = f"output_{args.classes}/model/WMD_Word2Vec_best_model_{args.classes}"
     similarity_file = f"output_{args.classes}/evaluation/best_similarity_{args.classes}.tsv"
+=======
+    model_file = f"output_{args.classes}/validation/WMD_Word2Vec_best_model_{args.classes}"
+    similarity_file = f"output_{args.classes}/validation/valid_wmd_similarity_{args.classes}.tsv"
+>>>>>>> Stashed changes
 
     # 2) Save the model
     save_data_with_lock(model_file, model, utilities.saveWord2VecModel)
@@ -81,7 +86,7 @@ def objective_wrapper(args, params):
         }
 
         # 3) run(): Trains the model with specified parameters and returns similarity scores, embeddings, and the trained model itself.
-        similarity_df, model = run(params_dict, args, save_model=False)
+        similarity_df, model = run(params_dict, args)
 
         # 4) Compute precision@5 for all the reference pmids
         ref_pmids = similarity_df["PMID1"].unique()

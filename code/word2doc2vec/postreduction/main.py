@@ -7,6 +7,8 @@ import yaml
 import time
 import argparse
 import precision
+import logging
+import utilities
 import calculate_gain
 
 #--- To remove stopwords from the MeSH-terms in MeShIDtoPMID -----
@@ -15,13 +17,16 @@ from nltk.corpus import stopwords
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--input", type=str, help="Path to input (train) .npy file")
-    parser.add_argument("-t", "--test", type=str, help="Path to test data .npy file")
-    parser.add_argument("-g", "--ground_truth", type=str, help="Path to test ground truth .tsv file")
+    parser.add_argument("-i", "--input", help="Path to input (train) file")
+    parser.add_argument("-t", "--test", help="Path to test data file")
+    parser.add_argument("-v", "--valid", help="Path to validation data file")
+    parser.add_argument("-gt", "--test_ground_truth", help="Path to test ground truth .tsv file")
+    parser.add_argument("-gv", "--valid_ground_truth", help="Path to validation ground truth .tsv file")
     parser.add_argument("-dict", "--MeShIDtoPMID", type=str, help="Path to input MeShIDtoPMID .tsv file.")
-    parser.add_argument("-c", "--classes", type=int, default=3, help="Number of classes")
+    parser.add_argument("-c", "--classes", type=int,
+                        default=3, help="Number of classes")
     parser.add_argument("-win", "--windows", type=int,
-                    help="1: if using Windows systems && 0: if using Unix-like systems (including Ubuntu)")
+                        help="1: if using Windows systems; 0: if using Unix-like systems (including Ubuntu)")
     args = parser.parse_args()
     
     permissions = 0o755  # This sets permissions to rwxr-xr-x
@@ -38,19 +43,25 @@ if __name__ == "__main__":
         os.makedirs(model_directory)
     os.chmod(model_directory, permissions)
 
-    # 3) Define the Directory for Storing Embeddings
+    # 3) Define the Directory for storing Embeddings
     embeddings_directory = f"output_{args.classes}/embeddings"
     if not os.path.exists(embeddings_directory):
         os.makedirs(embeddings_directory)
     os.chmod(embeddings_directory, permissions)
 
-     # 4) Define the directory for storing evaluation results
+    # 4) Define the directory for storing validation results
+    results_directory = f"output_{args.classes}/validation"
+    if not os.path.exists(results_directory):
+        os.makedirs(results_directory)
+    os.chmod(results_directory, permissions)
+
+     # 5) Define the directory for storing evaluation results
     results_directory = f"output_{args.classes}/evaluation"
     if not os.path.exists(results_directory):
         os.makedirs(results_directory)
     os.chmod(results_directory, permissions)
 
-    # 5) Define the file paths to store the evaluation results
+    # 6) Define the file paths to store the evaluation results
     precision_file = os.path.join(results_directory, f"precision_{args.classes}.tsv")
     dcg_file = os.path.join(results_directory, f"dcg_{args.classes}.tsv")
     idcg_file = os.path.join(results_directory, f"idcg_{args.classes}.tsv")
@@ -61,7 +72,7 @@ if __name__ == "__main__":
     stop_words = set(stopwords.words('english'))
     #--------------------------------------------------------------------------------------------------
 
-    # 6) Define the directory for the hyperparameter yaml file
+    # 7) Define the directory for the hyperparameter yaml file
     parameter_file = os.path.join(os.curdir, "code/word2doc2vec/hyperparameters.yaml")
     os.chmod(parameter_file, permissions)
     with open(parameter_file, 'r') as file:
@@ -70,7 +81,7 @@ if __name__ == "__main__":
             n_trials = content['iterations']['n_trials']['value']
 
 
-    # 7) Run optuna optimization based on the operating system
+    # 8) Run optuna optimization based on the operating system
     # Optuna can run multiple trials concurrently using n_jobs parallel processes or threads
     if args.windows:
         from optunaTuningWindows import run_optuna_optimization
@@ -85,17 +96,54 @@ if __name__ == "__main__":
         best_params, best_trial = run_optuna_optimization(args, params, n_trials, n_jobs=1)
         print("Finished optuna optimization. Time taken:", time.time()-start)
 
-    # 8) Define the file paths to store the similarity file based on optuna trial run results
-    similarity_file = os.path.join(results_directory, f"best_cosine_similarity_{args.classes}.tsv")
+    # ------------------Final Evaluation (once for test data)------------------
+
+    # 9) Load the training data
+    train_pmids, train_docs = utilities.process_data_from_npy(args.input)
+
+    # 10) Train the model with 90% of the data and best parameters
+    start = time.time()
+    model = utilities.createWord2VecModel(train_pmids, train_docs, best_params)
+
+    # 11) Finding MeSH-terms in training tokens to compute the corresponding MeSHIDs' embeddings and incorporate them into trained model 
+    model = utilities.injection_MeSHembeddings_into_embeddings(model, train_pmids, train_docs, args.MeShIDtoPMID)
+    end = time.time()
+    logging.info(f"Time taken to train the model: {end - start} seconds.")
+    logging.info("RELISH Word2Vec Model Generated and MeSHIDs' Embeddings Injected.")
+    logging.info("Model is being used.")
+
+    # 12) Save the model
+    model_path = os.path.join(model_directory, f"model_{args.classes}")
+    utilities.saveWord2VecModel(model, model_path)
+
+    # 13) Loading test data
+    test_pmids, test_docs = utilities.process_data_from_npy(args.test)
+
+    # 14) Replace MeSH-terms in tokens with the corresponding MeSHIDs
+    test_docs = utilities.replacement_of_MeSHterms_with_MeSHIDs_in_tokens(test_pmids, test_docs, args.MeShIDtoPMID)   
+
+    # 15) Generate the embeddings: pd.DataFrame for loaded docs
+    test_embeddings_df = utilities.generate_document_embeddings(model, test_pmids, test_docs)
     
-    # 9) Generate and save the precision matrix
-    ref_pmids, data = precision.read_file(similarity_file)
+    # 16) Save the embeddings to a pickle file
+    test_embedding_file = os.path.join(embeddings_directory, f"test_embeddings_{args.classes}.pkl")
+    utilities.save_embeddings_to_pickle(test_embeddings_df, test_embedding_file)
+
+    # 17) Generate the cosine similarity matrix: pd.DataFrame for the generated embeddings
+    test_similarity_df = utilities.get_similarity_scores(args.test_ground_truth, test_embeddings_df)
+
+    # 18) Save the similarity scores to a TSV file
+    test_similarity_file = os.path.join(results_directory, f"test_cosine_similarity_{args.classes}.tsv") 
+    utilities.save_similarity_to_tsv(test_similarity_df, test_similarity_file)
+
+    # 19) Generate and save the precision matrix
+    ref_pmids, data = precision.read_file(test_similarity_file)
     matrix = precision.generate_matrix(ref_pmids, data, args.classes)
     precision.write_to_tsv(ref_pmids, matrix, precision_file, data)
     print("Final precision matrix saved")
 
-    # 10) Generate and save the DCG and IDCG matrices
-    sim_matrix = calculate_gain.load_cosine_sim_matrix(similarity_file)
+    # 20) Generate and save the DCG and IDCG matrices
+    sim_matrix = calculate_gain.load_cosine_sim_matrix(test_similarity_file)
     calculate_gain.get_dcg_matrix(sim_matrix, dcg_file)
     calculate_gain.get_identity_dcg_matrix(sim_matrix, idcg_file)
     all_pmids, ndcg_matrix = calculate_gain.fill_ndcg_scores(dcg_file, idcg_file)
