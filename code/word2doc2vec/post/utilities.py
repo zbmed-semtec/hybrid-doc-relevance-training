@@ -431,7 +431,6 @@ def generate_document_embeddings(model: Word2Vec, pmids: list, article_doc: list
     data = {"PMID": pmids, "Embedding": document_embeddings}
     embeddings_df = pd.DataFrame(data)
     embeddings_df = embeddings_df.sort_values("PMID")
-    print(data_dict)
     return embeddings_df
 
 def save_embeddings_to_pickle(df: pd.DataFrame, output_file: str) -> None:
