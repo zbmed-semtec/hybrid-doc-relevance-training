@@ -83,26 +83,19 @@ if __name__ == "__main__":
 
     # 8) Run optuna optimization based on the operating system
     # Optuna can run multiple trials concurrently using n_jobs parallel processes or threads
-    # if args.windows:
-    #     from optunaTuningWindows import run_optuna_optimization
-    #     start = time.time()
-    #     # NOTE: FOR OPTUNA HYPERPARAMETER REPRODUCIBILITY n_jobs should always be 1
-    #     best_params, best_trial = run_optuna_optimization(args, params, n_trials, n_jobs=1)
-    #     print("Finished optuna optimization. Time taken:", time.time()-start)
-    # else:
-    #     from optunaTuningUnix import run_optuna_optimization
-    #     start = time.time()
-    #     # NOTE: FOR OPTUNA HYPERPARAMETER REPRODUCIBILITY n_jobs should always be 1
-    #     best_params, best_trial = run_optuna_optimization(args, params, n_trials, n_jobs=1)
-    #     print("Finished optuna optimization. Time taken:", time.time()-start)
+    if args.windows:
+        from optunaTuningWindows import run_optuna_optimization
+        start = time.time()
+        # NOTE: FOR OPTUNA HYPERPARAMETER REPRODUCIBILITY n_jobs should always be 1
+        best_params, best_trial = run_optuna_optimization(args, params, n_trials, n_jobs=1)
+        print("Finished optuna optimization. Time taken:", time.time()-start)
+    else:
+        from optunaTuningUnix import run_optuna_optimization
+        start = time.time()
+        # NOTE: FOR OPTUNA HYPERPARAMETER REPRODUCIBILITY n_jobs should always be 1
+        best_params, best_trial = run_optuna_optimization(args, params, n_trials, n_jobs=1)
+        print("Finished optuna optimization. Time taken:", time.time()-start)
 
-<<<<<<< Updated upstream
-    # 8) Define the file paths to store the similarity file based on optuna trial run results
-    similarity_file = os.path.join(results_directory, f"best_similarity_{args.classes}.tsv")
-    
-    # 9) Generate and save the precision matrix
-    ref_pmids, data = precision.read_file(similarity_file)
-=======
     # ------------------Final Evaluation (once for test data)------------------
 
     # 9) Load the training data
@@ -119,25 +112,27 @@ if __name__ == "__main__":
     logging.info("RELISH Word2Vec Model Generated and MeSHIDs' Embeddings Injected.")
     logging.info("Model is being used.")
 
+    # 12) Save the model
+    model_path = os.path.join(model_directory, f"model_{args.classes}")
+    utilities.saveWord2VecModel(model, model_path)
 
-    # 12) Replacement of MeSH-terms in tokens with the corresponding MeSHIDs and store as a dictionary with keys as PMIDs
+    # 13) Replacement of MeSH-terms in tokens with the corresponding MeSHIDs and store as a dictionary with keys as PMIDs
     test_article_post_annot_docs_dict = utilities.generate_post_npy_dict_via_injection_MeSHIDs_into_tokens(args.test, args.MeShIDtoPMID)
 
-    # 13) Generate and save the WMD similarity test matrix
+    # 14) Generate and save the WMD similarity test matrix
     test_similarity_df = utilities.get_WMD_similarity_scores(args.test_ground_truth, model, test_article_post_annot_docs_dict)
 
-    # 14) Save the similarity scores to a TSV file
+    # 15) Save the similarity scores to a TSV file
     test_similarity_file = os.path.join(results_directory, f"test_cosine_similarity_{args.classes}.tsv") 
     utilities.save_similarity_to_tsv(test_similarity_df, test_similarity_file)
 
-    # 15) Generate and save the precision matrix
+    # 16) Generate and save the precision matrix
     ref_pmids, data = precision.read_file(test_similarity_file)
->>>>>>> Stashed changes
     matrix = precision.generate_matrix(ref_pmids, data, args.classes)
     precision.write_to_tsv(ref_pmids, matrix, precision_file, data)
     print("Final precision matrix saved")
 
-    # 16) Generate and save the DCG and IDCG matrices
+    # 17) Generate and save the DCG and IDCG matrices
     sim_matrix = calculate_gain.load_cosine_sim_matrix(test_similarity_file)
     calculate_gain.get_dcg_matrix(sim_matrix, dcg_file)
     calculate_gain.get_identity_dcg_matrix(sim_matrix, idcg_file)

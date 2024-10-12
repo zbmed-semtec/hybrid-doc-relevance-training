@@ -98,7 +98,7 @@ Pipeline Steps:
 In order to start the pipeline execution use this script, and run the following command:
 
  ``` 
-python3 code/fasttext/postreduction/main.py[-i INPUT] [-t TEST_FILE] [-v VALIDATION_FILE] [-gt TEST_GROUND_TRUTH_FILE] [-gv VALIDATION_GROUND_TRUTH_FILE] [-dict MeShIDtoPMID]  [-c NO_OF CLASSES] [-win WINDOWS/LINUX] 
+python3 code/fasttext/postreduction/main.py [-i INPUT] [-t TEST_FILE] [-v VALIDATION_FILE] [-gt TEST_GROUND_TRUTH_FILE] [-gv VALIDATION_GROUND_TRUTH_FILE] [-dict MeShIDtoPMID]  [-c NO_OF CLASSES] [-win WINDOWS/LINUX] 
  ``` 
 
  You must pass the following four arguments:
