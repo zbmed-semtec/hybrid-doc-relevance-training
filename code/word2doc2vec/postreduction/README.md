@@ -77,7 +77,7 @@ This script makes sure that the necessary folders are created and the files are 
       │  ├─ train.npy
       │  ├─ test.npy
       │  ├─ valid.npy
-      └─ Groundtruth
+      └─ Ground_truth
          ├─ train.tsv
          ├─ test.tsv
          └─ valid.tsv
@@ -115,7 +115,7 @@ python3 code/word2doc2vec/postreduction/main.py [-i INPUT] [-t TEST_FILE] [-v VA
 To run this script, please execute the following command:
 
 ```
-python3 code/word2doc2vec/postreduction/main.py -i data/Split_Dataset/Data/train.npy -t data/Split_Dataset/Data/test.npy -v data/Split_Dataset/Data/valid.npy -gt data/Split_Dataset/Groundtruth/test.tsv -gv data/Split_Dataset/Groundtruth/valid.tsv -dict data/mesh_to_pmid_dict.tsv -c 3 -win 0 
+python3 code/word2doc2vec/postreduction/main.py -i data/Split_Dataset/Data/train.npy -t data/Split_Dataset/Data/test.npy -v data/Split_Dataset/Data/valid.npy -gt data/Split_Dataset/Ground_truth/test.tsv -gv data/Split_Dataset/Ground_truth/valid.tsv -dict data/mesh_to_pmid_dict.tsv -c 3 -win 0 
 ```
 
 ### NOTE:

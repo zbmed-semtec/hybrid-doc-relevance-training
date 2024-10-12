@@ -3,7 +3,7 @@ This directory contains the code for the Hybrid-Pre-fastText approach. This meth
 
 ## Input Data
 
-The input data for this approach includes text annotated using the MeSH vocabulary via the [Whatizit tool](https://academic.oup.com/bioinformatics/article/24/2/296/227269?login=true). The complete annotation pipeline is detailed in the [repository documentation](https://github.com/zbmed-semtec/whatizit-dictionary-ner/tree/main/docs). The annotated text is then converted into preprocessed tokens and are stored in the RELISH.npy file, which contains preprocessed arrays of PMIDs, document titles, and abstracts. These arrays are produced through an extensive preprocessing pipeline, detailed in the [relish-preprocessing repository](https://github.com/zbmed-semtec/relish-preprocessing?tab=readme-ov-file#text-preprocessing-for-generating-embeddings). The preprocessed tokenized data is split into training and test datasets based on specific criteria used in  the splitting algorithm as explained [here](https://github.com/zbmed-semtec/relish-preprocessing?tab=readme-ov-file#splitting-the-data). For a detailed explanation of the data annotation, data preprocessing and the algorithm please refer [here](../../../README.md).
+The input data for this approach includes text annotated using the MeSH vocabulary via the [Whatizit tool](https://academic.oup.com/bioinformatics/article/24/2/296/227269?login=true). The complete annotation pipeline is detailed in the [repository documentation](https://github.com/zbmed-semtec/whatizit-dictionary-ner/tree/main/docs). The annotated text is then converted into preprocessed tokens and are stored in the RELISH.npy file, which contains preprocessed arrays of PMIDs, document titles, and abstracts. These arrays are produced through an extensive preprocessing pipeline, detailed in the [relish-preprocessing repository](https://github.com/zbmed-semtec/relish-preprocessing?tab=readme-ov-file#text-preprocessing-for-generating-embeddings). The preprocessed tokenized data is split into training, validation and test datasets based on specific criteria used in  the splitting algorithm as explained [here](https://github.com/zbmed-semtec/relish-preprocessing?tab=readme-ov-file#splitting-the-data). For a detailed explanation of the data annotation, data preprocessing and the algorithm please refer [here](../../../README.md).
 
 ## Getting Started
 
@@ -75,10 +75,12 @@ This script makes sure that the necessary folders are created and the files are 
    └─ Split_Dataset
       ├─ Data
       │  ├─ train.npy
-      │  └─ test.npy
+      │  ├─ test.npy
+      │  ├─ valid.npy
       └─ Ground_truth
          ├─ train.tsv
-         └─ test.tsv
+         ├─ test.tsv
+         └─ valid.tsv
 ```
 
 
@@ -88,8 +90,8 @@ This step optimizes hyperparameters for a fastText model using Optuna, train the
 
 Pipeline Steps:
 + Hyperparameter Optimization: Utilizes Optuna to search for the best hyperparameters for the fastText model.
-+ Model Training: Trains the fastText model with the optimal hyperparameters using 80% of the training split data.
-+ Embedding Generation: Generates embeddings for the remaining 20% of the test split data using the trained model.
++ Model Training: Trains the fastText model with the optimal hyperparameters using 90% training split data.
++ Embedding Generation: Generates embeddings for 5% validation split data using the trained model.
 + Cosine Similarity Computation: Calculates cosine similarities for the generated embeddings.
 + Precision@N Calculation: Computes Precision@N scores, a measure of the relevance of retrieved documents, for the obtained cosine similarities.
 + NDCG Score Calculation: Computes normalized discounted cumulative gain (NDCG) scores, which assesses the quality of ranked search results based on relevance assessments.
@@ -97,23 +99,25 @@ Pipeline Steps:
 In order to start the pipeline execution use this script, and run the following command:
 
  ``` 
-python3 code/fasttext/pre/main.py [-i INPUT] [-t TEST_FILE] [-g GROUND_TRUTH] [-c NO_OF CLASSES] [-win WINDOWS/LINUX]
+python3 code/fasttext/pre/main.py [-i INPUT] [-t TEST_FILE] [-v VALIDATION_FILE] [-gt TEST_GROUND_TRUTH_FILE] [-gv VALIDATION_GROUND_TRUTH_FILE] [-c NO_OF CLASSES] [-win WINDOWS/LINUX] 
  ``` 
 
  You must pass the following four arguments:
 
 + -i/ --input : File path to the RELISH Train split dataset (.npy file format).
-+ -t/ --test : File path to the RELISH Test split dataset (.npy file format).
-+ -g/ --ground_truth : File path for the Test split ground truth (.tsv file format).
-+ -c/ --classes : No. of classes to perform optimization on (Integer 2 or 3/ Default value is 3).
-+ -win/ --windows : 1 - if using Windows systems; 0 - if using Unix-like systems (including Ubuntu)
++ -t/ --test :  File path to the RELISH Test split dataset (.npy file format).
++ -v/ --valid: File path to the RELISH Validation split dataset (.npy file format).
++ -gt/ --test_ground_truth : File path for the Test split ground truth (.tsv file format).
++ -gv/ --valid_ground_truth : File path for the Validation split ground truth (.tsv file format).
++ -c/  --classes : No. of classes to perform optimization on (Integer 2 or 3/ Default value is 3)
++ -win/ --windows : 1- if using Windows systems; 0- if using Unix-like systems (including Ubuntu)
 
 To run this script, please execute the following command:
 
  ``` 
-python3 code/fasttext/pre/main.py -i data/Split_Dataset/train.npy -t data/Split_Dataset/test.npy -g data/Split_Dataset/Ground_truth/test.tsv -c 3 -win 0
+python3 code/fasttext/pre/main.py -i data/Split_Dataset/Data/train.npy -t data/Split_Dataset/Data/test.npy -v data/Split_Dataset/Data/valid.npy -gt data/Split_Dataset/Ground_truth/test.tsv -gv data/Split_Dataset/Ground_truth/valid.tsv -c 3 -win 0
  ``` 
 
-Precision@N and NDCG scores are saved as TSV files in the following folder path: `\output_2\evaluation\`  for 2 class distribution and `\output_3\evaulation\` for 3 class distribution for further analysis and reporting.
+Precision@N and NDCG scores are saved as TSV files in the following folder path: `\output_2\evaluation\`  for 2 class distribution and `\output_3\evaluation\` for 3 class distribution for further analysis and reporting.
 
 Make sure to run the model training twice for both the class distributions by changing the value of the -c/ --classes flag to 2 and 3.
