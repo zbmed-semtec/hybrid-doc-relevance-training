@@ -42,7 +42,7 @@ def save_data_with_lock(file_path, data, save_function):
 def save_model_data(args, model, similarity):
 
     # 1) Define the file path to save the model data
-    model_file = f"output_{args.classes}/validation/Word2Vec_best_model_{args.classes}"
+    model_file = f"output_{args.classes}/validation/WMD_Word2Vec_best_model_{args.classes}"
     similarity_file = f"output_{args.classes}/validation/valid_similarity_{args.classes}.tsv"
 
     # 2) Save the model

@@ -88,7 +88,7 @@ if __name__ == "__main__":
     # ------------------Final Evaluation (once for test data)------------------
 
     # 9) Loading the model
-    model_file = f"output_{args.classes}/validation/Word2Vec_best_model_{args.classes}"
+    model_file = f"output_{args.classes}/validation/WMD_Word2Vec_best_model_{args.classes}"
     model = utilities.loadModel(model_file)
 
     # 10) Load the data from npy file and store the tokens in a dictionary with keys as PMIDs
