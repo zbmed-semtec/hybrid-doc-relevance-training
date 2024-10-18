@@ -87,34 +87,27 @@ if __name__ == "__main__":
 
     # ------------------Final Evaluation (once for test data)------------------
 
-    # 9) Load the training data
-    train_pmids, train_docs = utilities.process_data_from_npy(args.input)
+    # 9) Loading the model
+    model_file = f"output_{args.classes}/validation/Word2Vec_best_model_{args.classes}"
+    model = utilities.loadModel(model_file)
 
-    # 10) Train the model with 90% of the data and best parameters
-    start = time.time()
-    model = utilities.generate_Word2Vec_model(train_pmids, train_docs, best_params)
-    
-    # 11) Save the model
-    model_path = os.path.join(model_directory, f"model_{args.classes}")
-    utilities.saveWord2VecModel(model, model_path)
-
-    # 12) Load the data from npy file and store the tokens in a dictionary with keys as PMIDs
+    # 10) Load the data from npy file and store the tokens in a dictionary with keys as PMIDs
     test_article_dict = utilities.generate_npy_dict(args.test)
     
-    # 13) Generate WMD similarity: pd.DataFrame 
+    # 11) Generate WMD similarity: pd.DataFrame 
     test_similarity_df = utilities.get_WMD_similarity_scores(args.test_ground_truth, model, test_article_dict)
 
-    # 14) Define the file paths to store the similarity file based on optuna trial run results
+    # 12) Define the file paths to store the similarity file based on optuna trial run results
     test_similarity_file = os.path.join(results_directory, f"test_similarity_{args.classes}.tsv")
     utilities.save_similarity_to_tsv(test_similarity_df, test_similarity_file)
 
-    # 15) Generate and save the precision matrix
+    # 13) Generate and save the precision matrix
     ref_pmids, data = precision.read_file(test_similarity_file)
     matrix = precision.generate_matrix(ref_pmids, data, args.classes)
     precision.write_to_tsv(ref_pmids, matrix, precision_file, data)
     print("Final precision matrix saved")
 
-    # 16) Generate and save the DCG and IDCG matrices
+    # 14) Generate and save the DCG and IDCG matrices
     sim_matrix = calculate_gain.load_cosine_sim_matrix(test_similarity_file)
     calculate_gain.get_dcg_matrix(sim_matrix, dcg_file)
     calculate_gain.get_identity_dcg_matrix(sim_matrix, idcg_file)

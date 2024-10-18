@@ -98,41 +98,27 @@ if __name__ == "__main__":
 
     # ------------------Final Evaluation (once for test data)------------------
 
-    # 9) Load the training data
-    train_pmids, train_docs = utilities.process_data_from_npy(args.input)
+    # 9) Loading the model
+    model_file = f"output_{args.classes}/validation/Word2Vec_best_model_{args.classes}"
+    model = utilities.loadModel(model_file)
 
-    # 10) Train the model with 90% of the data and best parameters
-    start = time.time()
-    model = utilities.createWord2VecModel(train_pmids, train_docs, best_params)
-
-    # 11) Finding MeSH-terms in training tokens to compute the corresponding MeSHIDs' embeddings and incorporate them into trained model 
-    model = utilities.injection_MeSHembeddings_into_embeddings(model, train_pmids, train_docs, args.MeShIDtoPMID)
-    end = time.time()
-    logging.info(f"Time taken to train the model: {end - start} seconds.")
-    logging.info("RELISH Word2Vec Model Generated and MeSHIDs' Embeddings Injected.")
-    logging.info("Model is being used.")
-
-    # 12) Save the model
-    model_path = os.path.join(model_directory, f"model_{args.classes}")
-    utilities.saveWord2VecModel(model, model_path)
-
-    # 13) Replacement of MeSH-terms in tokens with the corresponding MeSHIDs and store as a dictionary with keys as PMIDs
+    # 10) Replacement of MeSH-terms in tokens with the corresponding MeSHIDs and store as a dictionary with keys as PMIDs
     test_article_post_annot_docs_dict = utilities.generate_post_npy_dict_via_injection_MeSHIDs_into_tokens(args.test, args.MeShIDtoPMID)
 
-    # 14) Generate and save the WMD similarity test matrix
+    # 11) Generate and save the WMD similarity test matrix
     test_similarity_df = utilities.get_WMD_similarity_scores(args.test_ground_truth, model, test_article_post_annot_docs_dict)
 
-    # 15) Save the similarity scores to a TSV file
+    # 12) Save the similarity scores to a TSV file
     test_similarity_file = os.path.join(results_directory, f"test_cosine_similarity_{args.classes}.tsv") 
     utilities.save_similarity_to_tsv(test_similarity_df, test_similarity_file)
 
-    # 16) Generate and save the precision matrix
+    # 13) Generate and save the precision matrix
     ref_pmids, data = precision.read_file(test_similarity_file)
     matrix = precision.generate_matrix(ref_pmids, data, args.classes)
     precision.write_to_tsv(ref_pmids, matrix, precision_file, data)
     print("Final precision matrix saved")
 
-    # 17) Generate and save the DCG and IDCG matrices
+    # 14) Generate and save the DCG and IDCG matrices
     sim_matrix = calculate_gain.load_cosine_sim_matrix(test_similarity_file)
     calculate_gain.get_dcg_matrix(sim_matrix, dcg_file)
     calculate_gain.get_identity_dcg_matrix(sim_matrix, idcg_file)

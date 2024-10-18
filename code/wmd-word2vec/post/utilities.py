@@ -404,3 +404,20 @@ def save_similarity_to_tsv(df: pd.DataFrame, output_file: str) -> None:
         The file path where the DataFrame will be saved as a TSV.
     """
     df.to_csv(output_file, index=False, sep="\t")
+
+def loadModel(model_path: str) -> None:
+    """
+    Loads the saved Word2Vec model.
+
+    Parameters
+    ----------
+    model_path: str
+            Path of the Word2Vec model.
+
+    Return
+    ----------
+    model: Word2Vec
+            WordVec model.
+    """
+    model = gensim.models.Word2Vec.load(model_path)
+    return model

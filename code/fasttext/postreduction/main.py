@@ -100,51 +100,37 @@ if __name__ == "__main__":
 
     # ------------------Final Evaluation (once for test data)------------------
 
-    # 9) Load the training data
-    train_pmids, train_docs = utilities.process_data_from_npy(args.input)
+    # 9) Loading the model
+    model_file = f"output_{args.classes}/validation/fastText_best_model_{args.classes}"
+    model = utilities.loadModel(model_file)
 
-    # 10) Train the model with 90% of the data (i.e. training data) and best parameters
-    start = time.time()
-    model = utilities.create_fasttext_model(train_pmids, train_docs, best_params)
-
-    # 11) Finding MeSH-terms in training tokens to compute the corresponding MeSHIDs' embeddings and incorporate them into trained model
-    model = utilities.injection_MeSHembeddings_into_embeddings(model, train_pmids, train_docs, args.MeShIDtoPMID)
-    end = time.time()
-    logging.info(f"Time taken to train the model: {end - start} seconds.")
-    logging.info("RELISH fastText Model Generated and MeSHIDs' Embeddings Injected.")
-    logging.info("Model is being used.")
-
-    # 12) Save the model
-    model_path = os.path.join(model_directory, f"model_{args.classes}")
-    utilities.save_model(model, model_path)
-
-    # 13) Loading test data
+    # 10) Loading test data
     test_pmids, test_docs = utilities.process_data_from_npy(args.test)
 
-    # 14) Replace MeSH-terms in tokens with the corresponding MeSHIDs
+    # 11) Replace MeSH-terms in tokens with the corresponding MeSHIDs
     test_docs = utilities.replacement_of_MeSHterms_with_MeSHIDs_in_tokens(test_pmids, test_docs, args.MeShIDtoPMID)   
     
-    # 15) Generate the embeddings: pd.DataFrame for loaded docs
+    # 12) Generate the embeddings: pd.DataFrame for loaded docs
     test_embeddings_df = utilities.generate_document_embeddings(model, test_pmids, test_docs)
     
-    # 16) Save the embeddings to a pickle file
+    # 13) Save the embeddings to a pickle file
     test_embedding_file = os.path.join(embeddings_directory, f"test_embeddings_{args.classes}.pkl")
     utilities.save_embeddings_to_pickle(test_embeddings_df, test_embedding_file)
 
-    # 17) Generate the cosine similarity matrix: pd.DataFrame for the generated embeddings
+    # 14) Generate the cosine similarity matrix: pd.DataFrame for the generated embeddings
     test_similarity_df = utilities.get_similarity_scores(args.test_ground_truth, test_embeddings_df)
   
-    # 18) Save the similarity scores to a TSV file
+    # 15) Save the similarity scores to a TSV file
     test_similarity_file = os.path.join(results_directory, f"test_cosine_similarity_{args.classes}.tsv") 
     utilities.save_similarity_to_tsv(test_similarity_df, test_similarity_file)
 
-    # 19) Generate and save the precision matrix
+    # 16) Generate and save the precision matrix
     ref_pmids, data = precision.read_file(test_similarity_file)
     matrix = precision.generate_matrix(ref_pmids, data, args.classes)
     precision.write_to_tsv(ref_pmids, matrix, precision_file, data)
     print("Final precision matrix saved")
 
-    # 20) Generate and save the DCG and IDCG matrices
+    # 17) Generate and save the DCG and IDCG matrices
     sim_matrix = calculate_gain.load_cosine_sim_matrix(test_similarity_file)
     calculate_gain.get_dcg_matrix(sim_matrix, dcg_file)
     calculate_gain.get_identity_dcg_matrix(sim_matrix, idcg_file)

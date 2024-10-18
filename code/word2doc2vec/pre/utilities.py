@@ -248,3 +248,20 @@ def save_embeddings_to_pickle(df: pd.DataFrame, output_file: str) -> None:
         The file path where the DataFrame will be saved in pickle format.
     """
     df.to_pickle(output_file)
+
+def loadModel(model_path: str) -> None:
+    """
+    Loads the saved Word2Vec model.
+
+    Parameters
+    ----------
+    model_path: str
+            Path of the Word2Vec model.
+
+    Return
+    ----------
+    model: Word2Vec
+            WordVec model.
+    """
+    model = gensim.models.Word2Vec.load(model_path)
+    return model

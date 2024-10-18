@@ -387,3 +387,20 @@ def save_embeddings_to_pickle(df: pd.DataFrame, output_file: str) -> None:
         The file path where the DataFrame will be saved in pickle format.
     """
     df.to_pickle(output_file)
+
+def loadModel(model_path: str) -> None:
+    """
+    Loads the saved FastText model.
+
+    Parameters
+    ----------
+    model_path: str
+            Path of the FastText model.
+
+    Return
+    ----------
+    model: FastText
+            FastText model.
+    """
+    model = gensim.models.FastText.load(model_path)
+    return model
