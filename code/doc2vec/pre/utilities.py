@@ -101,6 +101,23 @@ def saveDoc2VecModel(model: Doc2Vec, output_file: str) -> None:
     """
     model.save(output_file)
 
+def loadDoc2VecModel(model_path: str) -> None:
+    """
+    Loads the saved Doc2Vec model.
+
+    Parameters
+    ----------
+    model_path: str
+            Path of the Doc2Vec model.
+
+    Return
+    ----------
+    model: Doc2Vec
+            Doc2Vec model.
+    """
+    model = gensim.models.Doc2Vec.load(model_path)
+    return model
+    
 def calculate_cosine_similarity(vector_1: np.ndarray, vector_2: np.ndarray) -> float:
     """
     Calculate the cosine similarity between two vectors.

@@ -87,37 +87,30 @@ if __name__ == "__main__":
 
     # ------------------Final Evaluation (once for test data)------------------
 
-    # 9) Load the training data
-    train_pmids, train_docs = utilities.process_data_from_npy(args.input)
-    
-    # 10) Train the model with 90% of the data (i.e. training data) and best parameters
-    start = time.time()
-    model = utilities.createDoc2VecModel(train_pmids, train_docs, best_params)
+    # 9) Loading the model
+    model_file = f"output_{args.classes}/validation/Doc2Vec_best_model_{args.classes}"
+    model = utilities.loadDoc2VecModel(model_file)
 
-    # 11) Save the model
-    model_path = os.path.join(model_directory, f"model_{args.classes}")
-    utilities.saveDoc2VecModel(model, model_path)
-    
-    # 12) Loading test data
+    # 10) Loading test data
     test_pmids, test_docs = utilities.process_data_from_npy(args.test)
 
-    # 13) Generate the embeddings: pd.DataFrame for loaded docs
+    # 11) Generate the embeddings: pd.DataFrame for loaded docs
     test_embeddings_df = utilities.generate_embeddings(model, test_pmids, test_docs)
 
-    # 14) Generate the cosine similarity matrix: pd.DataFrame for the generated embeddings
+    # 12) Generate the cosine similarity matrix: pd.DataFrame for the generated embeddings
     test_similarity_df = utilities.get_similarity_scores(args.test_ground_truth, test_embeddings_df)
 
-    # 15) Save the similarity scores to a TSV file
+    # 13) Save the similarity scores to a TSV file
     test_similarity_file = os.path.join(results_directory, f"test_cosine_similarity_{args.classes}.tsv") 
     utilities.save_similarity_to_tsv(test_similarity_df, test_similarity_file)
 
-    # 16) Generate and save the precision matrix
+    # 14) Generate and save the precision matrix
     ref_pmids, data = precision.read_file(test_similarity_file)
     matrix = precision.generate_matrix(ref_pmids, data, args.classes)
     precision.write_to_tsv(ref_pmids, matrix, precision_file, data)
     print("Final precision matrix saved")
 
-    # 17) Generate and save the DCG and IDCG matrices
+    # 15) Generate and save the DCG and IDCG matrices
     sim_matrix = calculate_gain.load_cosine_sim_matrix(test_similarity_file)
     calculate_gain.get_dcg_matrix(sim_matrix, dcg_file)
     calculate_gain.get_identity_dcg_matrix(sim_matrix, idcg_file)
