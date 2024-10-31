@@ -74,7 +74,7 @@ if __name__ == "__main__":
     #--------------------------------------------------------------------------------------------------
 
     # 7) Define the directory for the hyperparameter yaml file
-    parameter_file = os.path.join(os.curdir, "code/word2doc2vec/hyperparameters.yaml")
+    parameter_file = os.path.join(os.curdir, "code/wmd-word2vec/hyperparameters.yaml")
     os.chmod(parameter_file, permissions)
     with open(parameter_file, 'r') as file:
             content = yaml.safe_load(file)
