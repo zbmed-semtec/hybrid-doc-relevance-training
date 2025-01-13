@@ -12,6 +12,8 @@ from gensim.models import Word2Vec
 from typing import Union, List
 import gensim.models as model
 import ast  # This is used to convert the string representation of lists to actual lists
+import nltk
+from nltk.corpus import stopwords
 
 # Retrieves cleaned data from RELISH file
 def process_data_from_npy(file_path_in: str = None) -> Union[List[str], List[List[str]], List[List[str]], List[List[str]]]:
@@ -189,6 +191,7 @@ def injection_MeSHembeddings_into_embeddings(model: Word2Vec, pmids: str, articl
     '''
     # Define the number of new embedding-vectors that must be added to the trained model
     num_new_vectors = len(batch_embeddings_MeSHID)
+    logging.info(f"Total number of new meshid vectors: {len(batch_embeddings_MeSHID)}")
     # Dimensionality of the vectors
     vector_size = model.vector_size
     # Get the current number of vectors in the model
@@ -246,16 +249,28 @@ def injection_MeSHIDs_into_tokens(pmids: str, article_doc: list, MeShIDtoPMID: s
             #if article_with_MeSHterm in pmids:
             try:
                 iteration = pmids.index(article_with_MeSHterm)
-                
-                pattern_to_find = [w for w in pmid_term[1:] if not w in stop_words] #removal of stopwords from MeSH-term
+                logging.info(f"Article: {article_with_MeSHterm}")
+                logging.info(f"PMID TERM: {pmid_term} {pmid_term[1:]}")
+                pattern_to_find = pmid_term[1:]
+                logging.info(f"Pattern to find: {pattern_to_find}")
+                if not pattern_to_find:
+                    logging.warning(f"Skipping empty pattern for MeSH ID: {meshID}")
+                    continue
+
                 # Find indices of the pattern in the list
                 indices = [i for i in range(len(article_doc[iteration]) - len(pattern_to_find) + 1) 
                            if article_doc[iteration][i:i+len(pattern_to_find)] == pattern_to_find]
+                logging.info(f"Indices: {indices}")
                 # Iterate over the indices in reverse order
+                if not indices:
+                    logging.info(f"No match found for pattern: {pattern_to_find} in article with PMID: {article_with_MeSHterm}")
+                
                 for index in reversed(indices):
                     # Insert MeSHID at the beginning of the pattern
                     article_doc[iteration].insert(index, str(meshID).lower())
+                    logging.info(f"Inserted MeSH ID: {meshID.lower()} at position {index} in article with PMID: {article_with_MeSHterm}")
             except:
+                logging.info(f"Skipping the insertion for {article_with_MeSHterm}")
                 continue
                 
     return article_doc

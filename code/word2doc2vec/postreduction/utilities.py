@@ -185,6 +185,7 @@ def injection_MeSHembeddings_into_embeddings(model: Word2Vec, pmids: str, articl
     '''
     # Define the number of new embedding-vectors that must be added to the trained model
     num_new_vectors = len(batch_embeddings_MeSHID)
+    logging.info(f"Total number of new meshid vectors: {len(batch_embeddings_MeSHID)}")
     # Dimensionality of the vectors
     vector_size = model.vector_size
     # Get the current number of vectors in the model
@@ -238,18 +239,30 @@ def replacement_of_MeSHterms_with_MeSHIDs_in_tokens(pmids: str, article_doc: lis
             #if article_with_MeSHterm in pmids:
             try:
                 iteration = pmids.index(article_with_MeSHterm)
-                
-                pattern_to_find = [w for w in pmid_term[1:] if not w in stop_words] #removal of stopwords from MeSH-term
+                logging.info(f"Article: {article_with_MeSHterm}")
+                logging.info(f"PMID TERM: {pmid_term} {pmid_term[1:]}")
+                pattern_to_find = pmid_term[1:]
+                logging.info(f"Pattern to find: {pattern_to_find}")
+                if not pattern_to_find:
+                    logging.warning(f"Skipping empty pattern for MeSH ID: {meshID}")
+                    continue
                 # Find indices of the pattern in the list
                 indices = [i for i in range(len(article_doc[iteration]) - len(pattern_to_find) + 1) 
                            if article_doc[iteration][i:i+len(pattern_to_find)] == pattern_to_find]
+                logging.info(f"Indices: {indices}")
+                if not indices:
+                    logging.info(f"No match found for pattern: {pattern_to_find} in article with PMID: {article_with_MeSHterm}")
+                
                 # Iterate over the indices in reverse order
                 for index in reversed(indices):
                     # Insert MeSHID at the beginning of the pattern
+                    logging.info(f"Inserted MeSH ID: {meshID.lower()} at position {index} in article with PMID: {article_with_MeSHterm}")
                     article_doc[iteration].insert(index, str(meshID).lower())
                     # Remove the matched pattern elements
                     del article_doc[iteration][index+1:index+len(pattern_to_find)+1]
+                    logging.info(f"Removed {pattern_to_find} from article with PMID: {article_with_MeSHterm} at position {index + 1} ")
             except:
+                logging.info("Skipping the replacement and insertion")
                 continue
                 
     return article_doc
