@@ -243,11 +243,11 @@ def injection_MeSHIDs_into_tokens(pmids: str, article_doc: list, MeShIDtoPMID: s
     for meshID, all_with_mesh_term in zip(df['MeSHID'], df['Appearance(pmid , tokenized lowercase words)']):
         for pmid_term in all_with_mesh_term:
             article_with_MeSHterm = int(pmid_term[0])
-            #if article_with_MeSHterm in pmids:
             try:
                 iteration = pmids.index(article_with_MeSHterm)
-                
-                pattern_to_find = [w for w in pmid_term[1:] if not w in stop_words] #removal of stopwords from MeSH-term
+                logging.info(f"Article PMID: {article_with_MeSHterm}")
+                logging.info(f"MeSH Terms: {pmid_term} {pmid_term[1:]}")
+                pattern_to_find = pmid_term[1:]
                 # Find indices of the pattern in the list
                 indices = [i for i in range(len(article_doc[iteration]) - len(pattern_to_find) + 1) 
                            if article_doc[iteration][i:i+len(pattern_to_find)] == pattern_to_find]
@@ -255,7 +255,9 @@ def injection_MeSHIDs_into_tokens(pmids: str, article_doc: list, MeShIDtoPMID: s
                 for index in reversed(indices):
                     # Insert MeSHID at the beginning of the pattern
                     article_doc[iteration].insert(index, str(meshID).lower())
+                    logging.info(f"Inserted MeSH ID: {meshID.lower()} at position {index} in article with PMID: {article_with_MeSHterm}")
             except:
+                logging.info(f"Skipping the insertion for {article_with_MeSHterm}")
                 continue
                 
     return article_doc
