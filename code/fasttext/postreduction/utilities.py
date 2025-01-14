@@ -217,18 +217,24 @@ def replacement_of_MeSHterms_with_MeSHIDs_in_tokens(pmids: str, article_doc: lis
             #if article_with_MeSHterm in pmids:
             try:
                 iteration = pmids.index(article_with_MeSHterm)
-                
-                pattern_to_find = [w for w in pmid_term[1:] if not w in stop_words] #removal of stopwords from MeSH-term
+                logging.info(f"Article: {article_with_MeSHterm}")
+                logging.info(f"PMID TERM: {pmid_term} {pmid_term[1:]}")
+                pattern_to_find = pmid_term[1:]
+                logging.info(f"Pattern to find: {pattern_to_find}")
                 # Find indices of the pattern in the list
                 indices = [i for i in range(len(article_doc[iteration]) - len(pattern_to_find) + 1) 
                            if article_doc[iteration][i:i+len(pattern_to_find)] == pattern_to_find]
+                logging.info(f"Indices: {indices}")
                 # Iterate over the indices in reverse order
                 for index in reversed(indices):
                     # Insert MeSHID at the beginning of the pattern
                     article_doc[iteration].insert(index, str(meshID).lower())
+                    logging.info(f"Inserted MeSH ID: {meshID.lower()} at position {index} in article with PMID: {article_with_MeSHterm}")
                     # Remove the matched pattern elements
                     del article_doc[iteration][index+1:index+len(pattern_to_find)+1]
+                    logging.info(f"Removed {pattern_to_find} from article with PMID: {article_with_MeSHterm} at position {index + 1} ")
             except:
+                logging.info(f"Skipping the insertion and replacement for {article_with_MeSHterm}")
                 continue
                 
     return article_doc

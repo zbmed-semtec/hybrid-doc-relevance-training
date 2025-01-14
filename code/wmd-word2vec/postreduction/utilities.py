@@ -4,6 +4,7 @@
 
 import tqdm
 import gensim
+import logging
 import numpy as np
 import pandas as pd
 import csv
@@ -148,19 +149,26 @@ def generate_post_npy_dict_via_injection_MeSHIDs_into_tokens(filepath_in: str, M
     for meshID, all_with_mesh_term in zip(df['MeSHID'], df['Appearance(pmid , tokenized lowercase words)']):
         for pmid_term in all_with_mesh_term:
             article_with_MeSHterm = int(pmid_term[0])
+            logging.info(f"Article: {article_with_MeSHterm}")
+            logging.info(f"PMID TERM: {pmid_term} {pmid_term[1:]}")
             try:
                 #----------------------------------------------------------------
-                pattern_to_find = [w for w in pmid_term[1:] if not w in stop_words] #removal of stopwords from MeSH-term
+                pattern_to_find = pmid_term[1:]
+                logging.info(f"Pattern to find: {pattern_to_find}")
                 # Find indices of the pattern in the list
                 indices = [i for i in range(len(article_docs_dict[article_with_MeSHterm]) - len(pattern_to_find) + 1) 
                            if article_docs_dict[article_with_MeSHterm][i:i+len(pattern_to_find)] == pattern_to_find]
+                logging.info(f"Indices: {indices}")
                 # Iterate over the indices in reverse order
                 for index in reversed(indices):
                     # Insert MeSHID at the beginning of the pattern
                     article_docs_dict[article_with_MeSHterm].insert(index, str(meshID).lower())
+                    logging.info(f"Inserted MeSH ID: {meshID.lower()} at position {index} in article with PMID: {article_with_MeSHterm}")
                     # Remove the matched pattern elements
                     del article_docs_dict[article_with_MeSHterm][index+1:index+len(pattern_to_find)+1]
+                    logging.info(f"Removed {pattern_to_find} from article with PMID: {article_with_MeSHterm} at position {index + 1} ")
             except:
+                logging.info(f"Skipping the insertion and replacement for {article_with_MeSHterm}")
                 continue
     return article_docs_dict
 
