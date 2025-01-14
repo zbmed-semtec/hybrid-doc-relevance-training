@@ -236,7 +236,6 @@ def replacement_of_MeSHterms_with_MeSHIDs_in_tokens(pmids: str, article_doc: lis
     for meshID, all_with_mesh_term in zip(df['MeSHID'], df['Appearance(pmid , tokenized lowercase words)']):
         for pmid_term in all_with_mesh_term:
             article_with_MeSHterm = int(pmid_term[0])
-            #if article_with_MeSHterm in pmids:
             try:
                 iteration = pmids.index(article_with_MeSHterm)
                 logging.info(f"Article: {article_with_MeSHterm}")
@@ -246,6 +245,9 @@ def replacement_of_MeSHterms_with_MeSHIDs_in_tokens(pmids: str, article_doc: lis
                 if not pattern_to_find:
                     logging.warning(f"Skipping empty pattern for MeSH ID: {meshID}")
                     continue
+                logging.info(f"Article: {article_with_MeSHterm}")
+                logging.info(f"PMID TERM: {pmid_term} {pmid_term[1:]}")
+                pattern_to_find = pmid_term[1:]
                 # Find indices of the pattern in the list
                 indices = [i for i in range(len(article_doc[iteration]) - len(pattern_to_find) + 1) 
                            if article_doc[iteration][i:i+len(pattern_to_find)] == pattern_to_find]
@@ -258,6 +260,7 @@ def replacement_of_MeSHterms_with_MeSHIDs_in_tokens(pmids: str, article_doc: lis
                     # Insert MeSHID at the beginning of the pattern
                     logging.info(f"Inserted MeSH ID: {meshID.lower()} at position {index} in article with PMID: {article_with_MeSHterm}")
                     article_doc[iteration].insert(index, str(meshID).lower())
+                    logging.info(f"Inserted MeSH ID: {meshID.lower()} at position {index} in article with PMID: {article_with_MeSHterm}")
                     # Remove the matched pattern elements
                     del article_doc[iteration][index+1:index+len(pattern_to_find)+1]
                     logging.info(f"Removed {pattern_to_find} from article with PMID: {article_with_MeSHterm} at position {index + 1} ")
