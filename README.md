@@ -1,325 +1,384 @@
-# Hybrid-post(reduction)-Word2Doc2Vec-Doc-relevance
-This repository focuses on an approach exploring and assessing literature-based doc-2-doc recommendations using the Word2Vec technique, followed  centroid aggregation method to create document-level embeddings. The approach is applied to the RELISH dataset. Note that in this directory, Word2Vec models are trained and embeddings are generated for data with Removed-Stopwords.
+# Hybrid-doc-relevance-training
+This repository explores various **hybrid embedding approache**s** for assessing literature-based document-2-document recommendations by integrating semantics using the **RELISH corpus**. We explore  three different algorithms: **pre-annotation**, **post-annotation**, and **post-reduction annotation**. Each algorithm uses different models such as **Doc2Vec**, **Word2Vec**, and **FastText**. Below, you’ll find detailed explanations of each approach, along with input data preprocessing and execution instructions.
 
-**For Phase I, i.e. _Hybrid-post(reduction)-Word2Doc2Vec-Doc-relevance_ and _Hybrid-post(reduction)-WMD-Word2Vec-Doc-relevance_ which involve training using the entire Relish dataset, for a faster codebase—approximately 30% quicker—with simpler execution instructions and enhanced accuracy, employing an approach independent of preAnnot tokens for post-annotation, please refer to the directory [hybrid-post-word2doc2vec-doc-relevance](./hybrid-post-word2doc2vec-doc-relevance).**
+# 📚🔍Table of Contents
 
-## Table of Contents
++ [About](#📝about)
++ [Input Data](#📂input-data)
++ [Approaches](#🔀approaches)
+    1. [Pre-annotation Approach](#1-pre-annotation-approach)
+        - [Data Annotation and Preprocessing](#data-annotation-and-preprocessing)
+        - [Pipeline](#pipeline)
+    2. [Post-annotation Approach](#2-post-annotation-approach)
+        - [Data Preprocessing and Dictionary Creation](#data-preprocessing-and-dictionary-creation)
+        - [Pipeline](#pipeline-1)
+    3. [Post-reduction Annotation Approach](#3-postreduction-annotation-approach)
+        - [Data Preprocessing](#data-preprocessing-1)
+        - [Pipeline](#pipeline-2)
++ [Algorithms](#algorithms)
+    1. [Word2doc2vec](#1-word2doc2vec)
+    2. [Doc2vec](#2-doc2vec)
+    3. [WMD-Word2vec](#3-wmd-word2vec)
+    4. [fastText](#4-fasttext)
++ [Getting Started](#🚀getting-started)
 
-1. [About](#about)
-2. [Input Data](#input-data)
-3. [Pipeline](#pipeline)
-    1. [Generate Embeddings](#generate-embeddings)
-        - [Using Trained Word2Vec models](#using-trained-word2vec-models)
-          - [Parameters](#parameters)
-          - [Hyperparameters](#hyperparameters)
-        - [Using Pre-trained Word2Vec models](#using-pre-trained-word2vec-models)
-        - [Document Embeddings](#document-embeddings)
-    2. [Calculate Similarity Score](#calculate-similarity-score)
-    3. [Evaluation](#evaluation)
-        - [Precision@N](#precisionn)
-        - [nDCG@N](#ndcgn)
-4. [Code Implementation](#code-implementation)
-5. [Getting Started](#getting-started)
-    1. [Step 1: Clone the Repository](#step-1-clone-the-repository)
-    2. [Step 2: Create a Virtual Environment and Install Dependencies](#step-2-create-a-virtual-environment-and-install-dependencies)
-    3. [Step 3: Generate Embeddings](#step-3-generate-embeddings)
-    4. [Step 4: Calculate Similarity Score](#step-4-calculate-similarity-score)
-         + [4.1 Cosine Similarity](#41-cosine-similarity)
-         + [4.2 WMD Score](#42-wmd-score)
-    6. [Step 5: Precision@N](#step-5-precisionn)
-    7. [Step 6: nDCG@N](#step-6-ndcgn)
-7. [Phase II - Split Dataset Training](#phase-ii---split-dataset-training)
-8. [Tutorial](#tutorial)
 
-## About
+# 📝About
 
-Our approach involves utilizing [Word2Vec](https://arxiv.org/pdf/1310.4546.pdf) for capturing word-level semantics and generating word embeddings. We create a dictionary and save it as a TSV file, linking each detected MeSH ID in the Relish corpus to the corresponding articles and the identified MeSH term within each article. Then we apply the centroid approach to generate the embedding for each MeSH ID. More specifically, we calculate the centroid of the embeddings of MeSH terms associated with a MeSH ID as the representative embedding for that MeSH ID. Subsequently, we add the computed MeSH embeddings to the list of word embeddings for the respective articles. Finally, we once again employ the centroid approach to generate document-level embeddings. This involves calculating the centroids of word embeddings corresponding to a document, incorporating the word embeddings within the document's title and abstract, along with the appended MeSH embeddings.
+The main objective of this repository is to explore a Hybrid approach combining semantics with document embeddings. The objective is to enhance the representation of biomedical texts by incorporating semantics through the annotation of the RELISH Corpus using the [Medical Subject Headings](https://www.nlm.nih.gov/mesh/meshhome.html) (MeSH) vocabulary. By employing dictionary-based Named Entity Recognition (NER), medical terms are grouped into unified entities, creating a semantic layer that goes beyond plain text. This method evaluates how effectively neural network models capture contextual information when enriched with semantic data.
 
-## Input Data
+The algorithms are categorized based on the order of annotation and embedding generation:
 
-The input data for this method consists of:
-+ preprocessed tokens derived from the RELISH documents. These tokens are stored in the RELISH.npy file, which contains preprocessed arrays comprising PMIDs, document titles, and abstracts. These arrays are generated through an extensive preprocessing pipeline, as elaborated in the [relish-preprocessing repository](https://github.com/zbmed-semtec/relish-preprocessing). Within this preprocessing pipeline, both the title and abstract texts undergo several stages of refinement: structural words are eliminated, text is converted to lowercase, and finally, tokenization is employed, resulting in arrays of individual words.
-+ [dic_MeShIDtoPMID](https://github.com/zbmed-semtec/hybrid-word2doc2vec-doc-relevance-training/tree/main/code/xml_translate) TSV file derived from annotated Relish xml-files by code [generate_Dic_MeShIDtoPMID.py](https://github.com/zbmed-semtec/hybrid-word2doc2vec-doc-relevance-training/blob/main/code/xml_translate/generate_Dic_MeShIDtoPMID.py)
-+ relevance TSV file with four columns [Reference PMID | Assessed PMID | Relevance score (0,1 or 2) | Cosine Similarity] consisting of the three columns of [RELISH ground truth TSV file](https://github.com/zbmed-semtec/relish-preprocessing/blob/main/data/output/relish-ground-truth/RELISH.tsv) and a 4th blank column for Cosine Similarity.
+1. **Pre-annotation**: Embeddings are generated after the text is annotated.
+2. **Post-annotation**: Embeddings are created first, with semantics incorporated afterward.
+3. **Post-reduction Annotation**: Similar to post-annotation, but with an additional focus on reducing redundancy in the data.
+
+Models are trained using a split dataset and evaluated on document-to-document recommendations using metrics like precision@N and nDCG@N.
+
+
+
+# 📂Input Data
+
+For details on the RELISH Corpus, please refer to our [relish-preprocessing](https://github.com/zbmed-semtec/relish-preprocessing) repository, which describes data extraction and processing. Depending on the algorithm, the input data changes:
+
++ **Pre-annotation**: Uses annotated text.
++ **Post-annotation and Post-reduction Annotation**: Use plain text.
+
+
+# 🔀Approaches
+
+We define three approaches: Pre-annotation, Post-annotation, and Post-reduction Annotation.
+
+# 1. Pre-annotation Approach
+
+This approach makes use of the annotated text of the RELISH Corpus and feeds it into the neural network models depending on the chosen model: doc2vec, word2doc2vec, fastText. The annotated data is split into train and test datasets following certain criteria as explained [here](https://github.com/zbmed-semtec/relish-preprocessing?tab=readme-ov-file#splitting-the-data). We train the models using the training dataset, generate embeddings for the test dataset, optimize the best hyperparameter configuration using Optuna, and evaluate the approach using precision@N and nDCG@N evaluation metrics.
+
+The following section explains the input data for this particular approach, the preprocessing steps needed and the entire pipeline. 
+
+## Data Annotation and Preprocessing
+
+The input data for this method consists of annotated XML files generated by the [Whatizit-dictionary-ner](https://github.com/zbmed-semtec/whatizit-dictionary-ner) approach using the [Whatiztit](https://academic.oup.com/bioinformatics/article/24/2/296/227269?login=false) tool. Whatizit is a text processing system that allows you to do text mining tasks on text. Whatizit was created by the Rebholz Research Group at EMBL-EBI. It is based on MONQjfa, a non-deterministic and deterministic dinite automata for Java.  The entire process of annotating text using Whatizit is explained in this repository [documentation](https://github.com/zbmed-semtec/whatizit-dictionary-ner/tree/main/docs). 
+
+
+This is an example of the annotated XML files that act as input for this approach:
+
+```XML
+<?xml version='1.0' encoding='utf-8'?>
+<collection xmlns:z="https://github.com/zbmed-semtec/whatizit-dictionary-ner#">
+    <document>
+        <id>
+            10606228
+        </id>
+        <passage>
+            <infon key="type">
+                title
+            </infon>
+            <offset>
+                0
+            </offset>
+            <text>
+                Spontaneous and <z:mesh cui="C0008904, C0026879" id="http://purl.bioontology.org/ontology/MESH/D009153" semantics="http://purl.bioontology.org/ontology/STY/T131">mutagen</z:mesh>-induced transformation of primary <z:mesh cui="C0243103, C0015033, C0220814" id="http://purl.bioontology.org/ontology/MESH/Q000208" semantics="http://purl.bioontology.org/ontology/STY/T080, http://purl.bioontology.org/ontology/STY/T169">cultures</z:mesh> of Msh2-/- p53-/- colonocytes.
+            </text>
+        </passage>
+        <passage>
+            <infon key="type">
+                abstract
+            </infon>
+            <offset>
+                98
+            </offset>
+            <text>
+                Publication abstract removed for simplicity.
+            </text>
+        </passage>
+    </document>
+</collection>
+```
+
+### Step 1: XML Translation
+
+With this step, the goal is to convert the annotations in the XML files into a MeSH ID. As mentioned before, the input data are annotated XML files. This step is summarized as follows:
+
+1. Loop through every XML file inside the given folder. Optionally, a single file can also be provided. No requisites for the XML file will be specified, since they are expected to be generated using the Whatizit NER approach.
+
+2. Create a `translation_dictionary`, where every term is associated to a MeSH ID.
+
+3. Replace occurrences of a term inside the `translation_dictionary` by their MeSH ID.
+
+4. Store all the translated XML files into a single TSV file with three columns: PMID, title, abstract. Optionally, the files can be individually saved into a TXT.
+
+At the end of this process, we expect to have a TSV file for the dataset with the above mentioned three columns and the medical terms identified by the Whatizit dictionary replaced by their MeSH ID.
+
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>PMID</th>
+      <th>title</th>
+      <th>abstract</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>18394048</td>
+      <td>Effect of MeSHD000077287 on MeSHD000071080: a ...</td>
+      <td>BACKGROUND AND PURPOSE: We studied the effect ...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>18363035</td>
+      <td>A MeSHD016678-wide MeSHD046228 reveals anti-in...</td>
+      <td>OBJECTIVE: Paeony root has long been used for ...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>18366698</td>
+      <td>The MeSHQ000706 of biomedicine, complementary ...</td>
+      <td>BACKGROUND: Studies have shown that a signific...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+Please refer to the [code](./code/data-preprocessing/xml_translate/) and the [main documentation](docs/xml_translate/README.md) for a more detailed explanation and execution instructions of the of XML Translation.
+
+### Step 2: Data preprocessing
+
+The next step is to apply some preprocessing to the publications. This process is split in three different steps:
+
+### i. Structure words removal
+
+Both the [code](https://github.com/zbmed-semtec/relish-preprocessing/tree/main/code/structure-words-removal) and the [documentation](https://github.com/zbmed-semtec/relish-preprocessing/blob/main/code/structure-words-removal/README.md) is located in the [relish-preprocessing repository](https://github.com/zbmed-semtec/relish-preprocessing) since it is a common step in every document-to-document similarity approach. We defined as "Structure words" those terms that are introduced in the text to better structure the abstract. In the table shown above, we can see that, for example, the words "BACKGROUND: " and "OBJECTIVE: " are written at the start of the abstract. These terms do not provide any meaningful information and are not found in every publication and, since in the end we try to measure the similarity between documents, they can artificially increase the similarity of two publications that are not related otherwise.
+
+These structure words usually follow a pattern: most of them are in capital letters (not always), they all end with a colon and an empty space ": " and they are always located at the beginning of a sentence. Using these rules, we developed an algorithm to identify and eliminate them. This step is summarized as follows:
+
+1. Loop through every publication abstract and match a regular expression to find the structure words. At the same time, count in how many publications each structure word appears.
+
+2. Since we are applying a regular expression, some false positives might be found (certain acronyms for example). Since we don't want to remove relevant terms that may follow the regular expression, we apply a minimum frequency of appearance threshold. The standard is to require a matched structure word to appear in at least 0.01% of all publications. We create a [list of these structure words](https://github.com/zbmed-semtec/relish-preprocessing/blob/main/data/output/structure-words/structure_word_list_pruned.txt). It is possible to modify the minimum frequency of appearance by applying a different threshold. More information can be found in the [corresponding documentation](https://github.com/zbmed-semtec/relish-preprocessing/tree/main/docs/structure_words_removal).
+
+
+3. Remove every structure word found in the list.
+
+Example of structure words removal:
+
+<table>
+<tr>
+<th>Abstract Input</th>
+<th>Abstract Output</th>
+</tr>
+<tr>
+<td width="50%">
+<mark>OBJECTIVE: </mark>To describe the development of evidence-based electronic prescribing (e-prescribing) triggers and treatment algorithms for potentially inappropriate medications (PIMs) for older adults. <mark>DESIGN: </mark>Literature review, expert panel and focus group. <mark>SETTING: </mark>Primary care with access to e-prescribing systems. <mark>PARTICIPANTS: </mark>Primary care physicians using e-prescribing systems receiving medication history. <mark>INTERVENTIONS: </mark>Standardised treatment algorithms for clinicians attempting to prescribe PIMs for older patients. <mark>MAIN OUTCOME MEASURE: </mark>Development of 15 treatment algorithms suggesting alternative therapies. <mark>RESULTS: </mark>Evidence-based treatment algorithms were well received by primary care physicians. Providing alternatives to PIMs would make it easier for physicians to change decisions at the point of prescribing. <mark>CONCLUSION: </mark>Prospectively identifying older persons receiving PIMs or with adherence issues and providing feasible interventions may prevent adverse drug events.
+</td>
+<td width="50%">
+To describe the development of evidence-based electronic prescribing (e-prescribing) triggers and treatment algorithms for potentially inappropriate medications (PIMs) for older adults. Literature review, expert panel and focus group. Primary care with access to e-prescribing systems. Primary care physicians using e-prescribing systems receiving medication history. Standardised treatment algorithms for clinicians attempting to prescribe PIMs for older patients. Development of 15 treatment algorithms suggesting alternative therapies. Evidence-based treatment algorithms were well received by primary care physicians. Providing alternatives to PIMs would make it easier for physicians to change decisions at the point of prescribing. Prospectively identifying older persons receiving PIMs or with adherence issues and providing feasible interventions may prevent adverse drug events.
+</td>
+</tr>
+</table>
+
+### ii. Text processing and tokenization
+
+The code for text preprocessing and tokenization can be found in the [relish-preprocessing](https://github.com/zbmed-semtec/relish-preprocessing/tree/main/code/data-preprocessing) repository and is described [here](https://github.com/zbmed-semtec/relish-preprocessing?tab=readme-ov-file#text-preprocessing-for-generating-embeddings). 
+
+However, a specific preprocessing [script](code/preprocess/text-preprocess/preprocess.py) was developed for the hybrid approaches. Instead of using the default phrase preprocessing found in relish-preprocessing repository [here](https://github.com/zbmed-semtec/relish-preprocessing/blob/main/code/data-preprocessing/preprocessing.py), the steps produced in here are particular for the hybrid approaches. The results produced are expected to be the same, but execution time is greatly improved in this approach. The main difference is to not include the biological tokenizer `en_core_sci_lg` from the sciSpacy module, since its use is not recommended for this approach. The summary of the process is as follows:
+
+1. Lower case everything and split by white spaces.
+
+2. Remove every non-alphanumeric character with the exception of the hyphen `-`. The allowed characters can be modified following the documentation.
+
+3. Store the results in a TSV file with the same three columns as before.
+
+An example of the output is:
+
+<table>
+<tr>
+<th>Abstract Input</th>
+<th>Abstract Output</th>
+</tr>
+<tr>
+<td width="50%">
+Despite the high MeSHQ000453 of MeSHD010300, the MeSHQ000503 of its gastrointestinal MeSHQ000175 remains poorly understood. to evaluate MeSHD003679 and defecatory MeSHQ000502 in MeSHD010361 with MeSHD010300 and age- and MeSHD012723-matched MeSHQ000517 and to correlate objective MeSHQ000175 with subjective MeSHQ000175.
+</td>
+<td width="50%">
+despite the high meshq000453 of meshd010300 the meshq000503 of its gastrointestinal meshq000175 remains poorly understood to evaluate meshd003679 and defecatory meshq000502 in meshd010361 with meshd010300 and age- and meshd012723-matched meshq000517 and to correlate objective meshq000175 with subjective meshq000175
+</td>
+</tr>
+</table>
+
+### iii. Data Splitting
+
+Once the text is annotated, preprocessed and tokenized, we split the dataset into a training and a test dataset according to the criteria detailed [here](https://github.com/zbmed-semtec/relish-preprocessing/tree/main?tab=readme-ov-file#splitting-the-data). The splitting process is automated by this [script](https://github.com/zbmed-semtec/relish-preprocessing/blob/main/code/data-splitting/relevancy_matrix.py), which divides the dataset into training and test sets.
 
 ## Pipeline
 
-The following section outlines the process of generating document-level embeddings through hyperparameter optimization, computing the cosine similarity scores and evaluating the given similarity results with the relevance matrix.
+Once the input data is correctly formatted, we proceed to train the neural network models using the training dataset. For the pre-annotation approach, we have defined the following approaches:
 
-### Generate Embeddings
-The following section outlines the process of generating document-level embeddings out of word-level embeddings for each PMID of the RELISH corpus.
++ [`hybrid-pre-word2doc2vec`](code/word2doc2vec/pre)
++ [`hybrid-pre-wmd-word2vec`](code/wmd-word2vec/pre)
++ [`hybrid-pre-doc2vec`](code/doc2vec/pre)
++ [`hybrid-pre-fastText`](code/fasttext/pre)
 
-#### Using Trained Word2Vec models
-We construct Word2Vec models with customizable hyperparameters. We employ the parameters shown below in order to generate our models.
-##### Parameters
+Each approach has a dedicated directory within the `./code/` folder, containing the necessary files and documentation for execution. Detailed instructions for running each approach can be found within their respective folders.
 
-+ **sg:** {1,0} Refers to the training algorithm. If sg=1, skim grams is used otherwise, continuous bag of words (CBOW) is used.
-+ **vector_size:** It represents the number of dimensions our embeddings will have.
-+ **window:** It represents the maximum distance between the current and predicted word.
-+ **epochs:** It is the nuber of iterations of the training dataset.
-+ **min_count:** It is the minimum number of appearances a word must have to not be ignored by the algorithm.
+------------------------------------
+------------------------------------
 
-#### Hyperparameters
-The hyperparameters can be modified in [`hyperparameters_word2vec.json`](./data/hyperparameters_word2vec.json)
-#### Using Pre-trained Word2Vec models
-By default, we make use of the Gensim Word2Vec model "word2vec-google-news-300" to generate pre-trained word embeddings.
-#### Document Embeddings
-Document embeddings are created by computing the centroids of all provided word embeddings within each title and abstract document. The resulting embeddings generated from various model hyperparameter configurations are stored. These embeddings, along with their respective PMIDs, are saved as a dataframe in a pickle file. Each specific set of hyperparameter combination results in having a separate pickle file.
 
-### Calculate Similarity Score
+# 2. Post-annotation Approach
 
-To assess the similarity between two documents within the RELISH corpus, we employ either the [Cosine Similarity](https://github.com/zbmed-semtec/medline-preprocessing/tree/main/code/Cosine_Similarity) metric or [WMD (Word Mover’s Distance)](./docs/WMD.md). This process enables the generation of a 4-column matrix cthat includes similarity scores for pre-existing pairs of PMIDs within our corpus, along with their corresponding relevance scores.
+The hybrid post-annotation approach is a method that combines traditional word embeddings with semantic information from a structured vocabulary—in this case, MeSH (Medical Subject Headings) terms—to enhance the context captured by the model. This approach is implemented in two main stages: training and testing.
 
-## Evaluation
+**Training Phase:** Initially, the model is trained on the raw text data (titles and abstracts) to generate embeddings. These embeddings capture the context of words based on their co-occurrence in the corpus. After the initial embeddings are generated, the model is enhanced by incorporating semantic information. Specifically, MeSH terms that appear in the training documents are identified, and the corresponding MeSH IDs are used to compute new embeddings. These embeddings are calculated as the centroid (average) of the embeddings of words associated with each MeSH term. The computed MeSH embeddings are then integrated into the Word2Vec model, associating them with the respective MeSH IDs.
 
-### Precision@N
+**Testing Phase:** During testing, the trained model is applied to new data (test documents). The process involves identifying MeSH terms in the new documents and appending the corresponding MeSH IDs as tokens within the text. This allows the model to recognize and utilize these MeSH terms during the generation of embeddings, ensuring that the semantic context provided by MeSH terms is factored into the final document representations.
 
-In order to evaluate the effectiveness of this approach, we make use of Precision@N. Precision@N measures the precision of retrieved documents at various cutoff points (N).We generate a Precision@N matrix for existing pairs of documents within the RELISH corpus, based on the original RELISH JSON file. The code determines the number of true positives within the top N pairs and computes Precision@N scores. The result is a Precision@N matrix with values at different cutoff points, including average scores. For detailed insights into the algorithm, please refer to this [documentation](https://github.com/zbmed-semtec/medline-preprocessing/tree/main/code/Precision%40N_existing_pairs).
+The following section explains the input data for this particular approach, the preprocessing steps needed and the entire pipeline. 
 
-### nDCG@N
+## Data Preprocessing and Dictionary Creation
 
-Another metric used is the nDCG@N (normalized Discounted Cumulative Gain). This ranking metric assesses document retrieval quality by considering both relevance and document ranking. It operates by using a TSV file containing relevance and cosine similarity scores, involving the computation of DCG@N and iDCG@N scores. The result is an nDCG@N matrix for various cutoff values (N) and each PMID in the corpus, with detailed information available in the [documentation](https://github.com/zbmed-semtec/medline-preprocessing/tree/main/code/Evaluation).
+The post-annotation approach relies heavily on properly prepared data inputs, which include:
 
-## Code Implementation
++ **[mesh_to_pmid_dict.tsv](data/mesh_to_pmid_dict.tsv)**: This TSV file is derived from the annotated RELISH XML files and plays a central role in the approach. It contains a detailed dictionary that maps MeSH terms to their corresponding document IDs (PMIDs) and lists of tokenized words found in those documents. This structured format allows the model to integrate MeSH-specific embeddings effectively.
++ **RELISH Preprocessed tokens:** Preprocessed tokens derived from the RELISH documents. These tokens are stored in the RELISH.npy file, which contains preprocessed arrays comprising of PMIDs, document titles, and abstracts. These arrays are generated through an extensive preprocessing pipeline, as elaborated in the [relish-preprocessing repository](https://github.com/zbmed-semtec/relish-preprocessing). Within this preprocessing pipeline, both the title and abstract texts undergo several stages of refinement: structural words are eliminated, text is converted to lowercase, and finally, tokenization is employed, resulting in arrays of individual words.
 
-The [`generate_doc_embeddings_after_injection_MeSHembeddings.py`](./code/generate_doc_embeddings_after_injection_MeSHembeddings.py) script uses the RELISH Tokenized npy file as input and supports the generation and training of Word2Vec models, generation of embeddings and saving the embeddings as pickle files.
+### Step 1: Dictionary Creation
+The input data for this step are the annotated RELISH XML files. Similar to the XML Translation stage for Pre-annotation approach, here we create a dictionary by parsing throught the annotated RELISH XML files, list down the MESH IDs, their occurences in every document and the tokenized words that represent the MeSH terms. The TSV file consists of two columns: MeSHID and Appearance (pmid, tokenized lowercase words).
 
-The script comprises the following steps:
+The small subset of the dictionary TSV file looks as follows:
 
-+ Generate word embeddings via Word2vec module of Gensim Python library.
-+ Compute the embeddings of MeSHIDs via centroid of the corresponding MeSH-terms’ embeddings.
-+ Post-annotation: Append the computed MeSH-embeddings to the list of word embeddings of the corresponding articles.
-    - In case of reduction:
-        - If the word forming an identified MeSH term is not present in the pre-annotated tokens : Delete the word from the corresponding article’ s words. By doing so, we take the independent presence of each word into account.
-+ Compute document embeddings via centroid method.
-+ Store the generated document embeddings and the corresponding Word2vec model.
+<table>
+<tr>
+<th>MeSHID</th>
+<th>Appearance (pmid , tokenized lowercase words)</th>
+</tr>
+<tr>
+<td width="20%">
+MeSHD059907
+</td>
+<td width="80%">
+[[29720819, 'functional', 'neuroimaging'], [29733250, 'functional', 'brain', 'imaging']]
+</td>
+</tr>
+<tr>
+<td width="20%">
+MeSHD054638
+</td>
+<td width="80%">
+[[22339770, 'mapk', 'phosphatase'], [22525239, 'mapk', 'phosphatase'], [23560844, 'mapk', 'phosphatase'], [24615402, 'map', 'kinase', 'phosphatase', '1'], [24615402, 'dual', 'specificity', 'phosphatase', '1'], [25220640, 'dual-specificity', 'phosphatase', '1'], [25667269, 'phosphatase', ',', 'mkp1'], [29234123, 'dual-specificity', 'phosphatase', '1'], [29362237, 'mapk', 'phosphatase']]</td>
+</tr>
+<tr>
+<td width="20%">
+MeSHD020079
+</td>
+<td width="80%">
+[[29304730, 'long', 'terminal', 'repeat'], [29467795, 'long-terminal', 'repeat']]
+</td>
+</tr>
+</table>
 
-Subsequently, the stored document embeddings are utilized for calculating cosine similarities, while the trained Word2vec model is loaded to compute the WMD score using its Gensim implementation.
+The code and the documentation for creating the dictionary can be found within this [folder](./code/preprocess/dictionary_creation/).
 
-The concept behind the 'reduction' case involves substituting the embeddings of each word comprising a MeSH term with the computed embedding of that particular MeSH term. However, it's also essential to consider the independent presence of every word. To achieve this, we leverage tokens from pre-annotated articles: if a word doesn't appear in the pre-annotated tokens of an article, we can infer that its sole presence is within a MeSH term, allowing us to remove it from the article's words.
+### Step 2: Text Preprocessing
 
-## Getting Started
+The input data for this method consists of preprocessed tokens of RELISH Corpus generated by the pipeline as detailed in the [relish-preprocessing](https://github.com/zbmed-semtec/relish-preprocessing) repository. The pipeline consists of both the title and abstract of the documents undergoing removal of structural words, structural words are eliminated, text is converted to lowercase, and finally, tokenization is employed. The preprocessed tokens are stored as arrays in a .npy file.
 
-To get started with this project, follow these steps:
+### Step 3: Data Splitting
 
-### Step 1: Clone the Repository
+Once the text is preprocessed and tokenized, we split the dataset into a training and a test dataset according to the criteria detailed [here](https://github.com/zbmed-semtec/relish-preprocessing/tree/main?tab=readme-ov-file#splitting-the-data). The splitting process is automated by this [script](https://github.com/zbmed-semtec/relish-preprocessing/blob/main/code/data-splitting/relevancy_matrix.py), which divides the dataset into training and test sets.
 
-First, clone the repository to your local machine using the following command:
+## Pipeline
 
-###### Using HTTP:
+With the input data correctly formatted and the TSV dictionary in place, the next step is to train the neural network models using the training dataset. For the hybrid post-annotation approach, several specific approaches have been defined, each with its own dedicated directory and instructions for execution. These include:
 
-```
-git clone https://github.com/zbmed-semtec/hybrid-post-word2doc2vec-doc-relevance-training.git
-```
++ [`hybrid-post-word2doc2vec`](code/word2doc2vec/post)
++ [`hybrid-post-wmd-word2vec`](code/wmd-word2vec/post)
++ [`hybrid-post-fastText`](code/fasttext/post)
 
-###### Using SSH:
-Ensure you have set up SSH keys in your GitHub account.
+Each of these approaches uses the preprocessed tokens and the dictionary created from the TSV file to generate embeddings that incorporate both the raw text and the semantic information provided by MeSH IDs. 
 
-```
-git clone git@github.com:zbmed-semtec/hybrid-post-word2doc2vec-doc-relevance-training.git
-```
 
-### Step 2: Create a Virtual Environment and Install Dependencies
+------------------------------------
+------------------------------------
 
-To create a virtual environment within your repository, run the following command:
+# 3. Postreduction-annotation Approach
 
-```
-python3 -m venv .venv 
-source .venv/bin/activate   # On Windows, use '.venv\Scripts\activate' 
-```
+The postreduction-annotation approach is a method designed to integrate traditional word embeddings with semantic information from a structured vocabulary—in this case, MeSH (Medical Subject Headings) terms - by replacing specific MeSH terms in the text with their corresponding MeSH IDs, instead of merely appending them. 
 
-To confirm if the virtual environment is activated and check the location of yourPython interpreter, run the following command:
+**Training Phase:** In the training phase, the model is first trained on raw text data (titles and abstracts) to generate initial word embeddings. These embeddings capture the context of words based on their co-occurrence patterns in the training corpus. After generating the initial embeddings, the model is further enhanced by incorporating semantic information from MeSH terms. Specifically, for each MeSH term that appears in the training documents, the corresponding MeSH ID is identified. The model then calculates new embeddings for these MeSH IDs as the centroid (average) of the embeddings of words associated with each MeSH term. These computed MeSH embeddings are integrated into the Word2Vec model, associating them directly with the respective MeSH IDs, effectively embedding the semantic information into the model.
 
-```
-which python    # On Windows command prompt, use 'where python'
-                # On Windows PowerShell, use 'Get-Command python'
-```
-The code is stable with python 3.6 and higher. The required python packages are listed in the requirements.txt file. To install the required packages, run the following command:
+**Testing Phase:** During the testing phase, the trained model is applied to new data (test documents). The process differs from the post-annotation approach by directly replacing the MeSH terms in the test documents with their corresponding MeSH IDs rather than simply appending the MeSH IDs to the text. This replacement ensures that the model processes the standardized MeSH IDs directly, rather than the varied natural language terms. By doing so, the semantic context provided by the MeSH terms is fully integrated into the generation of document embeddings.
 
-```
-pip install -r requirements.txt
-```
+The following section explains the input data for this particular approach, the preprocessing steps needed and the entire pipeline. 
 
-To deactivate the virtual environment after running the project, run the following command:
+## Data Preprocessing and Dictionary Creation
 
-```
-deactivate
-```
+The postreduction-annotation approach also relies heavily on properly prepared data inputs, which include:
 
-### Step 3: Generate Embeddings
 
-It supports the training of the Word2vec module of the Gensim Python library and the generation of document embeddings.
++ **[mesh_to_pmid_dict.tsv](data/mesh_to_pmid_dict.tsv)**: This TSV file is derived from the annotated RELISH XML files and plays a central role in the approach. It contains a detailed dictionary that maps MeSH terms to their corresponding document IDs (PMIDs) and lists of tokenized words found in those documents. This structured format allows the model to integrate MeSH-specific embeddings effectively.
 
- **3.1 Simply injecting new embeddings without removing/replacing the previously identified MeSH words (i.e. No Reduction):**
- 
-The [`generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction.py`](./code/generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction.py) script uses the RELISH Tokenized npy file as input and includes a default parameter json with preset hyperparameters. You can easily adapt it for different values and parameters by modifying the [`hyperparameters_word2vec.json`](./data/hyperparameters_word2vec.json). Make sure to have the RELISH Tokenized.npy file within the directory under the data folder.
++ **RELISH Preprocessed tokens:** Preprocessed tokens derived from the RELISH documents. These tokens are stored in the RELISH.npy file, which contains preprocessed arrays comprising of PMIDs, document titles, and abstracts. These arrays are generated through an extensive preprocessing pipeline, as elaborated in the [relish-preprocessing repository](https://github.com/zbmed-semtec/relish-preprocessing). Within this preprocessing pipeline, both the title and abstract texts undergo several stages of refinement: structural words are eliminated, text is converted to lowercase, and finally, tokenization is employed, resulting in arrays of individual words.
 
-```
-python3 code/generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction.py [-i INPUT PATH] [-o OUTPUT PATH] [-pj PARAMS JSON] [-up USE PRETRAINED] [-dict MeShIDtoPMID]
-```
+### Step 1: Dictionary Creation
 
-You must pass the following arguments:
+This step mirrors the process in the post-annotation approach, where a dictionary is created from the annotated RELISH XML files to map MeSH terms to PMIDs and tokenized words.
 
-+ -i/ --input : File path to the RELISH tokenized .npy file.
-+ -o/ --output : File path to the resulting embeddings in pickle file format and the corresponding model.
-+ -pj/ --params_json : File path to the word2vec hyperparameters JSON.
-+ -up/ --use_pretrained : Whether to use a pretrained Word2Vec model (1) or not (0), uses word2vec-google-news-300 if True.
-+ -dict/ --MeShIDtoPMID : File path to input MeShIDtoPMID .tsv file.
+The code and documentation for creating this dictionary are available in this [folder](./code/preprocess/dictionary_creation/).
 
-For example, to run this script, you may execute the following command:
+### Step 2: Text Preprocessing
 
-```
-python3 code/generate_doc_embeddings_after_injection_MeSHembeddings_no_Reduction.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy --output data/ --params_json data/hyperparameters_word2vec.json --use_pretrained 0 --MeShIDtoPMID data/dic_MeShIDtoPMID_2022628.tsv
-```
+The text preprocessing step is identical to that in the post-annotation approach, involving the removal of structural words, conversion to lowercase, and tokenization to prepare the text data for the model.
 
-**3.2 Introducing new embeddings while optionally removing/replacing the previously identified MeSH words (i.e. either with or without Reduction):**
+### Step 3: Data Splitting
 
-The [`generate_doc_embeddings_after_injection_MeSHembeddings.py`](./code/generate_doc_embeddings_after_injection_MeSHembeddings.py) script uses as input not only the RELISH Tokenized npy file but also annotated-counterpart of the input tokens, i.e. RELISH annotated Tokenized npy file, in order to account for individual words of a MeSH term, which also appear independently in the text of the corresponding articles. Specifically when using reduction, the pre-annotated articles'documents can be utilized to check for the independent appearance of MeSH-terms' words. Then (when reduction and) in case of independent appearance, the word is not removed from the article's words, hence its embedding is not replaced by the newly computed embedding. This is due to the fact that we do want to take the independent presence of all words into account, hence if a word does not appear in pre-annotated tokens of an article we can be sure that the only presence of that word belongs to its presence in a MeSH term. Put differently, in case of reduction we substitute the embeddings of every word that constitutes a MeSH term (and only appears in the form of a MeSH term) with the computed embedding of that specific MeSH term.
+Similarly, the data splitting process follows the same methodology as in the post-annotation approach, dividing the dataset into training and test sets according to predefined criteria.
 
-```
-python3 code/generate_doc_embeddings_after_injection_MeSHembeddings.py [-i INPUT PATH] [-annoti ANNOTATED TOKENS] [-o OUTPUT PATH] [-pj PARAMS JSON] [-up USE PRETRAINED] [-dict MeShIDtoPMID] [-rd REDUCTION OR NOT]
-```
+## Pipeline
 
-You must pass the following arguments:
 
-+ -i/ --input : File path to the RELISH tokenized .npy file.
-+ -annoti/ --Annot_input : File path to input Annotated RELISH tokenized .npy file.
-+ -o/ --output : File path to the resulting embeddings in pickle file format and the corresponding model.
-+ -pj/ --params_json : File path to the word2vec hyperparameters JSON.
-+ -up/ --use_pretrained : Whether to use a pretrained Word2Vec model (1) or not (0), uses word2vec-google-news-300 if True.
-+ -dict/ --MeShIDtoPMID : File path to input MeShIDtoPMID .tsv file.
-+ -rd/ --reduction : Whether to reduce the documents'words by replacing the catalogued ones with corresponding MeSHID (1) or not (0).
+With the input data correctly formatted and the TSV dictionary in place, the next step is to train the neural network models using the training dataset. For the hybrid post-annotation approach, several specific approaches have been defined, each with its own dedicated directory and instructions for execution. These include:
 
-For example, to run this script, you may execute the following command:
++ [`hybrid-postreduction-word2doc2vec`](code/word2doc2vec/postreduction)
++ [`hybrid-postreduction-wmd-word2vec`](code/wmd-word2vec/postreduction)
++ [`hybrid-postreduction-fastText`](code/fasttext/postreduction)
 
-```
-python3 code/generate_doc_embeddings_after_injection_MeSHembeddings.py --input data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy -annoti data/RELISH/Tokenized_Input/RELISH_Annot_Tokens_Sample.npy --output data/ --params_json data/hyperparameters_word2vec.json --use_pretrained 0 --MeShIDtoPMID data/dic_MeShIDtoPMID_2022628.tsv -rd 1
-```
+Each approach has a dedicated directory within the `./code/` folder, containing the necessary files and documentation for execution. Detailed instructions for running each approach can be found within their respective folders.
 
-Both scripts will create document embeddings, and store them and the corresponding model in separate directories. You should expect to find a total of 18 directories corresponding to the various models and embeddings.
 
-### Step 4: Calculate Similarity Score
+# 🌐Algorithms
 
-We employ either the Cosine Similarity metric or WMD (Word Mover’s Distance) score.
+## 1. Word2doc2vec
+The Word2Doc2Vec approach leverages [Word2Vec](https://arxiv.org/pdf/1310.4546) to capture the semantic meaning of words and produce word embeddings. In this method, individual word vectors are averaged to create a centroid representation for each document. This centroid approach aggregates the word embeddings into a cohesive document-level vector, enabling a better comparison of documents based on their titles and abstracts. We make use of both the variants of Word2Vec: Skip-gram (SG) model, which predicts context words from a given target word, or the Continuous Bag of Words (CBOW) model, which predicts the target word based on surrounding context words. 
 
-#### 4.1 Cosine Similarity
+## 2. Doc2vec
+[Doc2Vec](https://arxiv.org/pdf/1405.4053v2) is an extension of the Word2Vec model, specifically designed to generate vector representations for entire documents rather than individual words. It achieves this by incorporating the context of words within a document, along with a unique document identifier, to learn distributed representations of documents in a continuous vector space. We make use of both the variants of Doc2Vec: the Distributed Memory (DM) model and the Distributed Bag of Words (DBOW) model. The DM model predicts a target word based on both its context words and the document vector, effectively capturing the semantic meaning of the entire document. In contrast, the DBOW model predicts context words directly from the document vector, which focuses more on global document-level information. 
 
-The stored document embeddings are utilized for calculating cosine similarities. In order to generate the cosine similarity matrix and execute this [script](./code/generate_cosine_existing_pairs.py), run the following command:
 
-```
-python3 code/generate_cosine_existing_pairs.py [-i INPUT PATH] [-e EMBEDDINGS] [-o OUTPUT PATH] [-c DOC EMBEDDINGS COUNT]
-```
+## 3. WMD-Word2vec
+WMD-Word2Vec utilizes [Word2Vec](https://arxiv.org/pdf/1310.4546) to generate word embeddings, incorporating both its variants: the Skip-gram (SG) model, which predicts context words based on a given target word, and the Continuous Bag of Words (CBOW) model, which predicts the target word from its surrounding context words. After training the Word2Vec model, we apply Word Mover's Distance (WMD) to evaluate the semantic similarity between documents, using the word embeddings to measure the distance between word vectors across different documents.
 
-You must pass the following four arguments:
+## 4. fastText
+[fastText](https://fasttext.cc/) improves word embeddings by decomposing words into character n-grams, enabling the model to capture subword information and better handle out-of-vocabulary terms. In our approach, we utilize FastText to create comprehensive word embeddings for document titles and abstracts. These word embeddings are then aggregated into document-level representations using a centroid method. Additionally, we leverage both FastText variants: the Continuous Bag of Words (CBOW) model, which predicts target words from context, and the Skip-gram model, which predicts context words from a given target word. 
 
-+ -i/ --input : File path to the RELISH relevance matrix in the TSV format.
-+ -e/ --embeddings : File path to the embeddings in the pickle file format.
-+ -o/ --output : File path for the output 4 column cosine similarity matrix.
-+ -c/ --doc_embeddings_count : Number of document embeddings generated to be evaluated on the cosine similarity matrix.
+# 🚀Getting Started
 
-For example, if you are running the code from the code folder and have the RELISH relevance matrix in the data folder, run the cosine matrix creation for all hyperparameters as:
+To begin using this project, follow the instructions outlined for your chosen approach. The necessary code and execution guidelines are organized into distinct folders within the [`code`](./code) folder:
 
-```
-python3 code/generate_cosine_existing_pairs.py -i data/relevance_w2v_blank.tsv -e data/ -o data/w2v_relevance -c 18
-```
+**[word2doc2vec](code/word2doc2vec/)**: Includes scripts for pre, post, and post-reduction approaches.
 
-#### 4.2 WMD Score
+**[doc2vec](code/doc2vec)**: Contains the implementation for the pre-annotation approach.
 
-we use Gensim implementation of WMD which requires to load the trained Word2Vec model.
+**[wmd-word2vec](code/wmd-word2vec/)**: Provides code for pre, post, and post-reduction approaches.
 
-**4.2.1 No Reduction:**
+**[fasttext](code/fasttext/)**: Features implementations for pre, post, and post-reduction approaches.
 
-In order to generate the WMD score matrix and execute this [script](./code/generate_wmd_similarity.py), run the following command:
+**[preprocess](code/preprocess/)**: Contains all preprocessing scripts and instructions.
 
-```
-python3 code/generate_wmd_similarity.py [-i INPUT PATH] [-dict MeShIDtoPMID] [-r RELEVANCE MATRIX] [-mod MODELS DIRECTORY] [-o OUTPUT PATH] [-c MODELS COUNT]
-```
+Navigate to the relevant folder to access the specific code and detailed instructions for executing each approach.
 
-You must pass the following four arguments:
 
-+ -i/ --input : File path to input RELISH tokenized npy file.
-+ -dict/ --MeShIDtoPMID : Path to input MeShIDtoPMID .tsv file.
-+ -r/ --rel_matrix: File path to the RELISH relevance matrix in the TSV format.
-+ -mod/ --models_dir: help="File path to the folder containing models.
-+ -o/ --output : File path for the output 4 column WMD distance matrix.
-+ -c/ --models_count : Number of word2vec models that have been created to be evaluated on the WMD distance matrix.
-
-For example, if you are running the code from the code folder and have the RELISH relevance matrix in the data folder, run the WMD creation for all hyperparameters as:
-
-```
-python3 code/generate_wmd_similarity.py -i data/RELISH/Tokenized_Input/RELISH_Tokenized_Sample.npy -dict data/dic_MeShIDtoPMID_2022628.tsv -r data/relevance_w2v_blank.tsv -mod data/ -o data/wmd_distance/w2v_relevance -c 18
-```
-
-**4.2.2 With Reduction:**
-
-In order to generate the WMD distance matrix and execute this [script](./code/generate_wmd_similarity_with_reduction.py), run the following command:
-
-```
-python3 code/generate_wmd_similarity_with_reduction.py [-i INPUT PATH] [-r RELEVANCE MATRIX] [-mod MODELS DIRECTORY] [-o OUTPUT PATH] [-c MODELS COUNT]
-```
-
-You must pass the following four arguments:
-
-+ -i/ --input : File path to input RELISH annotated tokenized npy file.
-+ -r/ --rel_matrix: File path to the RELISH relevance matrix in the TSV format.
-+ -mod/ --models_dir: help="File path to the folder containing models.
-+ -o/ --output : File path for the output 4 column WMD distance matrix.
-+ -c/ --models_count : Number of word2vec models that have been created to be evaluated on the WMD distance matrix.
-
-**Note that the input file must be the annotated-counterpart of the input tokens to [`generate_doc_embeddings_after_injection_MeSHembeddings.py`](./code/generate_doc_embeddings_after_injection_MeSHembeddings.py).**
-
-Also, **it is crucial to verify that the prefixes used for annotation in the pre-annotated tokenized npy file match those utilized in this repository. Otherwise, the annotated words may not be recognized by the trained word2vec model, and the resulting embeddings for MeSH terms will not contribute to the computation of WMD scores.** This [notebook](./docs/Check_prefix_of_annotated_terms.ipynb) can be utilized for a quick verification and in case of different prefixes, this [code](./code/meshd_to_MeSHD.py) can be utilized to change annotated-terms' prefixes from meshd/meshq/meshc/meshu to MeSHD/MeSHQ/MeSHC/MeSHU in the pre-annotated tokenized npy file and save the new npy file. For instance, here the npy file creating via substitution of meshd/meshq/meshc/meshu with MeSHD/MeSHQ/MeSHC/MeSHU in [RELISH_Annot_Tokens_Sample.npy](./data/RELISH/Tokenized_Input/RELISH_Annot_Tokens_Sample.npy) by code [meshd_to_MeSHD.py](./code/meshd_to_MeSHD.py) is called [RELISH_Annot_Tokens_Sample_meshd_to_MeSHD.npy](./data/RELISH/Tokenized_Input/RELISH_Annot_Tokens_Sample_meshd_to_MeSHD.npy).
-
-As an example, if you are running the code from the code folder and have the RELISH relevance matrix in the data folder, run the WMD creation for all hyperparameters as:
-
-```
-python3 code/generate_wmd_similarity_with_reduction.py -i data/RELISH/Tokenized_Input/RELISH_Annot_Tokens_Sample_meshd_to_MeSHD.npy -r data/relevance_w2v_blank.tsv -mod data/ -o data/wmd_distance/w2v_relevance -c 18
-```
-
-### Step 5: Precision@N
-In order to calculate the Precision@N scores and execute this [script](/code/precision.py), run the following command:
-
-```
-python3 code/precision.py [-c COSINE FILE PATH]  [-o OUTPUT PATH]
-```
-
-You must pass the following two arguments:
-
-+ -c/ --cosine_file_path: path to the 4-column cosine similarity existing pairs RELISH file: (tsv file)
-+ -o/ --output_path: path to save the generated precision matrix: (tsv file)
-
-For example, if you are running the code from the code folder and have the cosine similarity TSV file in the data folder, run the precision matrix creation for the first hyperparameter as:
-
-```
-python3 code/precision.py -c data/w2v_relevance_0.tsv -o data/w2v_precision_0.tsv
-```
-
-
-### Step 6: nDCG@N
-In order to calculate nDCG scores and execute this [script](/code/calculate_gain.py), run the following command:
-
-```
-python3 code/calculate_gain.py [-i INPUT]  [-o OUTPUT]
-```
-
-You must pass the following two arguments:
-
-+ -i / --input: Path to the 4 column cosine similarity existing pairs RELISH TSV file.
-+ -o/ --output: Output path along with the name of the file to save the generated nDCG@N TSV file.
-
-For example, if you are running the code from the code folder and have the 4 column RELISH TSV file in the data folder, run the matrix creation for the first hyperparameter as:
-
-```
-python3 code/calculate_gain.py -i data/w2v_relevance_0.tsv -o data/w2v_ndcg_0.tsv
-```
-
-## Phase II - Split Dataset Training
-
-This pipeline aims to optimize hyperparameters for hybrid post(reduction) Word-2Doc-2Vec approach using [Optuna](https://optuna.readthedocs.io/en/stable/faq.html). During the validation process, Word-2Doc-2Vec models are trained using suggested hyperparameter sets by Optuna, and Optuna evaluates their performance using three-class precision at 5 (Precision@5).
-
-For detailed information regarding hybrid-post-Word2Doc2Vec and hybrid-postreduction-Word2Doc2Vec, please refer to directory [training](./training)
-
-For detailed information regarding hybrid-post-WMD-Word2Vec and hybrid-postreduction-WMD-Word2Vec, please refer to directories [training-post-WMD](./training-post-WMD) and [training-PostReduction-WMD](./training-PostReduction-WMD), respectively.
-
-## Tutorial
-A [tutorial](./docs/Tutorial.ipynb) is accessible in the form of Jupyter notebook for the generation of embeddings.
+## ⚠️NOTE
+The datasets for this project are downloaded using the [Download_Dataset.sh](./Download_Dataset.sh) script. When running the script, ensure that you comment the lines not corresponding to the dataset of the approach you are using.
