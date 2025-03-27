@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15094064.svg)](https://doi.org/10.5281/zenodo.15094064)
+
 # Hybrid-doc-relevance-training
 This repository explores various **hybrid embedding approache**s** for assessing literature-based document-2-document recommendations by integrating semantics using the **RELISH corpus**. We explore  three different algorithms: **pre-annotation**, **post-annotation**, and **post-reduction annotation**. Each algorithm uses different models such as **Doc2Vec**, **Word2Vec**, and **FastText**. Below, you’ll find detailed explanations of each approach, along with input data preprocessing and execution instructions.
 
