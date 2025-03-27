@@ -99,6 +99,43 @@ def generate_npy_dict(filepath_in: str=None)->dict:
     
     return article_docs_dict
 
+def assess_vocab(model: Word2Vec, docs_dict: dict):
+    """
+    Assess OOV words and unique OOV words within the test dataset.
+
+    Parameters
+    ----------
+    model: Word2Vec
+        Word2Vec model.
+    docs_dict:
+        A dictionary of PMID as keys and title + abstract as values
+    """
+    vocab_dict = {}
+    total_missing_words = 0
+    unique_missing_words = set()
+
+    for pmid, words in docs_dict.items():
+        vocab_dict[pmid] = {}
+        total_words = len(words)
+        missing_words = 0 
+            
+        for word in words:
+            is_in_model = word in model.wv
+            vocab_dict[pmid][word] = is_in_model
+            if not is_in_model:
+                missing_words += 1
+                unique_missing_words.add(word)
+            
+        vocab_dict[pmid]['total_words'] = total_words
+        vocab_dict[pmid]['missing_words'] = missing_words
+
+        total_missing_words += missing_words
+
+    logging.info(f"Overall Missing Words Across All Documents: {total_missing_words}")
+    logging.info(f"Unique Missing Words: {len(unique_missing_words)}")
+
+    return vocab_dict
+
 # Store test/validation Relish tokens in a dictionary with keys PMIDs after Post-processing the documnets' tokens to find 
 # MeSH-terms in data and to replace MeSH-terms with the corresponding MeSHIDs
 def generate_post_npy_dict_via_injection_MeSHIDs_into_tokens(filepath_in: str, MeShIDtoPMID: str)->dict:

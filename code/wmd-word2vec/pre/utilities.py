@@ -131,6 +131,43 @@ def saveWord2VecModel(model: Word2Vec, output_file: str) -> None:
     """
     model.save(output_file)
 
+def assess_vocab(model: Word2Vec, docs_dict: dict):
+    """
+    Assess OOV words and unique OOV words within the test dataset.
+
+    Parameters
+    ----------
+    model: Word2Vec
+        Word2Vec model.
+    docs_dict:
+        A dictionary of PMID as keys and title + abstract as values
+    """
+    vocab_dict = {}
+    total_missing_words = 0
+    unique_missing_words = set()
+
+    for pmid, words in docs_dict.items():
+        vocab_dict[pmid] = {}
+        total_words = len(words)
+        missing_words = 0 
+            
+        for word in words:
+            is_in_model = word in model.wv
+            vocab_dict[pmid][word] = is_in_model
+            if not is_in_model:
+                missing_words += 1
+                unique_missing_words.add(word)
+            
+        vocab_dict[pmid]['total_words'] = total_words
+        vocab_dict[pmid]['missing_words'] = missing_words
+
+        total_missing_words += missing_words
+
+    logging.info(f"Overall Missing Words Across All Documents: {total_missing_words}")
+    logging.info(f"Unique Missing Words: {len(unique_missing_words)}")
+
+    return vocab_dict
+
 def get_WMD_distance(model: Word2Vec, document1: list, document2: list):
     
     """
@@ -148,6 +185,7 @@ def get_WMD_distance(model: Word2Vec, document1: list, document2: list):
     float
         WMD distance.
     """
+
     return model.wv.wmdistance(document1, document2)
 
 def get_WMD_similarity_scores(input_relevance_matrix: str, model: Word2Vec, docs_dict:dict) -> pd.DataFrame:

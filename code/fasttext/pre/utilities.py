@@ -210,6 +210,7 @@ def generate_document_embeddings(model: FastText, pmids: str, article_doc: list)
                 total_unique_set_missing_words.append(word)
         # Generate document embeddings from word embeddings using word-vector centroids.
         logging.info(f"OOV words for {pmids[iteration]}: {missing_words} from a total of {word_count} words")
+        word_count = 0
         
         if len(embedding_list) == 0:
             logging.info(f"No word embeddings found for this document: {iteration} , {pmids[iteration]}")

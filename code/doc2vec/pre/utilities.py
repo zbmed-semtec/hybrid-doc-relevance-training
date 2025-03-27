@@ -84,7 +84,8 @@ def createDoc2VecModel(pmids: List[str], docs: List[List[str]], params: dict) ->
     model.train(tagged_data, total_examples=model.corpus_count,
                 epochs=model.epochs)
     
-    logging.info(f"Dataset vocabulary size: {model.wv.vectors.shape}")
+    logging.info(f"Dataset vocabulary size (words): {model.wv.vectors.shape}")
+    logging.info(f"Dataset vocabulary size (docs): {model.dv.vectors.shape}")
     return model
 
 # Save the Doc2Vec Model

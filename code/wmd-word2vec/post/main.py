@@ -104,7 +104,8 @@ if __name__ == "__main__":
 
     # 10) Store Relish Post-processed/annotated tokens in a dictionary with keys PMIDs
     test_article_post_annot_docs_dict = utilities.generate_post_npy_dict_via_injection_MeSHIDs_into_tokens(args.test, args.MeShIDtoPMID)
-        
+    utilities.assess_vocab(model, test_article_post_annot_docs_dict)
+    
     # 11) Generate WMD similarity: pd.DataFrame 
     test_similarity_df = utilities.get_WMD_similarity_scores(args.test_ground_truth, model, test_article_post_annot_docs_dict)
     
